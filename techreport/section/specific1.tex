@@ -2,7 +2,15 @@
 \begin{document}
 \section{Specific Contribution 1}
 \label{sec:specific1}
-In this section, we \ldots
+In this section, we \ldots \\
+\noindent {\bf Reduction:} If graph $G = (V, E)$ contains a vertex $v$ such that the neighborhood of $v$, denoted $N(v)$, forms a clique, then the closed neighborhood of v, $N[v]$, can be removed from $G$ as a clique to form reduced graph $G'$. \\ \\
+\noindent {\bf Proposition:} The reduction is safe.
+\begin{proof}
+	Let $C = \{c_1, c_2, \dots, c_k\}$ be a given optimal vertex cover for $G$, where $k$ is the minimum possible size of $C$. Let $c_v \in C$ denote a clique such that $v \in c_v$. Observe that since we are given that $N(v)$ is a clique, by the definition of a clique $N[v]$ is also a clique. Let $N[v]$ be denoted by $X$. \\
+	If $X \in C$, then $X$ is in an optimal vertex cover, as desired, and can be removed from $G$. If $X \notin C$, then we argue that we can swap $X$ with $c_v$ and maintain an optimal clique covering of $G$. \\
+	Observe that by the definition of a clique, $c_v$ consits only of $v$ and verticies $u \in N(v)$. Therefore, $c_v \subset X$. Hence, all verticies in $c_v$ are covered by $X$. Let $C' = (C \setminus c_v) \cup X$ and notice that the single removal of $c_v$ and single addition of clique $X$ maintains the optimal size of $C$, k. Thus, we have an optimal vertex cover $C'$ such that $X \in C'$. \\
+	If $X \notin c_v$, then there exists some $u \in N(v)$ such that $u \notin c_v$. Let $c_u \in C$ denote a clique such that $u \in c_u$. Then, by the defintion of a clique, $c_u' = c_y \setminus \{u\}$ is also a clique. Then if we swap $c_u$ with $c_u'$, then we remove $u$ from an overlapping clique such that all $v \in X$ reside in a single clique. Thus, we can remove $X$ from $G$.
+\end{proof}
 \subsection{Step 1 of Our Technique}
 \lipsum[16]
 \end{document}
