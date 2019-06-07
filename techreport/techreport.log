@@ -1,8 +1,8 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019) (preloaded format=pdflatex 2019.5.8)  4 JUN 2019 16:33
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019) (preloaded format=pdflatex 2019.5.8)  7 JUN 2019 13:37
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
-**techreport.tex
+**techreport
 (./techreport.tex
 LaTeX2e <2018-12-01>
 (/usr/local/texlive/2019/texmf-dist/tex/latex/base/article.cls
@@ -1929,18 +1929,47 @@ Package hyperref Warning: Difference (2) between bookmark levels is greater
 (hyperref)                than one, level fixed on input line 11.
 
 ) (./section/specific1.tex
-LaTeX Font Info:    Font shape `OT1/LinuxLibertineT-TLF/m/n' will be
-(Font)              scaled to size 12.0pt on input line 6.
-LaTeX Font Info:    Font shape `OT1/LinuxLibertineT-TLF/m/n' will be
-(Font)              scaled to size 8.8pt on input line 6.
-LaTeX Font Info:    Font shape `OT1/LinuxLibertineT-TLF/m/n' will be
-(Font)              scaled to size 6.6pt on input line 6.
-
-Underfull \hbox (badness 10000) in paragraph at lines 5--9
+Underfull \hbox (badness 10000) in paragraph at lines 5--6
 
  []
 
-[3]) (./section/specific2.tex) (./section/experiments.tex [4]
+LaTeX Font Info:    Font shape `OT1/LinuxLibertineT-TLF/m/n' will be
+(Font)              scaled to size 12.0pt on input line 7.
+LaTeX Font Info:    Font shape `OT1/LinuxLibertineT-TLF/m/n' will be
+(Font)              scaled to size 8.8pt on input line 7.
+LaTeX Font Info:    Font shape `OT1/LinuxLibertineT-TLF/m/n' will be
+(Font)              scaled to size 6.6pt on input line 7.
+
+Underfull \hbox (badness 10000) in paragraph at lines 7--8
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 7--8
+
+ []
+
+[3]
+Underfull \hbox (badness 10000) in paragraph at lines 12--13
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 14--15
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 16--17
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 18--19
+
+ []
+
+) (./section/specific2.tex [4]) (./section/experiments.tex
 LaTeX Font Info:    Try loading font information for TS1+LinuxLibertineT-TLF on
  input line 7.
 
@@ -1955,7 +1984,7 @@ Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             `LinuxLibertineT-TLF' (encoding: TS1).
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
-) (./section/conclusion.tex) (./section/acknowledgments.tex [5])
+) (./section/conclusion.tex [5]) (./section/acknowledgments.tex)
 No file techreport.bbl.
 
 Package natbib Warning: There were undefined citations.
@@ -1975,13 +2004,13 @@ LaTeX Font Warning: Size substitutions with differences
 
  ) 
 Here is how much of TeX's memory you used:
- 35353 strings out of 492616
- 655893 string characters out of 6129482
- 966382 words of memory out of 5000000
+ 35358 strings out of 492616
+ 656040 string characters out of 6129482
+ 969002 words of memory out of 5000000
  38468 multiletter control sequences out of 15000+600000
- 635028 words of font info for 244 fonts, out of 8000000 for 9000
+ 635581 words of font info for 247 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 66i,6n,96p,909b,546s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 66i,6n,96p,905b,499s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/local/texlive/2019/texmf-dist/fonts/enc/dvips/libertine/lbtn_naooyc.enc
 }{/usr/local/texlive/2019/texmf-dist/fonts/enc/dvips/libertine/lbtn_oexx6f.enc}
 {/usr/local/texlive/2019/texmf-dist/fonts/enc/dvips/newtx/libertinealt.enc}{/us
@@ -1997,10 +2026,10 @@ xlive/2019/texmf-dist/fonts/type1/public/txfonts/rtxr.pfb></usr/local/texlive/2
 019/texmf-dist/fonts/type1/public/txfonts/txsyc.pfb></usr/local/texlive/2019/te
 xmf-dist/fonts/type1/public/newtx/txsys.pfb></usr/local/texlive/2019/texmf-dist
 /fonts/type1/public/newtx/zxlri.pfb>
-Output written on techreport.pdf (7 pages, 274844 bytes).
+Output written on techreport.pdf (7 pages, 275384 bytes).
 PDF statistics:
  165 PDF objects out of 1000 (max. 8388607)
  146 compressed objects within 2 object streams
  26 named destinations out of 1000 (max. 500000)
- 25749 words of extra memory for PDF output out of 29859 (max. 10000000)
+ 27797 words of extra memory for PDF output out of 29859 (max. 10000000)
 
