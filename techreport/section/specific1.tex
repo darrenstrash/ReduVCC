@@ -1,24 +1,95 @@
 \documentclass[../techreport.tex]{subfiles}
 \begin{document}
+
+\newtheorem{reduction}{Reduction}
+\newtheorem{claim}{Claim}
+
 \section{Specific Contribution 1}
 \label{sec:specific1}
 In this section, we \ldots \\
 
-\noindent {\bf Reduction:} If graph $G = (V, E)$ contains a vertex $v \in V$ such that the closed neighborhood of $v$, denoted $N[v]$, is a clique, then $N[v]$ is in some minimum (vertex) clique cover and can be removed from $G$ to form reduced graph $G' = G[V \setminus N[v]]$, where $\theta(G) = 1 + \theta(G')$. \\ \\
 
-\noindent {\bf Proposition:} The reduction is safe.
+\begin{reduction} 
+	If graph $G = (V, E)$ contains a vertex $v \in V$ such that the closed neighborhood of $v$, denoted $N[v]$, is a clique, then $N[v]$ is in some minimum (vertex) clique cover and can be removed from $G$ to form reduced graph $G' = G[V \setminus N[v]]$, where $\theta(G) = 1 + \theta(G')$.
+\end{reduction}
 
 \begin{proof}
-	Let $\mathcal{C} = \{C_1, C_2, \dots, C_k\}$ be a given minimal clique cover for $G$. Since $\mathcal{C}$ is a clique cover, there exists some clique in $\mathcal{C}$ that covers $v$. Let $C_v \in \mathcal{C}$ denote some clique such that $v \in C_v$. Observe that since we are given that the neighborhood of $v$, denoted $N(v)$, is a clique, by the definition of a clique, $N[v]$ is also a clique. Let $N[v]$ be denoted by $X$. \\
+	Let $\mathcal{C} = \{C_1, C_2, \dots, C_{\theta(G)}\}$ be a given minimum clique cover for $G$. Since $\mathcal{C}$ is a clique cover, there exists some clique in $\mathcal{C}$ that covers $v$. Let $C_v \in \mathcal{C}$ denote some clique such that $v \in C_v$. Let clique $N[v]$ be denoted by $X$.
 
-	If $X \in \mathcal{C}$, then $X$ is in a minimal clique cover, as desired. If $X \notin \mathcal{C}$, then we argue that we can swap $X$ with $C_v$ and maintain an optimal clique covering of $G$. \\
+	If $X \in \mathcal{C}$, then $X$ is in a minimum clique cover, as desired. If $X \notin \mathcal{C}$, then we argue that we can swap $X$ with $C_v$ and maintain an optimal clique covering of $G$.
 
-	Observe that, by the definition of a clique, $C_v$ consits only of $v$ and vertices $u \in N(v)$. Therefore, $C_v \subset X$. Hence, all $v \in C_v$ are covered by $X$. Let $\mathcal{C'} = (\mathcal{C} \setminus \{C_v\}) \cup \{X\}$ and notice that the single removal of $C_v$ and single addition of clique $X$ ensures that $|\mathcal{C'}| = |\mathcal{C}| = k$. Thus, we have a minimum clique cover $\mathcal{C'}$ such that $X \in \mathcal{C'}$. \\
+	Observe that, by the definition of a clique, $C_v$ consits only of $v$ and vertices $u \in N(v)$. Therefore, $C_v \subset X$. Hence, all $v \in C_v$ are covered by $X$. Let $\mathcal{C'} = (\mathcal{C} \setminus \{C_v\}) \cup \{X\}$ and notice that the single removal of $C_v$ and single addition of clique $X$ ensures that $|\mathcal{C'}| = |\mathcal{C}| = k$. Thus, we have a minimum clique cover $\mathcal{C'}$ such that $X \in \mathcal{C'}$.
 
-	If $X = C_v$, then all $v \in X$ reside in a single clique $X$, as desired. If $X \neq C_v$, then there exists some $u \in N(v)$ such that $u \notin C_v$. Since $\mathcal{C}$ is a clique cover, then there exists some clique in $\mathcal{C}$ that covers $u$. Let $C_u \in C$ denote some clique such that $u \in C_u$. Then, by the definition of a clique, $C_u' = C_u \setminus X$ denotes some clique that covers all $u \in C_u$ and $u \notin X$. Since all $u \in X$ are covered by $X$ then we can swap $C_u$ with $C_u'$. Let $\mathcal{C''} = (\mathcal{C'} \setminus \{C_u\}) \cup \{C_u'\}$ and notice that the single removal of $C_u$ and single addition of clique $C_u'$ ensures that $|\mathcal{C''}| = |\mathcal{C'}| = k$. \\
+	If $X = C_v$, then all $v \in X$ reside in a single clique $X$, as desired. If $X \neq C_v$, then there exists some $u \in N(v)$ such that $u \notin C_v$. Since $\mathcal{C}$ is a clique cover, then there exists some clique in $\mathcal{C}$ that covers $u$. Let $C_u \in C$ denote some clique such that $u \in C_u$. Then, by the definition of a clique, $C_u' = C_u \setminus X$ denotes some clique that covers all $u \in C_u$ and $u \notin X$. Since all $u \in X$ are covered by $X$ then we can swap $C_u$ with $C_u'$. Let $\mathcal{C''} = (\mathcal{C'} \setminus \{C_u\}) \cup \{C_u'\}$ and notice that the single removal of $C_u$ and single addition of clique $C_u'$ ensures that $|\mathcal{C''}| = |\mathcal{C'}| = k$.
 
 	Observe that all $v \in X$ reside in a single clique $X$. Therefore, we can remove $X$ from $G$ to form reduced graph $G' = G[V \setminus N[v]]$, where $\theta(G) = 1 + \theta(G')$, as desired.
 \end{proof}
+
+\begin{reduction} 
+	If graph $G = (V, E)$ contains a maximal degree-two path $P = (v_1, v_2, \dots, v_l)$ with $u \notin P$ and $w \notin P$ connected to $v_1$ and $v_l$ ($(u, v_1) \in E$ and $(w, v_l) \in E$) respectively then we can reduce $G$ in the following cases:
+
+\begin{itemize}
+	\item[(1)] If the length of P, denoted $|P|$, is odd and $u = w$, then we can remove $P \cup \{u\}$ from $G$ to form $G' = G[V\setminus (P \cup \{u\})]$, where $\theta(G) = \frac{|P|+1}{2} + \theta(G')$.
+	
+	\item[(2)] If $|P|$ is odd and $u \neq w$ such that $(u, w) \notin E$, contract $P$ into a single vertex $v'$, giving us a new graph $G' = (V', E')$ with vertex set $V' = (V \setminus P) \cup \{v'\}$ and edge set $E' = (E \setminus \{\{x, y\} \in E | x \in P \lor y \in P\}) \cup \{\{x , v_1\}| x \in \{u, w\}\}$. Then $\theta(G) = \frac{|P| - 1}{2} + \theta(G')$, and letting $\mathcal{C}(G')$ denote a minimum clique cover for $G'$, we have the following two cases:
+	\begin{itemize}
+		\item[(a)] if $\{u, v'\} \in \mathcal{C}(G')$, then $\{u, v_1\}$ is in a minimum clique cover of $G$.
+
+		\item[(b)] Otherwise, $\{w, v_l\}$ is in a minimum clique cover of $G$.
+	\end{itemize}
+\end{itemize}
+\end{reduction}
+
+\begin{proof}[Proof of Case 1]
+	Let $\mathcal{C} = \{C_1, C_2, \dots, C_{\theta(G)}\}$ be a given minimum clique cover for $G$.
+
+	Since $\mathcal{C}$ is a clique cover, there exists some clique in $\mathcal{C}$ that covers $v_1$. Let $C_v \in \mathcal{C}$ denote some clique such that $v_1 \in C_v$. Notice that since $(u, v_1) \in E$, and $v_1$ is degree-two, there exists a clique containing only $u$ and $v_1$. Let clique $\{u, v_1\}$ be denoted by $X$.
+
+	If $X \in \mathcal{C}$, then $X$ is in a minimum clique cover, as desired. If $X \notin \mathcal{C}$, then we argue that we can swap $X$ with $C_v$ and maintain an optimal clique covering of $G$.
+
+	Notice that since $|P|$ is odd and all $v \in P$ have degree-two, then the minumum clique covering contains $\frac{|P| - 1}{2} + 1$ cliques. Hence there exists a clique covering some $v \in P$ that conly contains $v$. Since $P$ contains only degree-two verticies, then we can swap cliques covering $v \in P$ such that the $C_v = \{v_1\}$.
+
+	Observe that since $C_v$ consits only of $v_1$, $C_v \subset X$. Hence, all $v \in C_v$ are covered by $X$. Let $\mathcal{C'} = (\mathcal{C} \setminus \{C_v\}) \cup \{X\}$ and notice that the single removal of $C_v$ and single addition of clique $X$ ensures that $|\mathcal{C'}| = |\mathcal{C}| = k$. Thus, we have a minimum clique cover $\mathcal{C'}$ such that $X \in \mathcal{C'}$.
+
+	If $X = C_v$, then all $v \in X$ reside in a single clique $X$, as desired. If $X \neq C_v$, then $u \notin C_v$. Since $\mathcal{C}$ is a clique cover, then there exists some clique in $\mathcal{C}$ that covers $u$. Let $C_u \in C$ denote some clique such that $u \in C_u$. Then, by the definition of a clique, $C_u' = C_u \setminus \{u\}$ denotes some clique that covers all $y \in C_u$ such that $y \neq u$. Since $u$ is covered by $X$ then we can swap $C_u$ with $C_u'$. Let $\mathcal{C''} = (\mathcal{C'} \setminus \{C_u\}) \cup \{C_u'\}$ and notice that the single removal of $C_u$ and single addition of clique $C_u'$ ensures that $|\mathcal{C''}| = |\mathcal{C'}| = k$.
+
+	Observe that all $v \in (P \cup \{v\})$ reside in $\frac{|P| + 1}{2}$ cliques with no overlap. Therefore, we can remove $(P \cup \{v\})$ from $G$ to form reduced graph $G' = G[V \setminus (P \cup \{v\})]$, where $\theta(G) = \frac{|P| + 1}{2} + \theta(G')$, as desired.
+\end{proof}
+
+\begin{proof}[Proof of Case 2]
+	We perform a proof in three parts. First, we show that for any clique cover $\mathcal{C'}$ of $G'$, there is a clique cover $\mathcal{C}$ of $G$ of size $|\mathcal{C}| = |\mathcal{C'}| + \frac{|P| - 1}{2}$. Then we show that $\theta(G) = \theta(G') + \frac{|P| - 1}{2}$. Then this implies that if $|\mathcal{C'}| = \theta(G')$ (i.e., $\mathcal{C'}$ is a minimum clique cover of $G'$), then $\mathcal{C} = \theta(G)$ (i.e., $\mathcal{C}$ is a minimum clique cover of $G$). We then conclude by constructing a minimum clique cover of $G$ from a minimum clique cover of $G'$.
+	
+	\begin{claim}
+		Let $\mathcal{C'}$ be a clique cover of $G'$, we show that there exists a clique cover $\mathcal{C}$ of $G$ with size $|\mathcal{C}| = |\mathcal{C'}| + \frac{|P| - 1}{2}$.
+	\end{claim}
+	There are two cases.
+
+	\noindent\emph{Case a ($\{u, v'\} \in \mathcal{C'}$).} Since in $G$, $u$ is an endpoint of $P$, such that $(u, v_1) \in E$, then if $\{u, v'\} \in \mathcal{C'}$, $\mathcal{C} = (\mathcal{C'} \setminus \{u, v'\}) \cup \{u, v_1\} \cup \mathcal{C}(P \setminus \{v_1\})$. Since $P \setminus \{v_1\}$ consists of $|P| - 1$ elements, which is even, and $P$ is degree-two, then $\mathcal{C}(P \setminus \{v_1\}) = \{\{v_2, v_3\}, \{v_4, v_5\}, \dots, \{v_{l-1}, v_l\}\}$. Observe that $|\mathcal{C}(P \setminus \{v_1\})| = \frac{|P| - 1}{2}$. Thus $|\mathcal{C}| = |\mathcal{C'}| + |\mathcal{C}(P \setminus \{v_1\})|$, which is equivalent to $|\mathcal{C'}| + \frac{|P| - 1}{2}$, as desired.
+
+	\noindent\emph{Case b ($\{w, v'\} \in \mathcal{C'}$).} Since $w$ is also an endpoint of $P$ in $G$, then we can make a symmetric argument to case a.
+
+	\begin{claim}
+		$\theta(G) = \theta(G') + \frac{|P| - 1}{2}$
+	\end{claim}
+	%Let $\theta(G')$ be a minimum clique cover of $G'$. Then by Claim 1, there is a clique cover $\mathcal{C}$ of $G$ of size $|\mathcal{C}| = |\mathcal{C}(G')| + \frac{|P| - 1}{2} = \theta(G') + \frac{|P| - 1}{2}$. Observe that since $P$ is degree-two, then $\frac{|P| - 1}{2}$ is a minimum clique cover for $P \setminus \{v_1 \veebar v_l\}$. Since $G = G' \cup (P \setminus \{v_1 \veebar v_l\}$, then $\theta(G) = \theta(G') + \frac{|P| - 1}{2}$. 
+	We show that $\theta(G) \leq \theta(G') + \frac{|P| - 1}{2}$ and $\theta(G) \geq \theta(G') + \frac{|P| - 1}{2}$.
+
+	\noindent\emph{Case 1 ($\theta(G) \leq \theta(G') + \frac{|P| - 1}{2}$).} Let $\theta(G')$ be a minimum clique cover of $G'$. Then by Claim 1, there is a clique cover $\mathcal{C}$ of $G$ of size $|\mathcal{C}| = |\mathcal{C}(G')| + \frac{|P| - 1}{2} = \theta(G') + \frac{|P| - 1}{2}$. Since any clique cover of $G$ has size at least $\theta(G)$, we have that $\theta(G) \leq |C| = \theta(G') + \frac{|P| - 1}{2}$.
+
+	\noindent\emph{Case 2 ($\theta(G) \geq \theta(G') + \frac{|P| - 1}{2}$).} Let $\mathcal{C}{G}$ be a minimum clique cover of $G$ that contains either $\{u, v_1\}$ or $\{w, v_l\}$.
+	\begin{itemize}
+		\item[-] \emph{Case 2a.} Let $\{u, v_1\} \in \mathcal{C}(G)$. Observe that since $(P \setminus \{v_1\})$ is degree-two, a minimum clique coverage consists of $\frac{|P| - 1}{2}$ elements. Therefore, $\theta(G) - \frac{|P| - 1}{2} \leq \theta(G')$, which is equivalent to $\theta(G) \geq \theta(G') + \frac{|P| - 1}{2}$.
+		\item[-] \emph{Case 2b.} Since $(P \setminus \{v_l\})$ is also degree-two and a minimum clique coverage consists of $\frac{|P| - 1}{2}$ elements, we can make a symmetrical argument to case 2a.
+	\end{itemize}
+
+
+	We now show how to construct a minimum clique cover of $G$ from a minimum clique cover of $G'$. Let $\mathcal{C}(G')$ be a minimum independent set of $G'$. Applying Claim 1 with $\mathcal{C'} = \mathcal{C}(G')$ gives a minimum clique cover $\mathcal{C}$ of $G$ of size $|\mathcal{C}| = |\mathcal{C'}| + \frac{|P| - 1}{2} = \theta(G') + \frac{|P| - 1}{2} = \theta(G)$, where the last equality is by Claim 2 and thus $\mathcal{C}$ is a minimum clique cover of $G$. Then by the proof of Claim 1, we have that
+	\begin{itemize}
+		\item[(a)] if $\{u, v'\} \in \mathcal{C'}$, then $((\mathcal{C'}(G') \setminus \{u, v'\}) \cup \{u, v_1\} \cup \{\{v_2, v_3\}, \{v_4, v_5\}, \dots, \{v_{l-1}, v_l\}\})$ is a minimum vertex cover of $G$.
+		\item[(b)] otherwise, $\{w, v'\} \in \mathcal{C'}$, then $((\mathcal{C'}(G') \setminus \{w, v'\}) \cup \{w, v_l\} \cup \{\{v_1, v_2\}, \{v_3, v_4\}, \dots, \{v_{l-2}, v_{l-1}\}\})$ is a minimum vertex cover of $G$.
+	\end{itemize}
+\end{proof}
+
 %\subsection{Step 1 of Our Technique}
 %\lipsum[16]
 \end{document}
