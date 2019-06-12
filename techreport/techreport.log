@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019) (preloaded format=pdflatex 2019.5.8)  10 JUN 2019 16:28
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019) (preloaded format=pdflatex 2019.5.8)  12 JUN 2019 10:34
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1865,16 +1865,16 @@ line 5.
 
 ) (./section/preliminaries.tex) (./section/specific1.tex
 \c@reduction=\count347
-\c@claim=\count348
+\c@lemma=\count348
 
 Underfull \hbox (badness 10000) in paragraph at lines 9--10
 
  []
 
 LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/m/it' will be
-(Font)              scaled to size 12.0pt on input line 12.
+(Font)              scaled to size 12.0pt on input line 11.
 LaTeX Font Info:    Try loading font information for OT1+LinuxLibertineT-TLF on
- input line 13.
+ input line 12.
 
 (/usr/local/texlive/2019/texmf-dist/tex/latex/libertine/OT1LinuxLibertineT-TLF.
 fd
@@ -1882,38 +1882,38 @@ File: OT1LinuxLibertineT-TLF.fd 2017/03/20 (autoinst) Font definitions for OT1/
 LinuxLibertineT-TLF.
 )
 LaTeX Font Info:    Font shape `OT1/LinuxLibertineT-TLF/m/n' will be
-(Font)              scaled to size 12.0pt on input line 13.
+(Font)              scaled to size 12.0pt on input line 12.
 Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             `LinuxLibertineT-TLF' (encoding: OT1).
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
 LaTeX Font Info:    Font shape `OT1/LinuxLibertineT-TLF/m/n' will be
-(Font)              scaled to size 8.8pt on input line 13.
+(Font)              scaled to size 8.8pt on input line 12.
 LaTeX Font Info:    Font shape `OT1/LinuxLibertineT-TLF/m/n' will be
-(Font)              scaled to size 6.6pt on input line 13.
-LaTeX Font Info:    Try loading font information for U+ntxmia on input line 13.
+(Font)              scaled to size 6.6pt on input line 12.
+LaTeX Font Info:    Try loading font information for U+ntxmia on input line 12.
 
  (/usr/local/texlive/2019/texmf-dist/tex/latex/newtx/untxmia.fd
 File: untxmia.fd 2018/04/14 Fontinst v1.933 font definitions for U/ntxmia.
 )
-LaTeX Font Info:    Try loading font information for U+ntxsym on input line 13.
+LaTeX Font Info:    Try loading font information for U+ntxsym on input line 12.
 
 
 (/usr/local/texlive/2019/texmf-dist/tex/latex/newtx/untxsym.fd
 File: untxsym.fd 2015/03/20 Fontinst v1.933 font definitions for U/ntxsym.
 )
-LaTeX Font Info:    Try loading font information for U+ntxsyc on input line 13.
+LaTeX Font Info:    Try loading font information for U+ntxsyc on input line 12.
 
 
 (/usr/local/texlive/2019/texmf-dist/tex/latex/newtx/untxsyc.fd
 File: untxsyc.fd 2012/04/12 Fontinst v1.933 font definitions for U/ntxsyc.
 )
-LaTeX Font Info:    Try loading font information for U+lasy on input line 13.
+LaTeX Font Info:    Try loading font information for U+lasy on input line 12.
 
 (/usr/local/texlive/2019/texmf-dist/tex/latex/base/ulasy.fd
 File: ulasy.fd 1998/08/17 v2.2e LaTeX symbol font definitions
 )
-LaTeX Font Info:    Try loading font information for U+msa on input line 13.
+LaTeX Font Info:    Try loading font information for U+msa on input line 12.
 
 (/usr/local/texlive/2019/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
@@ -1921,7 +1921,7 @@ File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 (/usr/local/texlive/2019/texmf-dist/tex/latex/microtype/mt-msa.cfg
 File: mt-msa.cfg 2006/02/04 v1.1 microtype config. file: AMS symbols (a) (RS)
 )
-LaTeX Font Info:    Try loading font information for U+msb on input line 13.
+LaTeX Font Info:    Try loading font information for U+msb on input line 12.
 
 (/usr/local/texlive/2019/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
@@ -1932,20 +1932,50 @@ File: mt-msb.cfg 2005/06/01 v1.0 microtype config. file: AMS symbols (b) (RS)
 LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/m/sl' in size <12> not a
 vailable
 (Font)              Font shape `T1/LinuxLibertineT-TLF/m/it' tried instead on i
-nput line 22.
+nput line 21.
 LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/m/it' will be
-(Font)              scaled to size 12.0pt on input line 22.
+(Font)              scaled to size 12.0pt on input line 21.
  [1]
+\c@claim=\count349
+
 [2] [3]
-Overfull \hbox (5.85626pt too wide) in paragraph at lines 91--92
-[]\T1/LinuxLibertineT-TLF/m/n/12 (-20) otherwise, $\LMS/ntxsy/m/n/12 f\OML/nxlm
-i/m/it/12 w; v[]\LMS/ntxsy/m/n/12 g 2 []$\T1/LinuxLibertineT-TLF/m/n/12 (-20) ,
- then $\LMS/ntxsy/m/n/12 ¹¹[]¹\OML/nxlmi/m/it/12 G[]\LMS/ntxsy/m/n/12 º n f\OML
-/nxlmi/m/it/12 w; v[]\LMS/ntxsy/m/n/12 gº [ f\OML/nxlmi/m/it/12 w; v[]\LMS/ntxs
-y/m/n/12 g [ ff\OML/nxlmi/m/it/12 v[]; v[]\LMS/ntxsy/m/n/12 g\OML/nxlmi/m/it/12
- ; \LMS/ntxsy/m/n/12 f\OML/nxlmi/m/it/12 v[]; v[]\LMS/ntxsy/m/n/12 g\OML/nxlmi/
-m/it/12 ; [] ; \LMS/ntxsy/m/n/12 f\OML/nxlmi/m/it/12 v[]; v[]\LMS/ntxsy/m/n/12 
-ggº$
+Overfull \hbox (31.94667pt too wide) in paragraph at lines 91--92
+[]\T1/LinuxLibertineT-TLF/m/it/12 otherwise $\LMS/ntxsy/m/n/12 f\OML/nxlmi/m/it
+/12 v[]; v[]\LMS/ntxsy/m/n/12 g$\T1/LinuxLibertineT-TLF/m/it/12 , $\LMS/ntxsy/m
+/n/12 f\OML/nxlmi/m/it/12 v[]; v[]\LMS/ntxsy/m/n/12 g 2 C¹\OML/nxlmi/m/it/12 G[
+]\LMS/ntxsy/m/n/12 º$\T1/LinuxLibertineT-TLF/m/it/12 , then $\LMS/ntxsy/m/n/12 
+¹C¹\OML/nxlmi/m/it/12 G[]\LMS/ntxsy/m/n/12 º n ff\OML/nxlmi/m/it/12 v[]; v[]\LM
+S/ntxsy/m/n/12 g\OML/nxlmi/m/it/12 ; \LMS/ntxsy/m/n/12 f\OML/nxlmi/m/it/12 v[];
+ v[]\LMS/ntxsy/m/n/12 ggº [ ff\OML/nxlmi/m/it/12 v[]; v[]\LMS/ntxsy/m/n/12 g\OM
+L/nxlmi/m/it/12 ; \LMS/ntxsy/m/n/12 f\OML/nxlmi/m/it/12 v[]; v[]\LMS/ntxsy/m/n/
+12 g\OML/nxlmi/m/it/12 ; \LMS/ntxsy/m/n/12 f\OML/nxlmi/m/it/12 v[]; v[]\LMS/ntx
+sy/m/n/12 gg$
+ []
+
+\c@claim2=\count350
+
+Overfull \hbox (1.51492pt too wide) in paragraph at lines 105--106
+\T1/LinuxLibertineT-TLF/m/it/12 Case 1 ($\LMS/ntxsy/m/n/12 f\OML/nxlmi/m/it/12 
+v[]; v[]\LMS/ntxsy/m/n/12 g 2 \OML/nxlmi/m/it/12 C[]$\T1/LinuxLibertineT-TLF/m/
+it/12 ). \T1/LinuxLibertineT-TLF/m/n/12 (-20) Then $\OML/nxlmi/m/it/12 v[]; v[]
+ \LMS/ntxsy/m/n/12 3 \OML/nxlmi/m/it/12 n\LMS/ntxsy/m/n/12 f\OML/nxlmi/m/it/12 
+v[]; v[]\LMS/ntxsy/m/n/12 g$\T1/LinuxLibertineT-TLF/m/n/12 (-20) , then some mi
+n-i-mum clique cover of $\LMS/ntxsy/m/n/12 f\OML/nxlmi/m/it/12 v[]; v[]; v[]; v
+[]\LMS/ntxsy/m/n/12 g 2
+ []
+
+[4]
+Overfull \hbox (35.02707pt too wide) in paragraph at lines 127--128
+[]\T1/LinuxLibertineT-TLF/m/n/12 (-20) otherwise $\LMS/ntxsy/m/n/12 f\OML/nxlmi
+/m/it/12 v[]; v[]\LMS/ntxsy/m/n/12 g$\T1/LinuxLibertineT-TLF/m/n/12 (-20) , $\L
+MS/ntxsy/m/n/12 f\OML/nxlmi/m/it/12 v[]; v[]\LMS/ntxsy/m/n/12 g 2 C¹\OML/nxlmi/
+m/it/12 G[]\LMS/ntxsy/m/n/12 º$\T1/LinuxLibertineT-TLF/m/n/12 (-20) , then $\LM
+S/ntxsy/m/n/12 ¹C¹\OML/nxlmi/m/it/12 G[]\LMS/ntxsy/m/n/12 º n ff\OML/nxlmi/m/it
+/12 v[]; v[]\LMS/ntxsy/m/n/12 g\OML/nxlmi/m/it/12 ; \LMS/ntxsy/m/n/12 f\OML/nxl
+mi/m/it/12 v[]; v[]\LMS/ntxsy/m/n/12 ggº [ ff\OML/nxlmi/m/it/12 v[]; v[]\LMS/nt
+xsy/m/n/12 g\OML/nxlmi/m/it/12 ; \LMS/ntxsy/m/n/12 f\OML/nxlmi/m/it/12 v[]; v[]
+\LMS/ntxsy/m/n/12 g\OML/nxlmi/m/it/12 ; \LMS/ntxsy/m/n/12 f\OML/nxlmi/m/it/12 v
+[]; v[]\LMS/ntxsy/m/n/12 gg$
  []
 
 ) (./section/specific2.tex) (./section/experiments.tex
@@ -1968,7 +1998,7 @@ No file techreport.bbl.
 
 Package natbib Warning: There were undefined citations.
 
-[4]
+[5]
 Package atveryend Info: Empty hook `BeforeClearDocument' on input line 45.
 Package atveryend Info: Empty hook `AfterLastShipout' on input line 45.
  (./techreport.aux)
@@ -1978,13 +2008,13 @@ Package rerunfilecheck Info: File `techreport.out' has not changed.
 (rerunfilecheck)             Checksum: B49F4E2CEA358D114CC105A54C49204C;1018.
  ) 
 Here is how much of TeX's memory you used:
- 35253 strings out of 492616
- 653019 string characters out of 6129482
- 853970 words of memory out of 5000000
- 38430 multiletter control sequences out of 15000+600000
- 623717 words of font info for 174 fonts, out of 8000000 for 9000
+ 35261 strings out of 492616
+ 653112 string characters out of 6129482
+ 855970 words of memory out of 5000000
+ 38444 multiletter control sequences out of 15000+600000
+ 620659 words of font info for 164 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 66i,5n,96p,905b,640s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 66i,5n,96p,935b,668s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/local/texlive/2019/texmf-dist/fonts/enc/dvips/libertine/lbtn_naooyc.enc
 }{/usr/local/texlive/2019/texmf-dist/fonts/enc/dvips/libertine/lbtn_oexx6f.enc}
 {/usr/local/texlive/2019/texmf-dist/fonts/enc/dvips/newtx/libertinealt.enc}{/us
@@ -2000,10 +2030,10 @@ xlive/2019/texmf-dist/fonts/type1/public/txfonts/rtxr.pfb></usr/local/texlive/2
 019/texmf-dist/fonts/type1/public/txfonts/txsyc.pfb></usr/local/texlive/2019/te
 xmf-dist/fonts/type1/public/newtx/txsys.pfb></usr/local/texlive/2019/texmf-dist
 /fonts/type1/public/newtx/zxlri.pfb>
-Output written on techreport.pdf (5 pages, 276922 bytes).
+Output written on techreport.pdf (6 pages, 285285 bytes).
 PDF statistics:
- 155 PDF objects out of 1000 (max. 8388607)
- 138 compressed objects within 2 object streams
- 27 named destinations out of 1000 (max. 500000)
+ 164 PDF objects out of 1000 (max. 8388607)
+ 146 compressed objects within 2 object streams
+ 32 named destinations out of 1000 (max. 500000)
  22669 words of extra memory for PDF output out of 24883 (max. 10000000)
 
