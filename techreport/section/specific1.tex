@@ -39,160 +39,139 @@ In this section, we \ldots \\
 	Observe that all $v \in X$ reside in a single clique $X$. Therefore, we can remove $X$ from $G$ to form reduced graph $G' = G[V \setminus N[v]]$, where $\theta(G) = 1 + \theta(G')$, as desired.
 \end{proof}
 
+% General Degree-two Reduction Lemma
+
 \begin{lemma}
-	Consider a graph $G = (V, E)$. Let $P = \{v_1, v_2, \dots, v_{\ell}\}$ be the set of vertices in a maximal, degree two path in $G$ such that $|P|$ is odd. Let $v_a = v_{\ell - 2}$, $v_b = v_{\ell - 1}$, $v_c = v_{\ell}$ be the last three vertices in $P$. Denote $P' = \{v_a, v_b, v_c\}$. Let $u, w \in V$, be the endpoints of $P'$ such that $\{u, v_a\}, \{v_c, w\} \in E$. 
-
-	Then, we can contract $P' \in P$ into a single vertex $v'$, giving us a new graph $G' = (V', E')$ with vertex set $V' = (V \setminus \{v_b, v_c, v_d\}) \cup \{v'\}$ and edge set $E' = (E \setminus \{\{x, y\}| x \in \{v_b, v_c, v_d\} \lor y \in \{v_b, v_c, v_d\}\}) \cup \{\{x, v'\}| x \in \{v_a, v_e\}\}$ if $\{u, v', w\}$ does not form a clique. Then $\theta(G) = \theta(G') + 1$, and letting $\mathcal{C}(G')$ be a minimum vertex clique cover of $G'$, we have two cases:
+	Consider a graph $G = (V, E)$. Let $v \in V$ denote a degree two vertex. Let $u$ and $w$ be the verticies in the neighborhood of $v$, denoted $N(v)$. Let $v'$ be a new vertex denoting he contraction of $\{u, v, w\} \in V$ such that $G' = (V', E')$ with vertex set $V' = (V \setminus \{u, v, w\}) \cup \{v'\}$ and edge set $E' = (E \setminus \{\{x, y\}| x \in \{u, v, w\} \lor y \in \{u, v, w\}\}) \cup \{\{x, v'\}| x \in (N(u) \cup N(w))\}$. Let $\mathcal{C'} = \{C_1, C_2, \dots, C_{\theta(G')}$ be a minimun clique cover of $G'$. Let $(C \cup \{v'\}) \in \mathcal{C'}$ denote a clique such that covers $v'$. Then $(C \cup \{v'\}) \in \mathcal{C'}(G)$ (i.e., the contraction of $\{u, v, w\}$ into $v'$ is a valid reduction), if and only if $(C \cup \{u\}) \in \mathcal{C}(G) \veebar (C \cup \{w\}) \in \mathcal{C}(G)$. Then $\theta(G') = \theta(G') + 1$, and letting $\mathcal{C}(G'')$ be a minimum vertex clique cover of $G''$, there are two cases:
 	\begin{itemize}
-		\item[(a)] if $\{u, v'\} \in \mathcal{C}(G')$, then $(\mathcal{C}(G') \setminus \{\{u, v'\}\}) \cup \{\{u, v_a\}, \{v_b, v_c\}\}$ is a minimum clique cover of $G$, and
+		\item[(a)] if $C \subseteq N(u)$, then $(\mathcal{C}(G') \setminus \{(C \cup \{v'\})\}) \cup \{(C \cup \{u\}), \{v, w\}\}$ is a minimum clique cover of $G$, and
 
-		\item[(b)] otherwise $\{v', w\} \in \mathcal{C}(G')$, and $(\mathcal{C}(G') \setminus \{\{v', w\}\}) \cup \{\{v_a, v_b\}, \{v_c, v_d\}\}$ is a minimum clique cover of $G$.
+		\item[(b)] otherwise $C \subseteq N(w)$, then $(\mathcal{C}(G') \setminus \{(C \cup \{v'\})\}) \cup \{(C \cup \{w\}), \{u, v\}\}$ is a minimum clique cover of $G$.
 	\end{itemize}
 \end{lemma}
 
 \newtheorem{claim}{Claim}
 
 \begin{proof}
-	We perform a proof in three parts. First, we show that for any clique cover $C'$ of $G'$, there is a clique cover $C$ of $G$ of size $|C| = |C'| + 1$. Then we show that $\theta(G) = \theta(G') + 1$. This then implies that if $|C'| = \theta(G)$ (i.e., $C'$ is a minimum clique cover of $G'$), then $|I| = \theta(G)$ (i.e., $C$ is a minimum clique cover of $G$). We then conclude by constructing a minimum clique cover of $G$ from a minimum clique cover of $G'$.
+	We preform a proof in three parts. First we show that for any clique cover $\mathcal{C'}$ of $G'$, there exists a clique cover $\mathcal{C}$ of $G$ of size $|\mathcal{C}| = |\mathcal{C'} + 1|$. Then we show that $\theta(G) = \theta(G') + 1$. This then implies that if $|\mathcal{C'}| = \theta(G')$, then $|\mathcal{C}| = \theta(G)$. We then conclude by constructing a minimum clique cover of $G$ from a minimum clique cover of $G'$.
 
-	\begin{claim} 
-		Let $C'$ be a clique cover of of $G'$, we show there exists a clique cover $C$ of $G$ with size $|C| = |C'| + 1$.
+	\begin{claim}
+		Let $\mathcal{C'}$ be some clique cover of $G'$, we show there exists a clique cover $\mathcal{C}$ of $G$ with size $|\mathcal{C}| = |\mathcal{C'}| + 1$.
 	\end{claim}
-	Since $P' \cup \{u, w\}$ is degree two and $|P' \cup \{u, w\}|$ is odd, a $\theta(P' \cup \{u, w\}) = \frac{|P| + 1}{2} + 1$. Therefore, if There are two cases.
 
-	\noindent\emph{Case 1 ($\{u, v'\} \in C'$).} Then $u$ is in some clique $\{u, x\}$ where $x \in P'$. Since $P$ is degree two, only $v_a \in P'$ is in the neighborhood of $u$. Thus $\{u, v_a\}, \{v_b, v_c\} \in C$. Therefore, $C = (C' \setminus \{\{u, v'\}\}) \cup \{\{u, v_a\}, \{v_b, v_c\}\}$ is a clique cover of $G$ with size $|C| = |C'| - 1 + 2 = |C'| + 1$.
+	Let $(C \cup \{v'\}) \in \mathcal{C'}$ denote some clique that contains $v'$. Note that $N(v') = N(u) \cup N(w)$. Observe that by the definition of a clique, either $C \subseteq N(u)$, $C \subseteq N(w)$, or $C \subseteq (N(u) \cup N(w))$ (i.e., there exists some $x \in C$ such that $x \in (N(u) \cup N(w))$ and $x \notin (N(u) \cap N(w))$).
 
-	\noindent\emph{Case 2 ($\{v', w\} \in C'$).} Since $P$ is degree two, we can make a symmetric argument to case one, $|C| = |C'| + 1$.
+	\noindent\emph{Case 1 ($C \subseteq N(u)$).} Since $C$ is a clique composed of elements from the neighborhood of $u$, then by the definition of a clique, $C \cup \{u\}$ is also a clique. Observe that since $w \in N(v)$, $\{v, w\}$ is a valid clique. Note that $\mathcal{C'}$ covers all $v \in (V \setminus \{u, v, w\})$. Then, let $\mathcal{C} = (\mathcal{C'} \setminus {(C \cup \{v'\})}) \cup \{(C \cup \{u\}), \{v, w\}\}$ is a clique cover of $G$ with size $|\mathcal{C}| = |\mathcal{C'}| - 1 + 2 = |\mathcal{C'}| + 1$.
+
+	\noindent\emph{Case 2 ($C \subseteq N(w)$).} Then, by a symmetric argument to case 1, $\mathcal{C} = (\mathcal{C'} \setminus {(C \cup \{v'\})}) \cup \{(C \cup \{w\}), \{u, v\}\}$ is a clique cover of $G$ with size $|\mathcal{C}| = |\mathcal{C'}| + 1$.
+
+
+	\noindent\emph{Case 3 ($C \subseteq (N(u) \cup N(w))$)} In this case, there exists some $x \in C$ such that $x \in N(u)$, $x \notin N(w)$ or $x \in N(w)$, $x \notin N(u)$. $C$ is a valid clique in $\mathcal{C'}$ since $v' \in (N(u) \cap N(w))$, but violates the definition of a clique in $G$. Therefore, this reduction is valid if and only if $(C \cup \{u\}) \in \mathcal{C}(G) \veebar (C \cup \{w\}) \in \mathcal{C}(G)$.
 
 	\begin{claim}
 		$\theta(G) = \theta(G') + 1$.
 	\end{claim}
+
 	We show that $\theta(G) = \theta(G') + 1$ by showing that $\theta(G) \leq \theta(G') + 1$ and $\theta(G) \geq \theta(G') + 1$.
 
-	\noindent\emph{Case 1 ($\theta(G) \leq \theta(G') + 1$).} Let $\mathcal{C}(G')$ be a minimum clique cover of $G'$. Then by Claim 1, there is a clique cover $C$ of $G$ of size $|C| = |\mathcal{C}(G')| + 1 = \theta(G') + 1$. Since any clique cover of $G$ has size at least $\theta(G)$, we have that $\theta(G) \leq |C| = \theta(G') + 1$. 
+	\noindent\emph{Case 1 ($\theta(G) \leq \theta(G') + 1$).} Let $\mathcal{C}(G')$ be a minimum clique cover of $G'$. Then by Claim 1, there is a clique cover $\mathcal{C}$ of $G$ of size $|\mathcal{C}| = |\mathcal{C}(G')| + 1 = \theta(G') + 1$. Since any clique cover of $G$ has size at least $\theta(G)$, we have that $\theta(G) \leq |\mathcal{C}| = \theta(G') + 1$. 
 
-	\noindent\emph{Case 2 ($\theta(G) \geq \theta(G') + 1$).} Let $\mathcal{C}(G)$ be a minimum clique cover of $G$. Then either $\{v_a, v_b\} \in \mathcal{C}(G)$ or $\{v_d, v_e\} \in \mathcal{C}(G)$.
+	\noindent\emph{Case 2 ($\theta(G) \geq \theta(G') + 1$).} Let $\mathcal{C}(G)$ be a minimum clique cover of $G$. Then either $\{(C \cup \{u\}), \{v, w\}\} \in \mathcal{C}(G)$ or $\{(C \cup \{w\}), \{u, v\}\} \in \mathcal{C}(G)$.
 	\begin{itemize}
-		\item[-]\emph{Case 2a.} Suppose $\{v_a, v_b\} \in \mathcal{C}(G)$. Then, we have that $\{v_c, v_d\} \in \mathcal{C}(G)$. Let $X = \mathcal{C}(G) \setminus \{v_c, v_d\}$ and observe that $|\mathcal{C}(G)| = |X| + 1$. We note that $C(G') = ((\mathcal{C}(G) \setminus \{v_c, v_d\}) \setminus \{v_a, v_b\}) \cup \{v_a, v'\})$ is a clique cover of $G'$ with size $|\mathcal{C}(G')| = |\mathcal{C}(G)| - 2 + 1 = |\mathcal{C}(G)| - 1 = |X|$. Therefore $\theta(G) = |\mathcal{C}(G)| = |X| + 1 = |\mathcal{C}(G')| + 1 \geq \theta(G') + 1$.
+		\item[-]\emph{Case 2a.} Suppose $\{(C \cup \{u\}), \{v, w\}\} \in \mathcal{C}(G)$. Let $X = \mathcal{C}(G) \setminus \{v, w\}$ and observe that $|\mathcal{C}(G)| = |X| + 1$. We note that $C(G') = ((\mathcal{C}(G) \setminus \{v, w\}) \setminus (C \cup \{u\})) \cup (C \cup \{v'\}))$ is a clique cover of $G'$ with size $|\mathcal{C}(G')| = |\mathcal{C}(G)| - 2 + 1 = |\mathcal{C}(G)| - 1 = |X|$. Therefore $\theta(G) = |\mathcal{C}(G)| = |X| + 1 = |\mathcal{C}(G')| + 1 \geq \theta(G') + 1$.
 
-		\item[-]\emph{Case 2b.} Suppose $\{v_d, v_e\} \in \mathcal{C}(G)$, then we can make a symmetrical argument to case 2a, $\theta(G) \geq \theta(G') + 1$.
+		\item[-]\emph{Case 2b.} Suppose $\{(C \cup \{w\}), \{u, v\}\} \in \mathcal{C}(G)$, then we can make a symmetrical argument to case 2a, $\theta(G) \geq \theta(G') + 1$.
 	\end{itemize}
 
-	We now show how to construct a minimum clique cover of $G$ from a minimum clique cover of $G'$. Let $\mathcal{C}(G')$ be a minimum clique cover of $G'$. Applying Claim 1 with $G' = \mathcal{C}(G')$ gives a clique cover $C$ of $G$ of size $|C| = |C'| + 1 = \theta(C') + 1 = \theta(G)$, where the last equality is by Claim 2 and thus $C$ is a minimum clique cover of $G$. Then by the proof of Claim 1 we have that
+	We now show how to construct a minimum clique cover of $G$ from a minimum clique cover of $G'$. Let $\mathcal{C}(G')$ be a minimum clique cover of $G'$. Applying Claim 1 with $G' = \mathcal{C}(G')$ gives a clique cover $C$ of $G$ of size $|C| = |C'| + 1 = \theta(C') + 1 = \theta(G)$ if and only if $(C \cup \{u\}) \in \mathcal{C}(G) \veebar (C \cup \{w\}) \in \mathcal{C}(G)$, where the last equality is by Claim 2 and thus $C$ is a minimum clique cover of $G$. Then by the proof of Claim 1 we have that
 	\begin{itemize}
-		\item[(a)] if $\{v_a, v'\} \in \mathcal{C}(G')$, then $(\mathcal{C}(G') \setminus \{v_a, v'\}) \cup \{\{v_a, v_b\}, \{v_c, v_d\}\}$ is a minimum clique cover of $G$, and
+		\item[(a)] if $C \subseteq N(u)$, then $(\mathcal{C}(G') \setminus \{(C \cup \{v'\})\}) \cup \{(C \cup \{u\}), \{v, w\}\}$ is a minimum clique cover of $G$, and
 
-		\item[(b)] otherwise $\{v', v_e\} \in \mathcal{C}(G')$, and $(\mathcal{C}(G') \setminus \{v, v_e\}) \cup \{\{v_b, v_c\}, \{v_d, v_e\}\}$ is a minimum clique cover of $G$.
+		\item[(b)] otherwise $C \subseteq N(w)$, then $(\mathcal{C}(G') \setminus \{(C \cup \{v'\})\}) \cup \{(C \cup \{w\}), \{u, v\}\}$ is a minimum clique cover of $G$.
 	\end{itemize}
 \end{proof}
 
-\begin{lemma}
-	Consider a graph $G = (V, E)$ with minimum degree two. Let $P = \{v_1, v_2, \dots, v_{\ell}\}$ be the set of vertices in a maximal, degree two path in $G$ such that $|P| \geq 6$ is even. Let $v_a = v_{\ell - 5}$, $v_b = v_{\ell - 4}$, $v_c = v_{\ell - 3}$, $v_d = v_{\ell - 2}$, $v_e = v_{\ell - 1}$, $v_f = v_{\ell}$ be the last six vertices in $P$. Then, we can contract $\{v_b, v_c, v_d, v_e\} \in P$ into two vertices $v_1'$ and $v_2'$, giving us a new graph $G' = (V', E')$ with vertex set $V' = (V \setminus \{v_b, v_c, v_d, v_e\}) \cup \{v_1', v_2'\}$ and edge set $E' = (E \setminus \{\{x, y\}| x \in \{v_b, v_c, v_d, v_e\} \lor y \in \{v_b, v_c, v_d, v_e\}\}) \cup \{\{v_a, v_1'\}, \{v_1', v_2'\}, \{v_2', v_f\}\}$. Then $\theta(G) = \theta(G') + 1$, and letting $\mathcal{C}(G')$ be a minimum vertex clique cover of $G'$, we have three cases:
-	\begin{itemize}
-		\item[(a)] if $\{v_1', v_2'\} \in \mathcal{C}(G')$, then $(\mathcal{C}(G') \setminus \{v_1', v_2'\}) \cup \{\{v_b, v_c\}, \{v_d, v_e\}\}$ is a minimum clique cover of $G$, and
-
-		\item[(b)] otherwise $\{v_a, v_1'\}$, $\{v_2', v_f\} \in \mathcal{C}(G')$, then $(\mathcal{C}(G') \setminus \{\{v_a, v_1'\}, \{v_2', v_f\}\}) \cup \{\{v_a, v_b\}, \{v_c, v_d\}, \{v_e, v_f\}\}$ is a minimum clique cover of $G$.
-	\end{itemize}
-\end{lemma}
-
-\newtheorem{claim2}{Claim}
-
-\begin{proof}
-	We perform a proof in three parts. First, we show that for any clique cover $C'$ of $G'$, there is a clique cover $C$ of $G$ of size $|C| = |C'| + 1$. Then we show that $\theta(G) = \theta(G') + 1$. This then implies that if $|C'| = \theta(G)$ (i.e., $C'$ is a minimum clique cover of $G'$), then $|I| = \theta(G)$ (i.e., $C$ is a minimum clique cover of $G$). We then conclude by constructing a minimum clique cover of $G$ from a minimum clique cover of $G'$.
-
-	\begin{claim2} 
-		Let $C'$ be a clique cover of of $G'$, we show there exists a clique cover $C$ of $G$ with size $|C| = |C'| + 1$.
-	\end{claim2}
-	There are two cases.
-
-	\noindent\emph{Case 1 ($\{v_1', v_2'\} \in C'$).} Then $v_a, v_f \not in \{v_1', v_2'\}$, then some minimum clique cover of $\{v_b, v_c, v_d, v_e\} \in C$. Since $P$ is degree two, there is a single unique minimum clique cover of $\{v_b, v_c, v_d, v_e\}$. Thus $\{v_b, v_c\}, \{v_d, v_e\} \in C$. Therefore, $C = (C' \setminus \{\{v_1', v_2'\}\}) \cup \{\{v_b, v_c\}, \{v_d, v_e\}\}$ is a clique cover of $G$ with size $|C| = |C'| - 1 + 2 = |C'| + 1$.
-
-	\noindent\emph{Case 2 ($\{v_a, v_1'\}, \{v_f, v_2'\} \in C'$).} Then $v_a$ is in some clique $\{v_a, x\}$ where $x \in v_1'$ and $v_f$ is in some clique $\{y, v_f\}$ where $y \in v_2'$. Since $P$ is degree two, only $v_b \in v_1'$ is in the neighborhood of $v_a$ and only $v_e \in v_2'$ is in the neighborhood of $v_f$. Thus $\{v_a, v_b\}, \{v_c, v_d\}, \{v_e, v_f\} \in C$. Therefore, $C = (C' \setminus \{\{v_a, v_1'\}, \{v_2', v_f\}\}) \cup \{\{v_a, v_b\}, \{v_c, v_d\}, \{v_e, v_f\}\}$ is a clique cover of $G$ with size $|C| = |C'| - 2 + 3 = |C'| + 1$.
-
-	\begin{claim2}
-		$\theta(G) = \theta(G') + 1$.
-	\end{claim2}
-	We show that $\theta(G) = \theta(G') + 1$ by showing that $\theta(G) \leq \theta(G') + 1$ and $\theta(G) \geq \theta(G') + 1$.
-
-	\noindent\emph{Case 1 ($\theta(G) \leq \theta(G') + 1$).} Let $\mathcal{C}(G')$ be a minimum clique cover of $G'$. Then by Claim 1, there is a clique cover $C$ of $G$ of size $|C| = |\mathcal{C}(G')| + 1 = \theta(G') + 1$. Since any clique cover of $G$ has size at least $\theta(G)$, we have that $\theta(G) \leq |C| = \theta(G') + 1$. 
-
-	\noindent\emph{Case 2 ($\theta(G) \geq \theta(G') + 1$).} Let $\mathcal{C}(G)$ be a minimum clique cover of $G$. Then either $\{v_b, v_c\}, \{d, e\} \in \mathcal{C}(G)$ or $\{v_a, v_b\}, \{v_c, v_d\}, \{v_e, v_f\} \in \mathcal{C}(G)$.
-	\begin{itemize}
-		\item[-]\emph{Case 2a.} Suppose $\{v_b, v_c\}, \{d, e\} \in \mathcal{C}(G)$. Let $X = \mathcal{C}(G) \setminus \{\{v_c, v_d\}\}$ and observe that $|\mathcal{C}(G)| = |X| + 1$. We note that $C(G') = (\mathcal{C}(G) \setminus \{\{v_b, v_c\}, \{v_d, v_e\}\}) \cup \{v_1', v_2'\})$ is a clique cover of $G'$ with size $|\mathcal{C}(G')| = |\mathcal{C}(G)| - 2 + 1 = |\mathcal{C}(G)| - 1 = |X|$. Therefore $\theta(G) = |\mathcal{C}(G)| = |X| + 1 = |\mathcal{C}(G')| + 1 \geq \theta(G') + 1$.
-
-		\item[-]\emph{Case 2b.} Suppose $\{v_a, v_b\}, \{v_c, v_d\}, \{v_e, v_f\} \in \mathcal{C}(G)$. Let $X = \mathcal{C}(G) \setminus \{\{v_c, v_d\}, \{v_e, v_f\}\}$ and observe that $|\mathcal{C}(G)| = |X| + 2$. We note that $\mathcal{C}(G') = (\mathcal{C}(G) \setminus \{\{v_a, v_b\}, \{v_c, v_d\}, \{v_e, v_f\}\}) \cup \{\{v_a, v_1'\}, \{v_2', v_f\}\}$ is a clique cover of $G'$ with size $|\mathcal{C}(G')| = |\mathcal{C}(G)| - 3 + 2 = |\mathcal{C}(G)| - 1 = |X|$. Therefore $\theta(G) = |\mathcal{C}(G)| = |X| + 1 = |\mathcal{C}(G')| + 1 \geq \theta(G') + 1$.
-	\end{itemize}
-
-	We now show how to construct a minimum clique cover of $G$ from a minimum clique cover of $G'$. Let $\mathcal{C}(G')$ be a minimum clique cover of $G'$. Applying Claim 1 with $G' = \mathcal{C}(G')$ gives a clique cover $C$ of $G$ of size $|C| = |C'| + 1 = \theta(C') + 1 = \theta(G)$, where the last equality is by Claim 2 and thus $C$ is a minimum clique cover of $G$. Then by the proof of Claim 1 we have that
-	\begin{itemize}
-		\item[(a)] if $\{v_1', v_2'\} \in \mathcal{C}(G')$, then $(\mathcal{C}(G') \setminus \{v_1', v_2'\}) \cup \{\{v_b, v_c\}, \{v_d, v_e\}\}$ is a minimum clique cover of $G$, and
-
-		\item[(b)] otherwise $\{v_a, v_1'\}$, $\{v_2', v_f\} \in \mathcal{C}(G')$, then $(\mathcal{C}(G') \setminus \{\{v_a, v_1'\}, \{v_2', v_f\}\}) \cup \{\{v_a, v_b\}, \{v_c, v_d\}, \{v_e, v_f\}\}$ is a minimum clique cover of $G$.
-	\end{itemize}
-\end{proof}
-
-\begin{reduction} 
-	Consider a graph $G = (V, E)$ with minimum degree two. Let $P = \{v_1, v_2, \dots, v_{\ell}\}$ be the set of verticies in a maximal, degree two path in $G$. Let verticies $u, w \in V$, $u, w \notin P$ be endpoints of the path such that $(u, v_1), (v_{\ell}, w) \in E$. We can reduce $G$ in the following cases:
+%Path Reduction
+\begin{reduction}
+	Consider a graph $G = (V, E)$. Let $P = \{v_1, v_2, v_{\ell}\}$ be a set of verticies in a degree two path in $G$. Let vertices $u, w \in V$, $u, w \notin P$ be endpoints of the path such that $(u, v_1), (v_{\ell}, w) \in E$. We can reduce $G$ in the following cases:
 
 	\begin{itemize}
-		\item[(1)] If $|P| \geq 3$ is odd and $u = w$, then we can remove $P \cup \{u\}$ from $G$ to form $G' = G[V \setminus (P \cup \{u\})]$, where $\theta(G) = \theta(G') + \frac{|P|+1}{2}$.
-
-		\item[(2)]
-
+		\item[(1)] If $|P|$ is odd and $u = w$, then we can remove $P \cup \{u\}$ from $G$ to form $G' = G[V \setminus (P \cup \{u\})]$, where $\theta(G) = \theta(G') + \frac{|P| + 1}{2}$.
 	\end{itemize}
+
 \end{reduction}
 
 \begin{proof}[Proof of Reduction 2 (1)]
+	Let $v$ denote $v_t \in P$ where $t = \frac{|P| + 1}{2}$. Note that since $v \in P$, $v$ is degree two. Let $a, b \in V$ be the neighbors of $v$ such that $(a, v), (v, b) \in E$. Then, by Lemma 2, we can contract $\{a, v, b\}$ into a single vertex $v'$ such that $G' = (V', E')$ with vertex set $V' = (V \setminus \{a, v, b\}) \cup \{v'\}$ and edge set $E' = (E \setminus \{\{x, y\}| x \in \{a, v, b\} \lor y \in \{a, v, b\}\}) \cup \{\{x, v'\}| x \in (N(a) \cup N(b))\}$ and $\theta(G) = \theta(G') + 1$. Then $P' = \{v_1, v_2, \dots, v_{\ell - 2}\}$ with size $|P'| = |P| - 2$.
 
-	If $|P| \geq 5$, by Lemma 2, we can contract vertices $v_{\ell - 3}, v_{\ell - 2}, v_{\ell - 1} \in P$ into a single vertex $v'$, giving us a new graph $G' = (V', E')$ with vertex set $V' = (V \setminus \{v_b, v_c, v_d\}) \cup \{v'\}$ and edge set $E' = (E \setminus \{\{x, y\}| x \in \{v_b, v_c, v_d\} \lor y \in \{v_b, v_c, v_d\}\}) \cup \{\{x, v'\}| x \in \{v_a, v_e\}\}$ where $\theta(G) = \theta(G') + 1$. We can rename new vertex $v'$ to $v_{\ell - 3}$ and $v_{\ell}$ to $v_{\ell - 2}$ and repeat the reduction in Lemma 2 $\frac{|P| - 3}{2} - 1$ additional times such that $|P| = 3$ and $\theta(G) = \theta(G') + \frac{|P| - 3}{2}$.
+	If we repeatedly apply Lemma 2 in this fashion, until $v_t$ does not satisfy the conditions of Lemma 2, we are left with $G' = (V', E')$ with vertex set $V' = (V \setminus P) \cup \{v'\}$ and edge set $E' = (E \setminus \{\{x, y\}| x \in P \lor y \in P\}) \cup \{\{u, v'\}\}$ since when $|P| = 1$, $v$ is degree one. 
 
-	Now, we argue we can reduce $P$ further such that $|P| = 1$. Note that $P = \{v_1, v_2, v_3\}$ with endpoint $u \in V$ such that $(u, v_1), (v_3, u) \in V$. We can contract $\{v_1, v_2, v_3\} \in P$ into a single vertex $v'$, giving us a new graph $G'' = (V'', E'')$ with vertex set $V'' = (V' \setminus \{v_1, v_2, v_3\}) \cup \{v'\}$ and edge set $E'' = (E' \setminus \{\{x, y\}| x \in \{v_1, v_2, v_3\} \lor y \in \{v_1, v_2, v_3\}\}) \cup \{\{u, v'\}\}$. Then $\theta(G') = \theta(G') + 1$, and letting $\mathcal{C}(G'')$ be a minimum vertex clique cover of $G''$, we have two cases:
-	\begin{itemize}
-		\item[(a)] if $\{u, v'\} \in \mathcal{C}(G'')$, then either $(\mathcal{C}(G'') \setminus \{\{u, v'\}\}) \cup \{\{u, v_1\}, \{v_2, v_3\}\}$ or $(\mathcal{C}(G'') \setminus \{\{u, v'\}\}) \cup \{\{u, v_3\}, \{v_1, v_2\}\}$ is a minimum clique cover of $G'$ , and
-
-		\item[(b)] otherwise $\{u, v'\} \notin \mathcal{C}(G'')$, and $(\mathcal{C}(G'') \setminus \{\{v'\}\}) \cup \{\{v_1\}, \{v_2, v_3\}\}$ is a minimum clique cover of $G'$.
-	\end{itemize}
-
-	\newtheorem{claim3}{Claim}
-
-	We perform a proof in three parts. First, we show that for any clique cover $C''$ of $G''$, there is a clique cover $C'$ of $G'$ of size $|C'| = |C''| + 1$. Then we show that $\theta(G') = \theta(G'') + 1$. This then implies that if $|C''| = \theta(G')$ (i.e., $C''$ is a minimum clique cover of $G''$), then $|C'| = \theta(G')$ (i.e., $C'$ is a minimum clique cover of $G'$). We then conclude by constructing a minimum clique cover of $G'$ from a minimum clique cover of $G''$.
-
-	\begin{claim} 
-		Let $C''$ be a clique cover of of $G''$, we show there exists a clique cover $C'$ of $G'$ with size $|C'| = |C''| + 1$.
-	\end{claim}
-	There are two cases.
-
-	\noindent\emph{Case 1 ($\{u, v'\} \in C''$).} Then $u$ is in some clique $\{u, x\} \in C'$ where $x \in v'$. Since $P$ is degree two, either $\{u, v_1\} \in C'$ or $\{u, v_3\} \in C'$.
-	\begin{itemize}
-		item[-] \emph{Case 1a ($\{u, v_1\} \in C'$)} Then $\{u, v_1\}, \{v_2, v_3\} \in C'$. Therefore, $C' = (C'' \setminus \{\{u, v'\}\}) \cup \{\{u, v_1\}, \{v_2, v_3\}\}$ is a clique cover of $G'$ with size $|C'| = |C''| - 1 + 2 = |C''| + 1$.
-		item[-]
-	\end{itemize} \emph{Case 1b ($\{u, v_3\} \in C'$)} Then $\{u, v_3\}, \{v_1, v_2\} \in C'$. By a symmetric argument to case 1a, $|C'| = |C''| + 1$
-
-	\noindent\emph{Case 2 ($\{u, v'\} \notin C'$).} Since $P$ is degree two, we can make a symmetric argument to case one, $|C| = |C'| + 1$.
-
-	\begin{claim}
-		$\theta(G) = \theta(G') + 1$.
-	\end{claim}
-	We show that $\theta(G) = \theta(G') + 1$ by showing that $\theta(G) \leq \theta(G') + 1$ and $\theta(G) \geq \theta(G') + 1$.
-
-	\noindent\emph{Case 1 ($\theta(G) \leq \theta(G') + 1$).} Let $\mathcal{C}(G')$ be a minimum clique cover of $G'$. Then by Claim 1, there is a clique cover $C$ of $G$ of size $|C| = |\mathcal{C}(G')| + 1 = \theta(G') + 1$. Since any clique cover of $G$ has size at least $\theta(G)$, we have that $\theta(G) \leq |C| = \theta(G') + 1$. 
-
-	\noindent\emph{Case 2 ($\theta(G) \geq \theta(G') + 1$).} Let $\mathcal{C}(G)$ be a minimum clique cover of $G$. Then either $\{v_a, v_b\} \in \mathcal{C}(G)$ or $\{v_d, v_e\} \in \mathcal{C}(G)$.
-	\begin{itemize}
-		\item[-]\emph{Case 2a.} Suppose $\{v_a, v_b\} \in \mathcal{C}(G)$. Then, we have that $\{v_c, v_d\} \in \mathcal{C}(G)$. Let $X = \mathcal{C}(G) \setminus \{v_c, v_d\}$ and observe that $|\mathcal{C}(G)| = |X| + 1$. We note that $C(G') = ((\mathcal{C}(G) \setminus \{v_c, v_d\}) \setminus \{v_a, v_b\}) \cup \{v_a, v'\})$ is a clique cover of $G'$ with size $|\mathcal{C}(G')| = |\mathcal{C}(G)| - 2 + 1 = |\mathcal{C}(G)| - 1 = |X|$. Therefore $\theta(G) = |\mathcal{C}(G)| = |X| + 1 = |\mathcal{C}(G')| + 1 \geq \theta(G') + 1$.
-
-		\item[-]\emph{Case 2b.} Suppose $\{v_d, v_e\} \in \mathcal{C}(G)$, then we can make a symmetrical argument to case 2a, $\theta(G) \geq \theta(G') + 1$.
-	\end{itemize}
-
-	We now show how to construct a minimum clique cover of $G$ from a minimum clique cover of $G'$. Let $\mathcal{C}(G')$ be a minimum clique cover of $G'$. Applying Claim 1 with $G' = \mathcal{C}(G')$ gives a clique cover $C$ of $G$ of size $|C| = |C'| + 1 = \theta(C') + 1 = \theta(G)$, where the last equality is by Claim 2 and thus $C$ is a minimum clique cover of $G$. Then by the proof of Claim 1 we have that
-	\begin{itemize}
-		\item[(a)] if $\{v_a, v'\} \in \mathcal{C}(G')$, then $(\mathcal{C}(G') \setminus \{v_a, v'\}) \cup \{\{v_a, v_b\}, \{v_c, v_d\}\}$ is a minimum clique cover of $G$, and
-
-		\item[(b)] otherwise $\{v', v_e\} \in \mathcal{C}(G')$, and $(\mathcal{C}(G') \setminus \{v, v_e\}) \cup \{\{v_b, v_c\}, \{v_d, v_e\}\}$ is a minimum clique cover of $G$.
-	\end{itemize}
+	To reduce $G$ such that $|P'| = 1$, we apply Lemma 2 $\frac{|P| - 1}{2}$ times such that $\theta(G) = \theta(G') + \frac{|P| - 1}{2}$. Since the last $v \in P'$ is degree one, by the proof of reduction 1, we can remove $u, v$ from $G$ such that $G'' = G'[V \setminus \{u, v\}]$ where $\theta(G') = \theta(G'')  + 1$. Therefore we have $G'' = G[V \setminus (P \cup \{u\})]$ where  $\theta(G) = \theta(G') + \frac{|P| - 1}{2} + 1 = \theta(G') + \frac{|P| + 1}{2}$. 
 \end{proof}
 
-\end{proof}
+% \begin{reduction} 
+% 	Consider a graph $G = (V, E)$ with minimum degree two. Let $P = \{v_1, v_2, \dots, v_{\ell}\}$ be the set of verticies in a maximal, degree two path in $G$. Let verticies $u, w \in V$, $u, w \notin P$ be endpoints of the path such that $(u, v_1), (v_{\ell}, w) \in E$. We can reduce $G$ in the following cases:
+
+% 	\begin{itemize}
+% 		\item[(1)] If $|P| \geq 3$ is odd and $u = w$, then we can remove $P \cup \{u\}$ from $G$ to form $G' = G[V \setminus (P \cup \{u\})]$, where $\theta(G) = \theta(G') + \frac{|P|+1}{2}$.
+
+% 		\item[(2)]
+
+% 	\end{itemize}
+% \end{reduction}
+
+% \begin{proof}[Proof of Reduction 2 (1)]
+
+% 	If $|P| \geq 5$, by Lemma 2, we can contract vertices $v_{\ell - 3}, v_{\ell - 2}, v_{\ell - 1} \in P$ into a single vertex $v'$, giving us a new graph $G' = (V', E')$ with vertex set $V' = (V \setminus \{v_b, v_c, v_d\}) \cup \{v'\}$ and edge set $E' = (E \setminus \{\{x, y\}| x \in \{v_b, v_c, v_d\} \lor y \in \{v_b, v_c, v_d\}\}) \cup \{\{x, v'\}| x \in \{v_a, v_e\}\}$ where $\theta(G) = \theta(G') + 1$. We can rename new vertex $v'$ to $v_{\ell - 3}$ and $v_{\ell}$ to $v_{\ell - 2}$ and repeat the reduction in Lemma 2 $\frac{|P| - 3}{2} - 1$ additional times such that $|P| = 3$ and $\theta(G) = \theta(G') + \frac{|P| - 3}{2}$.
+
+% 	Now, we argue we can reduce $P$ further such that $|P| = 1$. Note that $P = \{v_1, v_2, v_3\}$ with endpoint $u \in V$ such that $(u, v_1), (v_3, u) \in V$. We can contract $\{v_1, v_2, v_3\} \in P$ into a single vertex $v'$, giving us a new graph $G'' = (V'', E'')$ with vertex set $V'' = (V' \setminus \{v_1, v_2, v_3\}) \cup \{v'\}$ and edge set $E'' = (E' \setminus \{\{x, y\}| x \in \{v_1, v_2, v_3\} \lor y \in \{v_1, v_2, v_3\}\}) \cup \{\{u, v'\}\}$. Then $\theta(G') = \theta(G') + 1$, and letting $\mathcal{C}(G'')$ be a minimum vertex clique cover of $G''$, we have two cases:
+% 	\begin{itemize}
+% 		\item[(a)] if $\{u, v'\} \in \mathcal{C}(G'')$, then either $(\mathcal{C}(G'') \setminus \{\{u, v'\}\}) \cup \{\{u, v_1\}, \{v_2, v_3\}\}$ or $(\mathcal{C}(G'') \setminus \{\{u, v'\}\}) \cup \{\{u, v_3\}, \{v_1, v_2\}\}$ is a minimum clique cover of $G'$ , and
+
+% 		\item[(b)] otherwise $\{u, v'\} \notin \mathcal{C}(G'')$, and $(\mathcal{C}(G'') \setminus \{\{v'\}\}) \cup \{\{v_1\}, \{v_2, v_3\}\}$ is a minimum clique cover of $G'$.
+% 	\end{itemize}
+
+% 	\newtheorem{claim3}{Claim}
+
+% 	We perform a proof in three parts. First, we show that for any clique cover $C''$ of $G''$, there is a clique cover $C'$ of $G'$ of size $|C'| = |C''| + 1$. Then we show that $\theta(G') = \theta(G'') + 1$. This then implies that if $|C''| = \theta(G')$ (i.e., $C''$ is a minimum clique cover of $G''$), then $|C'| = \theta(G')$ (i.e., $C'$ is a minimum clique cover of $G'$). We then conclude by constructing a minimum clique cover of $G'$ from a minimum clique cover of $G''$.
+
+% 	\begin{claim} 
+% 		Let $C''$ be a clique cover of of $G''$, we show there exists a clique cover $C'$ of $G'$ with size $|C'| = |C''| + 1$.
+% 	\end{claim}
+% 	There are two cases.
+
+% 	\noindent\emph{Case 1 ($\{u, v'\} \in C''$).} Then $u$ is in some clique $\{u, x\} \in C'$ where $x \in v'$. Since $P$ is degree two, either $\{u, v_1\} \in C'$ or $\{u, v_3\} \in C'$.
+% 	\begin{itemize}
+% 		\item[-] \emph{Case 1a ($\{u, v_1\} \in C'$)} Then $\{u, v_1\}, \{v_2, v_3\} \in C'$. Therefore, $C' = (C'' \setminus \{\{u, v'\}\}) \cup \{\{u, v_1\}, \{v_2, v_3\}\}$ is a clique cover of $G'$ with size $|C'| = |C''| - 1 + 2 = |C''| + 1$.
+% 		\item[-]
+% 	\end{itemize} \emph{Case 1b ($\{u, v_3\} \in C'$)} Then $\{u, v_3\}, \{v_1, v_2\} \in C'$. By a symmetric argument to case 1a, $|C'| = |C''| + 1$
+
+% 	\noindent\emph{Case 2 ($\{u, v'\} \notin C'$).} Since $P$ is degree two, we can make a symmetric argument to case one, $|C| = |C'| + 1$.
+
+% 	\begin{claim}
+% 		$\theta(G) = \theta(G') + 1$.
+% 	\end{claim}
+% 	We show that $\theta(G) = \theta(G') + 1$ by showing that $\theta(G) \leq \theta(G') + 1$ and $\theta(G) \geq \theta(G') + 1$.
+
+% 	\noindent\emph{Case 1 ($\theta(G) \leq \theta(G') + 1$).} Let $\mathcal{C}(G')$ be a minimum clique cover of $G'$. Then by Claim 1, there is a clique cover $C$ of $G$ of size $|C| = |\mathcal{C}(G')| + 1 = \theta(G') + 1$. Since any clique cover of $G$ has size at least $\theta(G)$, we have that $\theta(G) \leq |C| = \theta(G') + 1$. 
+
+% 	\noindent\emph{Case 2 ($\theta(G) \geq \theta(G') + 1$).} Let $\mathcal{C}(G)$ be a minimum clique cover of $G$. Then either $\{v_a, v_b\} \in \mathcal{C}(G)$ or $\{v_d, v_e\} \in \mathcal{C}(G)$.
+% 	\begin{itemize}
+% 		\item[-]\emph{Case 2a.} Suppose $\{v_a, v_b\} \in \mathcal{C}(G)$. Then, we have that $\{v_c, v_d\} \in \mathcal{C}(G)$. Let $X = \mathcal{C}(G) \setminus \{v_c, v_d\}$ and observe that $|\mathcal{C}(G)| = |X| + 1$. We note that $C(G') = ((\mathcal{C}(G) \setminus \{v_c, v_d\}) \setminus \{v_a, v_b\}) \cup \{v_a, v'\})$ is a clique cover of $G'$ with size $|\mathcal{C}(G')| = |\mathcal{C}(G)| - 2 + 1 = |\mathcal{C}(G)| - 1 = |X|$. Therefore $\theta(G) = |\mathcal{C}(G)| = |X| + 1 = |\mathcal{C}(G')| + 1 \geq \theta(G') + 1$.
+
+% 		\item[-]\emph{Case 2b.} Suppose $\{v_d, v_e\} \in \mathcal{C}(G)$, then we can make a symmetrical argument to case 2a, $\theta(G) \geq \theta(G') + 1$.
+% 	\end{itemize}
+
+% 	We now show how to construct a minimum clique cover of $G$ from a minimum clique cover of $G'$. Let $\mathcal{C}(G')$ be a minimum clique cover of $G'$. Applying Claim 1 with $G' = \mathcal{C}(G')$ gives a clique cover $C$ of $G$ of size $|C| = |C'| + 1 = \theta(C') + 1 = \theta(G)$, where the last equality is by Claim 2 and thus $C$ is a minimum clique cover of $G$. Then by the proof of Claim 1 we have that
+% 	\begin{itemize}
+% 		\item[(a)] if $\{v_a, v'\} \in \mathcal{C}(G')$, then $(\mathcal{C}(G') \setminus \{v_a, v'\}) \cup \{\{v_a, v_b\}, \{v_c, v_d\}\}$ is a minimum clique cover of $G$, and
+
+% 		\item[(b)] otherwise $\{v', v_e\} \in \mathcal{C}(G')$, and $(\mathcal{C}(G') \setminus \{v, v_e\}) \cup \{\{v_b, v_c\}, \{v_d, v_e\}\}$ is a minimum clique cover of $G$.
+% 	\end{itemize}
+
+% \end{proof}
+
+% BEGIN OLD OLD
 
 % \begin{reduction} 
 % 	If graph $G = (V, E)$ contains a maximal degree-two path $P = (v_1, v_2, \dots, v_l)$ with $u \notin P$ and $w \notin P$ connected to $v_1$ and $v_l$ ($(u, v_1) \in E$ and $(w, v_l) \in E$) respectively then we can reduce $G$ in the following cases:
