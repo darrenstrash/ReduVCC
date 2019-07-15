@@ -8,7 +8,8 @@ class vertex_label_function_refer
 private:
     refer vertices;
     refer k;
-    refer (* vertex_label_matrix)[MAX_LABELS_CCP];
+    // DS:UNUSED
+////    refer (* vertex_label_matrix)[MAX_LABELS_CCP];
     class sorted_value_list
     {
     public:

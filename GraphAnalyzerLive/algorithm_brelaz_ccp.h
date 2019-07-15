@@ -4,11 +4,13 @@
 #include "graphs.h"
 #include "vertex_label_function_refer.h"
 
+#include <vector>
+
 class algorithm_brelaz_ccp : public algorithm
 {
 private:
-    long long priorities[MAX_VERTICES];
-    long long priorities_secondary[MAX_VERTICES];
+    std::vector<long long> priorities; //[MAX_VERTICES];
+    std::vector<long long> priorities_secondary; //[MAX_VERTICES];
     //short (*neighbor_color_matrix)[MAX_LABELS_CCP];
     vertex_label_function_refer *vertex_label_function;
     unsigned long class_sizes[MAX_VERTICES];

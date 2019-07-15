@@ -2,6 +2,15 @@
 
 algorithm_greedyindset::algorithm_greedyindset()
 {
+    have_adjacent_indset_member = new bool[MAX_VERTICES];
+    Q = new refer[MAX_VERTICES];
+    D = new double[MAX_VERTICES];
+}
+
+algorithm_greedyindset::~algorithm_greedyindset() {
+    delete[] have_adjacent_indset_member;
+    delete[] Q;
+    delete[] D;
 }
 
 long algorithm_greedyindset::greedy_indset(graph G, refer result[])

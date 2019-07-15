@@ -3,8 +3,10 @@
 #include <stdio.h>
 #include "common.h"
 // maximalny pocet vrcholov grafu
-#define MAX_VERTICES 30050
-#define MAX_LABELS_CCP 40000
+////#define MAX_VERTICES 30050
+#define MAX_VERTICES 5000000
+////#define MAX_LABELS_CCP 40000
+#define MAX_LABELS_CCP 6000000
 
 /*
         ----------------

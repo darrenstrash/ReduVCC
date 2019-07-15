@@ -3,7 +3,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "graphs.h"
-#define MAX_HASH 500000
+////#define MAX_HASH 500000
+#define MAX_HASH 5000000
 
 class hashset
 {
@@ -17,9 +18,10 @@ public:
 class edgetable
 {
 private:
-    hashset H[MAX_HASH];
+    hashset* H; //[MAX_HASH];
 public:
     edgetable();
+    ~edgetable();
     // hashovacia funkcia
     unsigned long long hash(refer v, refer w);
     bool isin(refer v, refer w);

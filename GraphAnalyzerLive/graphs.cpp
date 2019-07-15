@@ -17,6 +17,7 @@
 #include "random_generator.h"
 
 #include <iostream>
+#include <algorithm>
 
 graph G;
 edgetable *edges;
@@ -150,7 +151,10 @@ void input_graph(FILE *source)
     std::cout << "here4" << std::endl;
     for (i=0;i<G->n;i++)
     {
-        QuickSort(G->V[i].sibl,0,G->V[i].edgecount-1);
+        if (G->V[i].edgecount >= 1) {
+            std::sort(G->V[i].sibl, G->V[i].sibl + G->V[i].edgecount-1);
+////        QuickSort(G->V[i].sibl,0,G->V[i].edgecount-1);
+        }
     }
     std::cout << "here5" << std::endl;
     delete(E1);
@@ -293,7 +297,10 @@ void generate_graph_BA_model(unsigned long w, unsigned long n_max)
 
     for (i=0;i<G->n;i++)
     {
-        QuickSort(G->V[i].sibl,0,G->V[i].edgecount-1);
+        if (G->V[i].edgecount >= 1) {
+            std::sort(G->V[i].sibl, G->V[i].sibl + G->V[i].edgecount-1);
+////            QuickSort(G->V[i].sibl,0,G->V[i].edgecount-1);
+        }
         //printf("%ld->",i);
         /*for (j=0;j<G->V[i].edgecount;j++)
         {

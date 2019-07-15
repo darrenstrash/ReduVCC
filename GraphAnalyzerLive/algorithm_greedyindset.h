@@ -7,11 +7,11 @@ class algorithm_greedyindset : public algorithm
 {
 private:
     graph G;
-    bool have_adjacent_indset_member[MAX_VERTICES];
+    bool *have_adjacent_indset_member;//[MAX_VERTICES];
     // halda
-    refer Q[MAX_VERTICES];
+    refer *Q;//[MAX_VERTICES];
     // D[i] is the priority value for i-th element of the heap
-    double D[MAX_VERTICES];
+    double *D;//[MAX_VERTICES];
     // velkost haldy
     refer heapsize;
     void createset();
@@ -22,6 +22,7 @@ private:
     refer extractmin();
 public:
     algorithm_greedyindset();
+    ~algorithm_greedyindset();
     long greedy_indset(graph G, refer result[]);
 };
 

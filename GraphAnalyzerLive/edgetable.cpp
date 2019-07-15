@@ -2,12 +2,18 @@
 
 edgetable::edgetable()
 {
+    H = new hashset[MAX_HASH];
     long i;
     for (i=0;i<MAX_HASH;i++)
     {
         H[i].occ = false;
         H[i].next = NULL;
     }
+}
+
+edgetable::~edgetable()
+{
+    delete[] H;
 }
 
 // hashovacia funkcia

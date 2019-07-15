@@ -41,16 +41,17 @@ private:
     void sleep(unsigned long long milisec);
     void try_all_permutations();
     void generate_permutation(long permutation[], bool occupied[], refer level, algorithm *alg);
-    refer result_for_permutation[MAX_VERTICES];
-    refer histogram[MAX_VERTICES];
-    refer sizes[MAX_VERTICES];
-    long bad_scenario_counter;
-    long degree_distrib[MAX_VERTICES];
+    refer* result_for_permutation; //[MAX_VERTICES];
+    refer* histogram; //[MAX_VERTICES];
+    refer* sizes; //[MAX_VERTICES];
+    long   bad_scenario_counter;
+    long*  degree_distrib; //[MAX_VERTICES];
     problem_ccp *prob;
     double approx;
     long discrep;
 public:
     cli();
+    ~cli();
     int start_cli();
 };
 

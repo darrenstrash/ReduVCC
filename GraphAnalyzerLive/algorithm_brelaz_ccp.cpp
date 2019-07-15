@@ -2,6 +2,10 @@
 
 algorithm_brelaz_ccp::algorithm_brelaz_ccp(graph G, refer vertices)
 {
+
+    priorities.resize(MAX_VERTICES, 0);
+    priorities_secondary.resize(MAX_VERTICES, 0);
+
     //neighbor_color_matrix = new short[vertices][MAX_LABELS_CCP];
     vertex_label_function = new vertex_label_function_refer(G,G->n,MAX_LABELS_CCP);
 }

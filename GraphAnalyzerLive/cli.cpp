@@ -2,6 +2,18 @@
 
 cli::cli()
 {
+    result_for_permutation = new refer[MAX_VERTICES];
+    histogram              = new refer[MAX_VERTICES];
+    sizes                  = new refer[MAX_VERTICES];
+    degree_distrib         = new long[MAX_VERTICES];
+}
+
+cli::~cli() 
+{
+    delete[] result_for_permutation;
+    delete[] histogram;
+    delete[] sizes;
+    delete[] degree_distrib;
 }
 
 void cli::sleep(unsigned long long milisec)
@@ -64,8 +76,8 @@ void cli::generate_permutation(long permutation[], bool occupied[], refer level,
 void cli::try_all_permutations()
 {
     refer i;
-    long permutation[MAX_VERTICES];
-    bool occupied[MAX_VERTICES];
+    long *permutation = new long[MAX_VERTICES];
+    bool *occupied    = new bool[MAX_VERTICES];
     bad_scenario_counter = 0;
 
     algorithm *alg = new algorithm_iggcc();
@@ -82,6 +94,9 @@ void cli::try_all_permutations()
 
     delete(prob);
     delete(alg);
+
+    delete[] permutation;
+    delete[] occupied;
 
     printf("4: %ld, 5: %ld, 6: %ld, bad: %ld\n",histogram[4],histogram[5],histogram[6],bad_scenario_counter);
     getchar();
@@ -198,7 +213,7 @@ int cli::choose_algorithm()
 {
     long j;
     refer current_gcc;
-    refer initial_indset[MAX_VERTICES];
+    refer* initial_indset = new refer[MAX_VERTICES];
     refer initial_indset_size;
 
     printf("Finding clique coverings using our heuristic...\n");
@@ -323,6 +338,8 @@ int cli::choose_algorithm()
     delete(iggcc_ccp);
     delete(ccp);
     delete(result);
+
+    delete[] initial_indset;
 
     // Brelazovka
     /*printf("Brelaz:\n");
