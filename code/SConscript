@@ -80,7 +80,9 @@ libkaffpa_files = [   'lib/data_structure/graph_hierarchy.cpp',
                       'lib/algorithms/cycle_search.cpp',
                       'lib/partition/uncoarsening/refinement/cycle_improvements/cycle_refinement.cpp',
                       'lib/partition/uncoarsening/refinement/tabu_search/tabu_search.cpp',
-                      'extern/argtable3-3.0.3/argtable3.c'
+                      'extern/argtable3-3.0.3/argtable3.c',
+                      'lib/mis/kernel/branch_and_reduce_algorithm.cpp',
+                      'lib/mis/kernel/modified.cpp'
                       ]
 
 libkaffpa_parallel_async  = ['lib/parallel_mh/parallel_mh_async.cpp',
