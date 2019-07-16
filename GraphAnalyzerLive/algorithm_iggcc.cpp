@@ -10,6 +10,51 @@ algorithm_iggcc::algorithm_iggcc()
         }
         t_contributions[i] = 0;
     }*/
+    
+    permutation_indset = new long[MAX_VERTICES];
+    new_permutation_indset = new long[MAX_VERTICES];
+    class_sizes = new long[MAX_VERTICES];
+    clique_sizes = new long[MAX_VERTICES];
+    size_copies = new long[MAX_VERTICES];
+    changed_sizes = new bool[MAX_VERTICES];
+    internal_positions = new long[MAX_VERTICES];
+    conflicting_vertices_list = new long[MAX_VERTICES];
+    positioning_list = new long[MAX_VERTICES];
+    class_beginnings = new long[MAX_VERTICES];
+    auxiliary_state = new long[MAX_VERTICES];
+    possibilities = new long[MAX_VERTICES];
+    permutation = new long[MAX_VERTICES];
+    new_ordering = new long[MAX_VERTICES];
+    vertex_lists = new vertex_list[MAX_VERTICES + 1];
+    have_adjacent_indset_member = new bool[MAX_VERTICES];
+    new_permutation = new long[MAX_VERTICES];
+    new_class_beginnings = new long[MAX_VERTICES];
+    free_indset_vertices = new bool[MAX_VERTICES];
+    triangles_count = new long[MAX_VERTICES];
+}
+
+algorithm_iggcc::~algorithm_iggcc()
+{
+    delete[] permutation_indset;
+    delete[] new_permutation_indset;
+    delete[] class_sizes;
+    delete[] clique_sizes;
+    delete[] size_copies;
+    delete[] changed_sizes;
+    delete[] internal_positions;
+    delete[] conflicting_vertices_list;
+    delete[] positioning_list;
+    delete[] class_beginnings;
+    delete[] auxiliary_state;
+    delete[] possibilities;
+    delete[] permutation;
+    delete[] new_ordering;
+    delete[] vertex_lists;
+    delete[] have_adjacent_indset_member;
+    delete[] new_permutation;
+    delete[] new_class_beginnings;
+    delete[] free_indset_vertices;
+    delete[] triangles_count;
 }
 
 long algorithm_iggcc::greedy_indset(graph G, long permutation_indset[])
