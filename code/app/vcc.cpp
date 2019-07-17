@@ -7,6 +7,7 @@
 
 #include <argtable3.h>
 #include <iostream>
+#include <fstream>
 #include <math.h>
 #include <regex.h>
 #include <sstream>
@@ -29,6 +30,10 @@
 #include "timer.h"
 
 #include "mis/kernel/branch_and_reduce_algorithm.h"
+
+#include "ccp/Chalupa/cli.h"
+#include "ccp/Chalupa/random_generator.h"
+#include <time.h>
 
 
 class Reduction{
@@ -102,7 +107,8 @@ public:
   Reduction(graph_access &G);
   
   int getGraphSize(graph_access &G);
-  void reduceGraph(graph_access &G, std::vector<std::vector<NodeID>> &adj_list);
+  void makeSubGraph(graph_access&G, std::vector<std::vector<NodeID>> &adj_list, PartitionConfig &partition_config);
+  void reduceGraph(graph_access &G, std::vector<std::vector<NodeID>> &adj_list, PartitionConfig &partition_config);
   void unreduceGraph(graph_access &G, std::vector<std::vector<NodeID>> &adj_list);
 };
 
@@ -371,6 +377,8 @@ void Reduction::makeNewAdj(graph_access &G, std::vector<std::vector<NodeID>> &ad
   new_old_map.clear();
   new_old_map.resize(G.number_of_nodes());
 
+  int_adj_list.clear();
+  
   int u = 0;
     
   for (unsigned int i = 0; i < G.number_of_nodes(); i++){
@@ -1140,7 +1148,59 @@ int Reduction::getGraphSize(graph_access &G){
 }
 
 
-void Reduction::reduceGraph(graph_access &G, std::vector<std::vector<NodeID>> &adj_list){
+void Reduction::makeSubGraph(graph_access &G, std::vector<std::vector<NodeID>> &adj_list, PartitionConfig &partition_config){
+
+  makeNewAdj(G, adj_list);
+
+  unsigned int n = 0;
+  unsigned long e = 0;
+
+  for (unsigned int i = 0; i < int_adj_list.size(); i++){
+    for (unsigned int j = 0; j < int_adj_list[i].size(); j++){
+      e++;
+    }
+    n++;
+  }
+
+  std::cout << n << " " << e / 2 << std::endl;
+    
+    cli *cli_instance;
+    
+    cli_instance = new cli(partition_config.seed);
+    cli_instance->start_cli(int_adj_list, n, e);
+    
+    for (unsigned int i = 0; i < cli_instance->clique_cover.size(); i++){
+        for (unsigned int j = 0; j < cli_instance->clique_cover[i].size(); j++){
+            std::cout << cli_instance->clique_cover[i][j] << " ";
+        }
+        std::cout << std::endl;
+    }
+    
+    addCrownCliques(G, adj_list, cli_instance->clique_cover);
+    
+    delete(cli_instance);
+    
+    return;
+  
+  std::ofstream subGfile;
+  subGfile.open("sub.graph");
+  subGfile << n << " " << e / 2 << " 00\n";
+
+  for (unsigned int i = 0; i < int_adj_list.size() - 1; i++){
+    for (unsigned int j = 0; j < int_adj_list[i].size() - 1; j++){
+      subGfile << int_adj_list[i][j] + 1 << " ";
+    }
+    subGfile << int_adj_list[i].back() + 1 << "\n";
+  }
+  for (unsigned int i = 0; i < int_adj_list.back().size() - 1; i++){
+    subGfile << int_adj_list.back()[i] << " ";
+  }
+  subGfile << int_adj_list.back().back();  
+  subGfile.close();
+}
+
+
+void Reduction::reduceGraph(graph_access &G, std::vector<std::vector<NodeID>> &adj_list, PartitionConfig &partition_config){
     
    unsigned int num_nodes = G.number_of_nodes();
 
@@ -1163,6 +1223,11 @@ void Reduction::reduceGraph(graph_access &G, std::vector<std::vector<NodeID>> &a
      // reduceIsolated(G, adj_list);
      
      //   reduceCrown(G, adj_list);
+   makeNewAdj(G, adj_list);
+   if (int_adj_list.size() > 0){
+     std::cout << "remaining v" << std::endl;
+     makeSubGraph(G, adj_list, partition_config);
+   }
 }
 
 void makeAdjList(graph_access &G, std::vector<std::vector<NodeID>> &adj_list){
@@ -1227,46 +1292,46 @@ int main(int argn, char **argv) {
     
     PartitionConfig partition_config;
     std::string graph_filename;
-    
+
     bool is_graph_weighted = false;
     bool suppress_output   = false;
     bool recursive         = false;
-    
+
     int ret_code = parse_parameters(argn, argv,
                                     partition_config,
                                     graph_filename,
                                     is_graph_weighted,
                                     suppress_output, recursive);
-    
+
     if(ret_code) {
         return 0;
     }
-    
+
     std::streambuf* backup = std::cout.rdbuf();
     std::ofstream ofs;
     ofs.open("/dev/null");
     if(suppress_output) {
         std::cout.rdbuf(ofs.rdbuf());
     }
-    
+
     partition_config.LogDump(stdout);
     graph_access G;
-    
+
     timer t;
     graph_io::readGraphWeighted(G, graph_filename);
     //  std::cout << "io time: " << t.elapsed()  << std::endl;
-    
+
     //  unsigned int num_nodes = G.number_of_nodes();
-    
+
     timer s;
     std::vector<std::vector<NodeID>> adj_list;
     makeAdjList(G, adj_list);
     //  std::vector<bool> node_status(num_nodes, true);
-    
+
     Reduction R(G);
 //      reduceGraph(G, adj_list, node_status);
-    R.reduceGraph(G, adj_list);
-    R.unreduceGraph(G, adj_list);
+    R.reduceGraph(G, adj_list, partition_config);
+      R.unreduceGraph(G, adj_list);
     analyzeGraph(graph_filename, G, adj_list, R, s);
 }
 
