@@ -82,7 +82,20 @@ libkaffpa_files = [   'lib/data_structure/graph_hierarchy.cpp',
                       'lib/partition/uncoarsening/refinement/tabu_search/tabu_search.cpp',
                       'extern/argtable3-3.0.3/argtable3.c',
                       'lib/mis/kernel/branch_and_reduce_algorithm.cpp',
-                      'lib/mis/kernel/modified.cpp'
+                      'lib/mis/kernel/modified.cpp',
+                      'lib/ccp/Chalupa/algorithm_brelaz_ccp.cpp',
+                      'lib/ccp/Chalupa/algorithm_greedyindset.cpp',
+                      'lib/ccp/Chalupa/algorithm_iggcc.cpp',
+                      'lib/ccp/Chalupa/algorithm.cpp',
+                      'lib/ccp/Chalupa/cli.cpp',
+                      'lib/ccp/Chalupa/common.cpp',
+                      'lib/ccp/Chalupa/edgetable.cpp',
+                      'lib/ccp/Chalupa/graphs.cpp',
+                      'lib/ccp/Chalupa/problem_ccp.cpp',
+                      'lib/ccp/Chalupa/problem.cpp',
+                      'lib/ccp/Chalupa/random_generator.cpp',
+                      'lib/ccp/Chalupa/statistics.cpp',
+                      'lib/ccp/Chalupa/vertex_label_function_refer.cpp'
                       ]
 
 libkaffpa_parallel_async  = ['lib/parallel_mh/parallel_mh_async.cpp',
