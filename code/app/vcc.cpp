@@ -1,4 +1,5 @@
-/*****A*************************************************************************
+
+/******************************************************************************
  * vcc.cpp
  * *
  * Source of KaHIP -- Karlsruhe High Quality Partitioning.
@@ -35,654 +36,522 @@
 #include "ccp/Chalupa/random_generator.h"
 #include <time.h>
 
-
-class Reduction{
+class Queue {
 private:
-  std::vector<bool> scratch;
-    
-  std::vector<int> reductions;
-    
-  std::vector<NodeID> d2_fold;
-  std::vector<std::vector<NodeID>> d2_folded_nodes;
-  std::vector<std::vector<NodeID>> d2_folded_neighborhood;
-  
-  std::vector<NodeID> twin_fold;
-  std::vector<std::vector<NodeID>> twin_folded_nodes;
-  std::vector<std::vector<std::vector<NodeID>>> twin_folded_neighborhoods;
-  
-  std::vector<NodeID> dominated_node;
-  std::vector<NodeID> dominating_node;
-  
-  std::vector<int> old_new_map;
-  std::vector<NodeID> new_old_map;
-  std::vector<std::vector<int>> int_adj_list;
-  
-  void removeVertex(graph_access &G, std::vector<std::vector<NodeID>> &adj_list, NodeID &v);
-  void addClique(graph_access &G, std::vector<std::vector<NodeID>> &adj_list, std::vector<NodeID> &clique);
-  
-  void reduceIsolated(graph_access &G, std::vector<std::vector<NodeID>> &adj_list);
-  int getIsolated(graph_access &G, std::vector<std::vector<NodeID>> &adj_list);
-  bool checkNeighbor(graph_access &G, std::vector<std::vector<NodeID>> &adj_list, NodeID &v, NodeID &u);
-  void addIsolatedClique(graph_access &G, std::vector<std::vector<NodeID>> &adj_list, NodeID &v);
-  void removeIsolated(graph_access &G, std::vector<std::vector<NodeID>> &adj_list, NodeID &v);
-  
-  void reduceDegreeTwo(graph_access &G, std::vector<std::vector<NodeID>> &adj_list);
-  int getDegreeTwo(graph_access &G, std::vector<std::vector<NodeID>> &adj_list);
-  bool checkValidDegreeTwo(graph_access &G, std::vector<std::vector<NodeID>> &adj_list, NodeID &v);
-  void foldDegreeTwo(graph_access &G, std::vector<std::vector<NodeID>> &adj_list, NodeID &v);
-  
-  void reduceTwin(graph_access &G, std::vector<std::vector<NodeID>> &adj_list);
-  int getTwin(graph_access &G, std::vector<std::vector<NodeID>> &adj_list);
-  bool checkValidTwinFold(graph_access &G, std::vector<std::vector<NodeID>> &adj_list, NodeID &v, NodeID &u, NodeID &a, NodeID &b, NodeID &c);
-  void organizeTwinElements(graph_access &G, std::vector<std::vector<NodeID>> &adj_list, NodeID &w, NodeID &y, NodeID &z, NodeID &a, NodeID &b, NodeID &c);
-  bool foundTwin(graph_access &G, std::vector<std::vector<NodeID>> &adj_list, NodeID &v, NodeID &u, NodeID &a, NodeID &b, NodeID &c);
-  bool removeTypeTwin(graph_access &G, std::vector<std::vector<NodeID>> &adj_list, NodeID &a, NodeID &b, NodeID &c);
-  void removeTwin(graph_access &G, std::vector<std::vector<NodeID>> &adj_list, NodeID &v, NodeID &u, NodeID &a, NodeID &b, NodeID &c);
-  void foldTwinVertices(graph_access &G, std::vector<std::vector<NodeID>> &adj_list, NodeID &v, NodeID &u, NodeID &a, NodeID &b, NodeID &c);
-  
-  void reduceDominance(graph_access &G, std::vector<std::vector<NodeID>> &adj_list);
-  int getDominant(graph_access &G, std::vector<std::vector<NodeID>> &adj_list);
-  bool checkDominance(graph_access &G, std::vector<std::vector<NodeID>> &adj_list, NodeID &v, NodeID &u);
-  void removeDominant(graph_access &G, std::vector<std::vector<NodeID>> &adj_list, NodeID &v, NodeID &u);
-  
-  void reduceCrown(graph_access &G, std::vector<std::vector<NodeID>> &adj_list);
-  void addCrownCliques(graph_access &G, std::vector<std::vector<NodeID>> &adj_list, std::vector<std::vector<int>> &crown_cliques);
-  void makeNewAdj(graph_access &G, std::vector<std::vector<NodeID>> &adj_list);
-  
-  bool checkCliqueStatus(graph_access &G, std::vector<std::vector<NodeID>> &adj_list, std::vector<NodeID> &clique, NodeID &x, std::vector<NodeID> &n_v);
-  
-  void unreduceDegreeTwo(graph_access &G, std::vector<std::vector<NodeID>> &adj_list);
-  void adjustDegreeTwoClique(graph_access &G, std::vector<std::vector<NodeID>> &adj_list, NodeID &x, std::vector<NodeID> &fold, std::vector<NodeID> &n_u);
-  
-  void unreduceTwin(graph_access &G, std::vector<std::vector<NodeID>> &adj_list);
-  void adjustTwinClique(graph_access &G, std::vector<std::vector<NodeID>> &adj_list, NodeID &c, std::vector<NodeID> &fold, std::vector<std::vector<NodeID>> &neighborhoods);
-    
-  void unreduceDominance(graph_access &G, std::vector<std::vector<NodeID>> &adj_list);
-    
+    unsigned int size;
+
+    unsigned int start;
+    unsigned int end;
+
+    std::vector<NodeID> queue;
+    std::vector<bool> node_in_queue;
+
 public:
-  std::vector<bool> node_status;
-  std::vector<std::vector<NodeID>> clique_cover;
-  std::vector<unsigned int> node_clique;
-  
-  Reduction(graph_access &G);
-  
-  int getGraphSize(graph_access &G);
-  void makeSubGraph(graph_access&G, std::vector<std::vector<NodeID>> &adj_list, PartitionConfig &partition_config);
-  void reduceGraph(graph_access &G, std::vector<std::vector<NodeID>> &adj_list, PartitionConfig &partition_config);
-  void unreduceGraph(graph_access &G, std::vector<std::vector<NodeID>> &adj_list);
+    Queue(graph_access &G, std::vector<bool> &node_status);
+    bool empty() {return (start == end);}
+    void push(NodeID &v);
+    NodeID pop();
+    bool in_queue(NodeID &v) {return node_in_queue[v];}
 };
 
+Queue::Queue(graph_access &G, std::vector<bool> &node_status){
+    queue.resize(G.number_of_nodes() + 1);
+    size = G.number_of_nodes() + 1;
+    node_in_queue.assign(G.number_of_nodes(), false);
 
-Reduction::Reduction(graph_access &G){
-  node_status.assign(G.number_of_nodes(), true);
-  scratch.assign(G.number_of_nodes(), false);
-  node_clique.resize(G.number_of_nodes());
-  
-  //adj_list_map.resize(G.number_of_nodes());
-}
+    start = 0;
+    end = 0;
 
-
-bool Reduction::checkCliqueStatus(graph_access &G, std::vector<std::vector<NodeID>> &adj_list, std::vector<NodeID> &clique, NodeID &x, std::vector<NodeID> &n_v){
-    
-  unsigned int i = 0;
-  unsigned int j = 0;
-  
-  while (i < clique.size()){
-    if (clique[i] == x){
-      i++;
-      continue;
-    }
-    if (j == n_v.size()){
-      return false;
-    }
-    if (clique[i] < n_v[j]){
-      return false;
-    }
-    if (clique[i] == n_v[j]){
-      i++;
-      j++;
-    }
-    else{
-      j++;
-    }
-  }
-  return true;
-}
-
-
-void Reduction::unreduceDominance(graph_access &G, std::vector<std::vector<NodeID>> &adj_list){
-    
-  NodeID v = dominating_node.back();
-  dominating_node.pop_back();
-  
-  NodeID u = dominated_node.back();
-  dominated_node.pop_back();
-  
-  unsigned int cliqueID = node_clique[u];
-  clique_cover[cliqueID].push_back(v);
-  node_clique[v] = cliqueID;
-  sort(clique_cover[cliqueID].begin(), clique_cover[cliqueID].end());
-}
-
-
-void Reduction::adjustTwinClique(graph_access &G, std::vector<std::vector<NodeID>> &adj_list, NodeID &c, std::vector<NodeID> &fold, std::vector<std::vector<NodeID>> &neighborhoods){
-  
-  unsigned int cliqueID = node_clique[c];
-  std::vector<NodeID> clique = clique_cover[cliqueID];
-  
-  NodeID v = fold[0];
-  NodeID u = fold[1];
-  NodeID a = fold[2];
-  NodeID b = fold[3];
-  
-  NodeID x;
-  NodeID y;
-  NodeID z;
-  
-  std::vector<NodeID> n_a = neighborhoods[0];
-  std::vector<NodeID> n_b = neighborhoods[1];
-    
-  if (checkCliqueStatus(G, adj_list, clique, c, n_a)){
-    x = a;
-    y = b;
-    z = c;
-  }
-  else if (checkCliqueStatus(G, adj_list, clique, c, n_b)){
-    x = b;
-    y = a;
-    z = c;
-  }
-  else{
-    x = c;
-    y = a;
-    z = b;
-  }
-  
-  for (unsigned int i = 0; i < clique.size(); i++){
-    if (clique[i] == c){
-      clique[i] = x;
-      node_clique[x] = cliqueID;
-      std::sort(clique.begin(), clique.end());
-      break;
-    }
-  }
-  
-  clique_cover[cliqueID] = clique;
-    
-  std::vector<NodeID> new_clique1;
-  new_clique1.push_back(v);
-  new_clique1.push_back(y);
-  std::sort(new_clique1.begin(), new_clique1.end());
-  clique_cover.push_back(new_clique1);
-  node_clique[v] = clique_cover.size() - 1;
-  node_clique[y] = clique_cover.size() - 1;
-  
-  std::vector<NodeID> new_clique2;
-  new_clique2.push_back(u);
-  new_clique2.push_back(z);
-  std::sort(new_clique2.begin(), new_clique2.end());
-  clique_cover.push_back(new_clique2);
-  node_clique[u] = clique_cover.size() - 1;
-  node_clique[z] = clique_cover.size() - 1;
-  
-}
-
-
-void Reduction::unreduceTwin(graph_access &G, std::vector<std::vector<NodeID>> &adj_list){
-    
-    NodeID c = twin_fold.back();
-    twin_fold.pop_back();
-    
-    std::vector<NodeID> fold = twin_folded_nodes.back();
-    twin_folded_nodes.pop_back();
-    
-    std::vector<std::vector<NodeID>> neighborhoods = twin_folded_neighborhoods.back();
-    twin_folded_neighborhoods.pop_back();
-    
-    adjustTwinClique(G, adj_list, c, fold, neighborhoods);
-}
-
-
-void Reduction::adjustDegreeTwoClique(graph_access &G, std::vector<std::vector<NodeID>> &adj_list, NodeID &x, std::vector<NodeID> &fold, std::vector<NodeID> &n_u){
-    
-    unsigned int cliqueID = node_clique[x];
-    std::vector<NodeID> clique = clique_cover[cliqueID];
-    
-    NodeID u = fold[0];
-    NodeID v = fold[1];
-    NodeID w = fold[2];
-    
-    NodeID z = u;
-    NodeID y = w;
-    
-//    unsigned int i = 0;
-//    unsigned int j = 0;
-//
-//    while (i < clique.size()){
-//        if (clique[i] == x){
-//            i++;
-//            continue;
-//        }
-//        if (j == n_u.size()){
-//            z = w;
-//            y = u;
-//            break;
-//        }
-//        if (clique[i] < n_u[j]){
-//            z = w;
-//            y = u;
-//            break;
-//        }
-//        if (clique[i] == n_u[j]){
-//            i++;
-//            j++;
-//        }
-//        else{
-//            j++;
-//        }
-//    }
-    
-    if (!checkCliqueStatus(G, adj_list, clique, x, n_u)){
-        z = w;
-        y = u;
-    }
-    
-    for (unsigned int i = 0; i < clique.size(); i++){
-        if (clique[i] == x){
-            clique[i] = z;
-            node_clique[z] = cliqueID;
-            std::sort(clique.begin(), clique.end());
-            break;
+    for (unsigned int i = 0; i < G.number_of_nodes(); i++){
+        if (!node_status[i]){
+            continue;
         }
+        queue[end] = i;
+        node_in_queue[i] = true;
+        end++;
     }
-    
-    clique_cover[cliqueID] = clique;
-    
-    std::vector<NodeID> new_clique;
-    new_clique.push_back(v);
-    new_clique.push_back(y);
-    std::sort(new_clique.begin(), new_clique.end());
-    clique_cover.push_back(new_clique);
-    node_clique[v] = clique_cover.size() - 1;
-    node_clique[y] = clique_cover.size() - 1;
-    
+
 }
 
+void Queue::push(NodeID &v) {
+    end = end % size;
+    queue[end] = v;
+    end = (end + 1) % size;
+    node_in_queue[v] = true;
 
-void Reduction::unreduceDegreeTwo(graph_access &G, std::vector<std::vector<NodeID>> &adj_list){
-    
-    NodeID x = d2_fold.back();
-    d2_fold.pop_back();
-    
-    std::vector<NodeID> fold = d2_folded_nodes.back();
-    d2_folded_nodes.pop_back();
-    
-    std::vector<NodeID> n_u = d2_folded_neighborhood.back();
-    d2_folded_neighborhood.pop_back();
-    
-    adjustDegreeTwoClique(G, adj_list, x, fold, n_u);
 }
 
-
-void Reduction::unreduceGraph(graph_access &G, std::vector<std::vector<NodeID>> &adj_list){
-    
-    for (int i = reductions.size() - 1; i >= 0; i--){
-        if (reductions[i] == 1){
-            unreduceDegreeTwo(G, adj_list);
-        }
-        else if (reductions[i] == 2){
-            unreduceTwin(G, adj_list);
-        }
-        else if (reductions[i] == 3)
-            unreduceDominance(G, adj_list);
+NodeID Queue::pop(){
+    NodeID v = queue[start];
+    if (start == (size - 1)){
+        end = end % size;
     }
+    start = (start + 1) % size;
+    node_in_queue[v] = false;
+    return v;
 }
 
 
-void Reduction::removeVertex(graph_access &G, std::vector<std::vector<NodeID>> &adj_list, NodeID &v){
-    
+class Reduction {
+public:
+
+    static void removeVertex(std::vector<std::vector<NodeID>> &adj_list, std::vector<bool> &node_status, NodeID &v);
+    static void addCliqueToCover(std::vector<std::vector<NodeID>> &clique_cover, std::vector<unsigned int> &node_clique, std::vector<NodeID> &clique);
+    static void addIntCliquesToCover (std::vector<std::vector<NodeID>> &adj_list, std::vector<bool> &node_status, std::vector<std::vector<int>> &int_adj_list, std::vector<NodeID> &new_to_old_map, std::vector<std::vector<NodeID>> &clique_cover, std::vector<unsigned int> &node_clique, std::vector<std::vector<int>> &clique_set);
+
+    bool cliqueIsSubset(std::vector<NodeID> &clique, NodeID &node, std::vector<NodeID> &neighborhood);
+
+    virtual void reduce(std::vector<std::vector<NodeID>> &adj_list, std::vector<bool> &node_status, Queue *q, std::vector<std::vector<int>> &int_adj_list, std::vector<NodeID> &new_to_old_map, std::vector<std::vector<NodeID>> &clique_cover, std::vector<unsigned int> &node_clique, std::vector<bool> &scratch, NodeID &node, NodeID &partner_node) = 0;
+    virtual void unreduce(std::vector<std::vector<NodeID>> &adj_list, std::vector<bool> &node_status, std::vector<std::vector<NodeID>> &clique_cover, std::vector<unsigned int> &node_clique) = 0;
+
+};
+
+void Reduction::removeVertex(std::vector<std::vector<NodeID>> &adj_list, std::vector<bool> &node_status, NodeID &v){
+
     node_status[v] = false;
-    for (unsigned int i = 0; i < adj_list[v].size(); i++){
-        NodeID u = adj_list[v][i];
-        for (unsigned int j = 0; j < adj_list[u].size(); j++){
-            NodeID z = adj_list[u][j];
+    for (NodeID u : adj_list[v]){
+        for (unsigned int i = 0; i < adj_list[u].size(); i++){
+            NodeID z = adj_list[u][i];
             if (z == v){
-                adj_list[u].erase(adj_list[u].begin() + j);
-                continue;
+                adj_list[u].erase(adj_list[u].begin() + i);
+                break;
             }
         }
     }
     adj_list[v].erase(adj_list[v].begin(), adj_list[v].end());
 }
 
+void Reduction::addCliqueToCover(std::vector<std::vector<NodeID>> &clique_cover, std::vector<unsigned int> &node_clique, std::vector<NodeID> &clique){
 
-void Reduction::addClique(graph_access &G, std::vector<std::vector<NodeID>> &adj_list, std::vector<NodeID> &clique){
-    
+    std::sort(clique.begin(), clique.end());
     clique_cover.push_back(clique);
     unsigned int cliqueID = clique_cover.size() - 1;
-    for (unsigned int i = 0; i < clique.size(); i++){
-        NodeID v = clique[i];
-//        std::cout << v << " ";
-        node_clique[v] = cliqueID;
-        removeVertex(G, adj_list, v);
+
+    for (NodeID u : clique){
+        node_clique[u] = cliqueID;
     }
-//    std::cout << std::endl;
 }
 
+bool Reduction::cliqueIsSubset(std::vector<NodeID> &clique, NodeID &node, std::vector<NodeID> &neighborhood){
 
-void Reduction::makeNewAdj(graph_access &G, std::vector<std::vector<NodeID>> &adj_list){
-    
-  old_new_map.clear();
-  old_new_map.resize(G.number_of_nodes());
-  new_old_map.clear();
-  new_old_map.resize(G.number_of_nodes());
-
-  int_adj_list.clear();
-  
-  int u = 0;
-    
-  for (unsigned int i = 0; i < G.number_of_nodes(); i++){
-    if (!node_status[i]){
-      continue;
-    }
-    old_new_map[i] = u;
-    new_old_map[u] = i;
-    u++;
-  }
-    
-  int_adj_list.resize(u);
-    
-  for (unsigned int i = 0; i < G.number_of_nodes(); i++){
-    if (!node_status[i]){
-      continue;
-    }
-    int new_v = old_new_map[i];
-    std::vector<int> adj;
-    for (unsigned int j = 0; j < adj_list[i].size(); j++){
-      NodeID u  = adj_list[i][j];
-      int new_u = old_new_map[u];
-      adj.push_back(new_u);
-    }
-    std::sort(adj.begin(), adj.end());
-    int_adj_list[new_v] = adj;
-  }
-}
-
-
-void Reduction::addCrownCliques(graph_access &G, std::vector<std::vector<NodeID>> &adj_list, std::vector<std::vector<int>> &crown_cliques){
-
-  for (unsigned int i = 0; i < crown_cliques.size(); i++){
-    std::vector<NodeID> clique;
-
-    for (unsigned int j = 0; j < crown_cliques[i].size(); j++){
-      int v = crown_cliques[i][j];
-      NodeID old_v = new_old_map[v];
-
-      clique.push_back(old_v);
-    }
-    std::sort(clique.begin(), clique.end());
-
-    addClique(G, adj_list, clique);
-  }
-}
-  
-
-void Reduction::reduceCrown(graph_access &G, std::vector<std::vector<NodeID>> &adj_list){
-
-  makeNewAdj(G, adj_list);
-
-  // std::cout << int_adj_list.size() << std::endl;
-  branch_and_reduce_algorithm b_and_r(int_adj_list, int_adj_list.size());
-  if (b_and_r.lpCrownReduction()){
-    addCrownCliques(G, adj_list, b_and_r.crown_cliques);
-  }
-  // std::cout << something << std::endl;
-  // std::cout << b_and_r.rn << std::endl;
-  // std::cout << " size " << int_adj_list.size() << std::endl;
-  // // for (unsigned int i = 0; i < b_and_r.crown_cliques.size(); i++){
-  // //   std::cout << i << " ";
-  // // }
-  // // std::cout << std::endl;
-  // std::cout << G.number_of_nodes() - b_and_r.rn << std::endl;
-
-  // std::cout << int_adj_list.size() << std::endl;
-  
-}
-
-
-void Reduction::removeDominant(graph_access &G, std::vector<std::vector<NodeID>> &adj_list, NodeID &v, NodeID &u) {
-    
-    dominating_node.push_back(v);
-    dominated_node.push_back(u);
-    
-    removeVertex(G, adj_list, v);
-}
-
-
-bool Reduction::checkDominance(graph_access &G, std::vector<std::vector<NodeID>> &adj_list, NodeID &v, NodeID &u){
-    
     unsigned int i = 0;
     unsigned int j = 0;
-    
-    while (j < adj_list[u].size()){
-        if (adj_list[u][j] == v){
+
+    while (i < clique.size()){
+        if (clique[i] == node){
+            i++;
+            continue;
+        }
+        if (j == neighborhood.size()){
+            return false;
+        }
+        if (clique[i] < neighborhood[j]){
+            return false;
+        }
+        if (clique[i] == neighborhood[j]){
+            i++;
             j++;
-            continue;
-        }
-        if (i == adj_list[v].size()){
-            return false;
-        }
-        if (adj_list[v][i] == u){
-            i++;
-            continue;
-        }
-        if (adj_list[v][i] > adj_list[u][j]){
-            return false;
-        }
-        if (adj_list[v][i] < adj_list[u][j]){
-            i++;
         }
         else {
+            j++;
+        }
+    }
+
+    return true;
+}
+
+
+void Reduction::addIntCliquesToCover (std::vector<std::vector<NodeID>> &adj_list, std::vector<bool> &node_status, std::vector<std::vector<int>> &int_adj_list, std::vector<NodeID> &new_to_old_map, std::vector<std::vector<NodeID>> &clique_cover, std::vector<unsigned int> &node_clique, std::vector<std::vector<int>> &clique_set) {
+    
+    for (unsigned int i = 0; i < clique_set.size(); i++){
+        std::vector<NodeID> clique;
+        
+        for (unsigned int j = 0; j < clique_set[i].size(); j++){
+            int v = clique_set[i][j];
+            NodeID old_v = new_to_old_map[v];
+            
+            removeVertex(adj_list, node_status, old_v);
+            clique.push_back(old_v);
+        }
+        std::sort(clique.begin(), clique.end());
+        
+        addCliqueToCover(clique_cover, node_clique, clique);
+    }
+}
+
+class IsolatedReduction: public Reduction {
+private:
+    void addIsolatedClique(std::vector<std::vector<NodeID>> &adj_list, std::vector<std::vector<NodeID>> &clique_cover, std::vector<unsigned int> &node_clique, NodeID &v);
+    void addChangedNodesToQueue(std::vector<std::vector<NodeID>> &adj_list, Queue *q, NodeID &v);
+    void removeIsolated(std::vector<std::vector<NodeID>> &adj_list, std::vector<bool> &node_status, Queue *q, NodeID &v);
+
+public:
+    static bool isIsolated(std::vector<std::vector<NodeID>> &adj_list, std::vector<bool> &node_status, NodeID &v);
+    static bool neighborInIsoClique(std::vector<std::vector<NodeID>> &adj_list, NodeID &v, NodeID &u);
+
+    void reduce(std::vector<std::vector<NodeID>> &adj_list, std::vector<bool> &node_status, Queue *q, std::vector<std::vector<int>> &int_adj_list, std::vector<NodeID> &new_to_old_map, std::vector<std::vector<NodeID>> &clique_cover, std::vector<unsigned int> &node_clique, std::vector<bool> &scratch, NodeID &node, NodeID &partner_node);
+    void unreduce(std::vector<std::vector<NodeID>> &adj_list, std::vector<bool> &node_status, std::vector<std::vector<NodeID>> &clique_cover, std::vector<unsigned int> &node_clique) {return;}
+};
+
+bool IsolatedReduction::neighborInIsoClique(std::vector<std::vector<NodeID>> &adj_list, NodeID &v, NodeID &u){
+
+    unsigned int i = 0;
+    unsigned int j = 0;
+
+    while (i < adj_list[v].size()) {
+        NodeID neighbor_v = adj_list[v][i];
+        NodeID neighbor_u = adj_list[u][j];
+
+        if (neighbor_v == u) {
+            i++;
+            continue;
+        }
+
+        if (j == adj_list[u].size()){
+            return false;
+        }
+
+        if (neighbor_v == neighbor_u){
             i++;
             j++;
+        }
+        else if (neighbor_v > neighbor_u) {
+            j++;
+        }
+        else {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+
+
+bool IsolatedReduction::isIsolated(std::vector<std::vector<NodeID>> &adj_list, std::vector<bool> &node_status, NodeID &v) {
+
+    for (NodeID u : adj_list[v]) {
+        bool valid_neighbor = IsolatedReduction::neighborInIsoClique(adj_list, v, u);
+        if (!valid_neighbor){
+
+            return false;
         }
     }
     return true;
 }
 
+void IsolatedReduction::addChangedNodesToQueue(std::vector<std::vector<NodeID>> &adj_list, Queue *q, NodeID &v){
 
-int Reduction::getDominant(graph_access &G, std::vector<std::vector<NodeID>> &adj_list){
+    for (NodeID u : adj_list[v]){
+        if (!q->in_queue(u)){
+            q->push(u);
+        }
+    }
+}
+
+void IsolatedReduction::removeIsolated(std::vector<std::vector<NodeID>> &adj_list, std::vector<bool> &node_status, Queue *q, NodeID &v) {
+
+    while (adj_list[v].size() > 0) {
+        NodeID u = adj_list[v][0];
+        addChangedNodesToQueue(adj_list, q, u);
+        removeVertex(adj_list, node_status, u);
+    }
+    removeVertex(adj_list, node_status, v);
+}
+
+
+void IsolatedReduction::addIsolatedClique(std::vector<std::vector<NodeID>> &adj_list, std::vector<std::vector<NodeID>> &clique_cover, std::vector<unsigned int> &node_clique, NodeID &v){
+
+    std::vector<NodeID> clique;
+    clique.push_back(v);
+
+    for (NodeID u : adj_list[v]){
+        clique.push_back(u);
+    }
+
+    addCliqueToCover(clique_cover, node_clique, clique);
+}
+
+void IsolatedReduction::reduce(std::vector<std::vector<NodeID>> &adj_list, std::vector<bool> &node_status, Queue *q, std::vector<std::vector<int>> &int_adj_list, std::vector<NodeID> &new_to_old_map, std::vector<std::vector<NodeID>> &clique_cover, std::vector<unsigned int> &node_clique, std::vector<bool> &scratch, NodeID &v, NodeID &partner_node){
+
+//        addChangedNodesToQueue(adj_list, q, v);
+    addIsolatedClique(adj_list, clique_cover, node_clique, v);
+    removeIsolated(adj_list, node_status, q, v);
+}
+
+
+class DegreeTwoReduction: public Reduction {
+private:
+    NodeID v;
+    NodeID u;
+    NodeID w;
+
+    std::vector<NodeID> original_neighborhood_u;
+
+    void assignNeighborsBySize(std::vector<std::vector<NodeID>> &adj_list);
+
+    void addChangedNodesToQueue(std::vector<std::vector<NodeID>> &adj_list, Queue *q);
+
+    void foldDegreeTwo(std::vector<std::vector<NodeID>> &adj_list, std::vector<bool> &node_status, std::vector<bool> &scratch);
+
+public:
+    static bool isDegreeTwo(std::vector<std::vector<NodeID>> &adj_list, std::vector<bool> &node_status, std::vector<bool> &scratch, NodeID &v);
+    static bool isTriangleClique(std::vector<std::vector<NodeID>> &adj_list, NodeID &v);
+    static bool edgeBetweenNeighbors(std::vector<std::vector<NodeID>> &adj_list, std::vector<bool> &scratch, NodeID &v, NodeID &u, NodeID &w);
+//
+    void reduce(std::vector<std::vector<NodeID>> &adj_list, std::vector<bool> &node_status, Queue *q, std::vector<std::vector<int>> &int_adj_list, std::vector<NodeID> &new_to_old_map, std::vector<std::vector<NodeID>> &clique_cover, std::vector<unsigned int> &node_clique, std::vector<bool> &scratch, NodeID &node, NodeID &partner_node);
+    void unreduce(std::vector<std::vector<NodeID>> &adj_list, std::vector<bool> &node_status, std::vector<std::vector<NodeID>> &clique_cover, std::vector<unsigned int> &node_clique);
+};
+
+bool DegreeTwoReduction::edgeBetweenNeighbors(std::vector<std::vector<NodeID>> &adj_list, std::vector<bool> &scratch, NodeID &v, NodeID &u, NodeID &w){
+
+//    for (NodeID x : adj_list[u]){
+//        if (x == v || x == w){
+//            continue;
+//        }
+//        for (NodeID y : adj_list[x]){
+//            if (y == u || y == w){
+//                continue;
+//            }
+//            if (scratch[y]) {
+//                return true;
+//            }
+//        }
+//    }
+//    return false;
     
-    int num_dominant = 0;
-    forall_nodes(G, v) {
-        if (!node_status[v]){
+    for (unsigned int i = 0; i < adj_list[u].size(); i++){
+        NodeID x = adj_list[u][i];
+        
+//        if (!node_status[x]){
+//            continue;
+//        }
+        if (x == v || x == w) {
             continue;
         }
-        if (adj_list[v].size() >= 3){
-            for (unsigned int i = 0; i < adj_list[v].size(); i++){
-                NodeID u = adj_list[v][i];
-                if (adj_list[v].size() < adj_list[u].size()){
-                    continue;
-                }
-                if (checkDominance(G, adj_list, v, u)){
-//                    std::cout << "found: " << v << ", " << u << std::endl;
-//                    for (unsigned int j = 0; j < adj_list[v].size(); j++){
-//                        std::cout << adj_list[v][j] << ", ";
-//                    }
-//                    std::cout << std::endl;
-//                    for (unsigned int j = 0; j < adj_list[u].size(); j++){
-//                        std::cout << adj_list[u][j] << ", ";
-//                    }
-//                    std::cout << std::endl;
-                    removeDominant(G, adj_list, v, u);
-                    num_dominant++;
-                    reductions.push_back(3);
-                    break;
-                }
+        for (unsigned int j = 0; j < adj_list[x].size(); j++){
+            NodeID y = adj_list[x][j];
+//            if (!node_status[y]){
+//                continue;
+//            }
+            if (y == u || y == w){
+                continue;
+            }
+            if (scratch[y]){
+                return true;
             }
         }
-    } endfor
-    return num_dominant;
+    }
+    return false;
 }
 
+bool DegreeTwoReduction::isTriangleClique(std::vector<std::vector<NodeID>> &adj_list, NodeID &v){
 
-void Reduction::reduceDominance(graph_access &G, std::vector<std::vector<NodeID>> &adj_list){
-    
-    bool dominance = true;
+    NodeID u = adj_list[v][0];
+    NodeID w = adj_list[v][1];
 
-    while (dominance){
-        int num_dominant = getDominant(G, adj_list);
-        if (num_dominant == 0){
-            dominance = false;
-        }
-    }
-//        getDominant(G, adj_list);
-}
-
-
-void Reduction::foldTwinVertices(graph_access &G, std::vector<std::vector<NodeID>> &adj_list, NodeID &v, NodeID &u, NodeID &a, NodeID &b, NodeID &c){
-    
-    // NodeID w = adj_list[v][0];
-    // NodeID y = adj_list[v][1];
-    // NodeID z = adj_list[v][2];
-    
-    std::vector<NodeID> fold;
-    fold.push_back(v);
-    fold.push_back(u);
-    fold.push_back(a);
-    fold.push_back(b);
-    fold.push_back(c);
-    twin_folded_nodes.push_back(fold);
-    //
-    std::vector<std::vector<NodeID>> neighborhoods;
-    neighborhoods.push_back(adj_list[a]);
-    neighborhoods.push_back(adj_list[b]);
-    //    neighborhoods.push_back(adj_list[c]);
-    twin_folded_neighborhoods.push_back(neighborhoods);
-    
-    removeVertex(G, adj_list, v);
-    removeVertex(G, adj_list, u);
-    
-//    std::cout << "here" << std::endl;
-    for (unsigned int i = 0; i < adj_list[c].size(); i++){
-        NodeID r  = adj_list[c][i];
-        scratch[r] = true;
-    }
-//    std::cout << "here2" << std::endl;
-    for (unsigned int i = 0; i < adj_list[b].size(); i++){
-        NodeID q = adj_list[b][i];
-        
-        if (q == c){
-            continue;
-        }
-        if (scratch[q]){
-            continue;
-        }
-        adj_list[c].push_back(q);
-        adj_list[q].push_back(c);
-        
-        std::sort(adj_list[q].begin(), adj_list[q].end());
-    }
-//    std::cout << "here3" << std::endl;
-    for (unsigned int i = 0; i < adj_list[c].size(); i++){
-        NodeID r  = adj_list[c][i];
-        scratch[r] = true;
-    }
-//    std::cout << "here4" << std::endl;
-    for (unsigned int i = 0; i < adj_list[a].size(); i++){
-        NodeID p = adj_list[a][i];
-        
-        if (p == c){
-            continue;
-        }
-        if (scratch[p]){
-            continue;
-        }
-        adj_list[c].push_back(p);
-        adj_list[p].push_back(c);
-        
-        std::sort(adj_list[p].begin(), adj_list[p].end());
-    }
-    std::sort(adj_list[c].begin(), adj_list[c].end());
-    
-//    std::cout << "here5" << std::endl;
-    for (unsigned int i = 0; i < adj_list[c].size(); i++){
-        NodeID z  = adj_list[c][i];
-        scratch[z] = false;
-    }
-//    std::cout << "here6" << std::endl;
-    removeVertex(G, adj_list, a);
-    removeVertex(G, adj_list, b);
-//    std::cout << "here7" << std::endl;
-    twin_fold.push_back(c);
-//    std::cout << "here8" << std::endl;
-}
-
-
-void Reduction::removeTwin(graph_access &G, std::vector<std::vector<NodeID>> &adj_list, NodeID &v, NodeID &u, NodeID &a, NodeID &b, NodeID &c){
-    
-    std::vector<NodeID> new_clique1;
-    new_clique1.push_back(v);
-    new_clique1.push_back(a);
-    new_clique1.push_back(b);
-    addClique(G, adj_list, new_clique1);
-    
-    std::vector<NodeID> new_clique2;
-    new_clique2.push_back(u);
-    new_clique2.push_back(c);
-    addClique(G, adj_list, new_clique2);
-    
-}
-
-
-bool Reduction::removeTypeTwin(graph_access &G, std::vector<std::vector<NodeID>> &adj_list, NodeID &a, NodeID &b, NodeID &c){
-    
-    for (unsigned int i = 0; i < adj_list[a].size(); i++){
-        if (adj_list[a][i] == b){
-            return true;
-        }
-        if (adj_list[a][i] == c){
-            NodeID x = b;
-            b = c;
-            c = x;
-            return true;
-        }
-    }
-    for (unsigned int i = 0; i < adj_list[b].size(); i++){
-        if (adj_list[b][i] == c){
-            NodeID x = a;
-            a = c;
-            c = x;
-            return true;
+    if (adj_list[u].size() == 2 && adj_list[w].size() == 2){
+        for (NodeID x : adj_list[u]){
+            if (x == w){
+                return true;
+            }
         }
     }
     return false;
 }
 
 
-bool Reduction::foundTwin(graph_access &G, std::vector<std::vector<NodeID>> &adj_list, NodeID &v, NodeID &u, NodeID &a, NodeID &b, NodeID &c){
+bool DegreeTwoReduction::isDegreeTwo(std::vector<std::vector<NodeID>> &adj_list, std::vector<bool> &node_status, std::vector<bool> &scratch, NodeID &v){
+
+    if (adj_list[v].size() != 2){
+        return false;
+    }
+
+    if (isTriangleClique(adj_list, v)){
+        return false;
+    }
+
+    NodeID u = adj_list[v][0];
+    NodeID w = adj_list[v][1];
+
+    for (NodeID x : adj_list[w]){
+        scratch[x] = true;
+    }
+
+    for (NodeID x : adj_list[u]){
+        scratch[x] = false;
+    }
+
+    bool not_valid = edgeBetweenNeighbors(adj_list, scratch, v, u, w);
+
+    for (NodeID x : adj_list[w]){
+        scratch[x] = false;
+    }
+
+    return !not_valid;
+}
+
+
+void DegreeTwoReduction::addChangedNodesToQueue (std::vector<std::vector<NodeID>> &adj_list, Queue *q) {
+
+
+    if (!q->in_queue(w)){
+        q->push(w);
+    }
+    for (NodeID p : adj_list[w]){
+        if (!q->in_queue(p)){
+            q->push(p);
+        }
+        for (NodeID x : adj_list[p]){
+            if (!q->in_queue(x)){
+                q->push(x);
+            }
+        }
+    }
+
+}
+
+void DegreeTwoReduction::foldDegreeTwo(std::vector<std::vector<NodeID>> &adj_list, std::vector<bool> &node_status, std::vector<bool> &scratch) {
+
+    removeVertex(adj_list, node_status, v);
     
-//    std::cout << "vec: " <<  v << std::endl;
-    for (unsigned int i = 0; i < adj_list[a].size(); i++){
-        NodeID p = adj_list[a][i];
-//        std::cout << "p: " <<  p << std::endl;
+    for (NodeID z : adj_list[w]) {
+        scratch[z] = true;
+    }
+    
+    for (NodeID z : adj_list[u]) {
+        if (z == w){
+            continue;
+        }
+        if (scratch[z]){
+            continue;
+        }
+        adj_list[w].push_back(z);
+        adj_list[z].push_back(w);
+        std::sort(adj_list[z].begin(), adj_list[z].end());
+    }
+    std::sort(adj_list[w].begin(), adj_list[w].end());
+    
+    for (NodeID z : adj_list[w]) {
+        scratch[z] = false;
+    }
+    
+    removeVertex(adj_list, node_status, u);
+}
+
+
+void DegreeTwoReduction::assignNeighborsBySize(std::vector<std::vector<NodeID>> &adj_list){
+
+    NodeID x = adj_list[v][0];
+    NodeID y = adj_list[v][1];
+
+    if (adj_list[x].size() < adj_list[y].size()){
+        u = x;
+        w = y;
+
+        return;
+    }
+
+    u = y;
+    w = x;
+}
+
+void DegreeTwoReduction::reduce(std::vector<std::vector<NodeID>> &adj_list, std::vector<bool> &node_status, Queue *q, std::vector<std::vector<int>> &int_adj_list, std::vector<NodeID> &new_to_old_map, std::vector<std::vector<NodeID>> &clique_cover, std::vector<unsigned int> &node_clique, std::vector<bool> &scratch, NodeID &node, NodeID &partner_node){
+
+    v = node;
+
+    assignNeighborsBySize(adj_list);
+
+    original_neighborhood_u = adj_list[u];
+
+    foldDegreeTwo(adj_list, node_status, scratch);
+    
+    addChangedNodesToQueue(adj_list, q);
+
+}
+
+void DegreeTwoReduction::unreduce(std::vector<std::vector<NodeID>> &adj_list, std::vector<bool> &node_status, std::vector<std::vector<NodeID>> &clique_cover, std::vector<unsigned int> &node_clique){
+
+//    std::cout << "reduce d2" << std::endl;
+
+    unsigned int fold_cliqueID = node_clique[u];
+    std::vector<NodeID> fold_clique = clique_cover[fold_cliqueID];
+
+    NodeID x = w;
+    NodeID y = u;
+
+    if (cliqueIsSubset(fold_clique, u, original_neighborhood_u)){
+        x = u;
+        y = w;
+    }
+
+    for (unsigned int i = 0; i < fold_clique.size(); i++){
+        if (fold_clique[i] == u){
+            fold_clique[i] = x;
+            node_clique[x] = fold_cliqueID;
+            std::sort(fold_clique.begin(), fold_clique.end());
+            break;
+        }
+    }
+    clique_cover[fold_cliqueID] = fold_clique;
+
+    std::vector<NodeID> new_clique;
+    new_clique.push_back(v);
+    new_clique.push_back(y);
+    std::sort(new_clique.begin(), new_clique.end());
+    addCliqueToCover(clique_cover, node_clique, new_clique);
+}
+
+
+class TwinReduction: public Reduction {
+private:
+    NodeID v;
+    NodeID u;
+    NodeID w;
+    NodeID x;
+    NodeID y;
+
+    bool remove_type_twin;
+
+    std::vector<NodeID> original_neighborhood_w;
+    std::vector<NodeID> original_neighborhood_x;
+
+    std::vector<NodeID> edge_neighbors;
+    NodeID non_edge_node;
+
+    bool existsEdgeBetweenNeighbors (std::vector<std::vector<NodeID>> &adj_list);
+    void removeTwin(std::vector<std::vector<NodeID>> &adj_list, std::vector<bool> &node_status, std::vector<std::vector<NodeID>> &clique_cover, std::vector<unsigned int> &node_clique);
+    void foldTwin(std::vector<std::vector<NodeID>> &adj_list, std::vector<bool> &node_status, std::vector<bool> &scratch);
+
+    void addChangedNodesToQueueFoldType (std::vector<std::vector<NodeID>> &adj_list, Queue *q);
+    void addChangedNodesToQueueRemoveType (std::vector<std::vector<NodeID>> &adj_list, Queue *q);
+
+public:
+    static bool isTwin(std::vector<std::vector<NodeID>> &adj_list, std::vector<bool> &node_status, std::vector<bool> &scratch, NodeID &v, NodeID &u);
+    static void assignNeighborsBySize(std::vector<std::vector<NodeID>> &adj_list, NodeID &v, NodeID &w, NodeID &x, NodeID &y);
+    static bool twinFound(std::vector<std::vector<NodeID>> &adj_list, NodeID &v, NodeID &u, NodeID &w, NodeID &x, NodeID &y);
+
+    void reduce(std::vector<std::vector<NodeID>> &adj_list, std::vector<bool> &node_status, Queue *q, std::vector<std::vector<int>> &int_adj_list, std::vector<NodeID> &new_to_old_map, std::vector<std::vector<NodeID>> &clique_cover, std::vector<unsigned int> &node_clique, std::vector<bool> &scratch, NodeID &node, NodeID &partner_node);
+    void unreduce(std::vector<std::vector<NodeID>> &adj_list, std::vector<bool> &node_status, std::vector<std::vector<NodeID>> &clique_cover, std::vector<unsigned int> &node_clique);
+};
+
+bool TwinReduction::twinFound(std::vector<std::vector<NodeID>> &adj_list, NodeID &v, NodeID &u, NodeID &w, NodeID &x, NodeID &y){
+
+    for (NodeID p : adj_list[w]){
         if (p == v){
             continue;
         }
         if (adj_list[p].size() != 3){
             continue;
         }
-        for (unsigned int j = 0; j < adj_list[b].size(); j++){
-            NodeID q = adj_list[b][j];
-//            std::cout << "q: " <<  q << std::endl;
-            if (q > p) {
+
+        for (NodeID q : adj_list[x]){
+            if (q > p){
                 break;
             }
             if (q == p){
-                for (unsigned int k = 0; k < adj_list[c].size(); k++){
-                    NodeID r = adj_list[c][k];
-//                    std::cout << "r: " <<  r << std::endl;
-                    if (r > p) {
+                for (NodeID r : adj_list[y]){
+                    if (r > p){
                         break;
                     }
                     if (r == p){
@@ -697,599 +566,874 @@ bool Reduction::foundTwin(graph_access &G, std::vector<std::vector<NodeID>> &adj
     return false;
 }
 
+void TwinReduction::assignNeighborsBySize(std::vector<std::vector<NodeID>> &adj_list, NodeID &v, NodeID &w, NodeID &x, NodeID &y){
 
-void Reduction::organizeTwinElements(graph_access &G, std::vector<std::vector<NodeID>> &adj_list, NodeID &w, NodeID &y, NodeID &z, NodeID &a, NodeID &b, NodeID &c) {
-    
-    if (adj_list[w].size() < adj_list[y].size() && adj_list[w].size() < adj_list[z].size()){
-        a = w;
-        if (adj_list[y].size() < adj_list[z].size()) {
-            b = y;
-            c = z;
+    NodeID a = adj_list[v][0];
+    NodeID b = adj_list[v][1];
+    NodeID c = adj_list[v][2];
+
+    if (adj_list[a].size() < adj_list[b].size() && adj_list[a].size() < adj_list[c].size()) {
+        w = a;
+        if (adj_list[b].size() < adj_list[c].size()){
+            x = b;
+            y = c;
         }
         else {
-            b = z;
-            c = y;
+            x = c;
+            y = b;
         }
     }
-    else if (adj_list[y].size() < adj_list[w].size() && adj_list[y].size() < adj_list[z].size()){
-        a = y;
-        if (adj_list[w].size() < adj_list[z].size()) {
-            b = w;
-            c = z;
+    else if (adj_list[b].size() < adj_list[a].size() && adj_list[b].size() < adj_list[c].size()) {
+        w = b;
+        if (adj_list[a].size() < adj_list[c].size()){
+            x = a;
+            y = c;
         }
         else {
-            b = z;
-            c = w;
+            x = c;
+            y = a;
         }
     }
     else {
-        a = z;
-        if (adj_list[w].size() < adj_list[y].size()) {
-            b = w;
-            c = y;
+        w = c;
+        if (adj_list[a].size() < adj_list[b].size()){
+            x = a;
+            y = b;
         }
         else {
-            b = y;
-            c = w;
+            x = b;
+            y = a;
         }
     }
 }
 
+bool TwinReduction::isTwin(std::vector<std::vector<NodeID>> &adj_list, std::vector<bool> &node_status, std::vector<bool> &scratch, NodeID &v, NodeID &u){
 
-bool Reduction::checkValidTwinFold(graph_access &G, std::vector<std::vector<NodeID>> &adj_list, NodeID &v, NodeID &u, NodeID &a, NodeID &b, NodeID &c){
-    
-    NodeID w = adj_list[v][0];
-    NodeID y = adj_list[v][1];
-    NodeID z = adj_list[v][2];
-//    std::cout << "heree" << std::endl;
-    organizeTwinElements(G, adj_list, w, y, z, a, b, c);
-    
-    //        std::cout << w << ", " << y << ", " << z << std::endl;
-    //        std::cout << a << ", " << b << ", " << c << std::endl;
-//    std::cout << "hereee" << std::endl;
-    if (foundTwin(G, adj_list, v, u, a, b, c)){
-//        std::cout << "found valid" << std::endl;
-//        std::cout << v << std::endl;
-//        std::cout << w << ", " << y << ", " << z << std::endl;
-//        std::cout << u << std::endl;
-//        std::cout << adj_list[u][0] << ", " << adj_list[u][1] << ", " << adj_list[u][2] << std::endl;
+    if (adj_list[v].size() != 3){
+        return false;
+    }
+
+    NodeID w;
+    NodeID x;
+    NodeID y;
+
+    TwinReduction::assignNeighborsBySize(adj_list, v, w, x, y);
+
+    if (TwinReduction::twinFound(adj_list, v, u, w, x, y)){
         return true;
     }
-    
+
     return false;
 }
 
+void TwinReduction::addChangedNodesToQueueFoldType (std::vector<std::vector<NodeID>> &adj_list, Queue *q) {
 
-int Reduction::getTwin(graph_access &G, std::vector<std::vector<NodeID>> &adj_list){
-    
-    int num_folds = 0;
-    forall_nodes(G, v) {
-//        std::cout << v << std::endl;
-        if (!node_status[v]){
-//            std::cout << "seg" << std::endl;
-            continue;
+
+    if (!q->in_queue(y)){
+        q->push(y);
+    }
+    for (NodeID p : adj_list[y]){
+        if (!q->in_queue(p)){
+            q->push(p);
         }
-        if (adj_list[v].size() == 3){
-//            std::cout << "segg" << std::endl;
-            NodeID u;
-            NodeID a;
-            NodeID b;
-            NodeID c;
-            //            std::cout << "found" << std::endl;
-            if (checkValidTwinFold(G, adj_list, v, u, a, b, c)){
-//                                std::cout << "valid twin" << std::endl;
-//                std::cout << a << " " << b << " " << c;
-                if (removeTypeTwin(G, adj_list, a, b, c)){
-//                    std::cout << "remove" << std::endl;
-//                    std::cout << a << " " << b << " " << c;
-                    removeTwin(G, adj_list, v, u, a, b, c);
-                }
-                else {
-                    foldTwinVertices(G, adj_list, v, u, a, b, c);
-                    num_folds++;
-//                std::cout << "seg?" << std::endl;
-                    reductions.push_back(2);
-                }
+        for (NodeID r : adj_list[p]){
+            if (!q->in_queue(r)){
+                q->push(r);
             }
         }
-    } endfor
-    return num_folds;
+    }
+
 }
 
+void TwinReduction::foldTwin(std::vector<std::vector<NodeID>> &adj_list, std::vector<bool> &node_status, std::vector<bool> &scratch) {
 
-void Reduction::reduceTwin(graph_access &G, std::vector<std::vector<NodeID>> &adj_list){
-    
-    bool folding = true;
+    removeVertex(adj_list, node_status, v);
+    removeVertex(adj_list, node_status, u);
 
-    while (folding){
-        int num_folds = getTwin(G, adj_list);
-        if (num_folds == 0){
-            folding = false;
-        }
+    for (NodeID p : adj_list[y]){
+        scratch[p] = true;
     }
-//    getTwin(G, adj_list);
-}
 
+    for (NodeID q : adj_list[x]){
 
-void Reduction::foldDegreeTwo(graph_access &G, std::vector<std::vector<NodeID>> &adj_list, NodeID &v){
-    
-    NodeID u = adj_list[v][0];
-    NodeID w = adj_list[v][1];
-    
-    std::vector<NodeID> folded_nodes;
-    folded_nodes.push_back(u);
-    folded_nodes.push_back(v);
-    folded_nodes.push_back(w);
-    d2_folded_nodes.push_back(folded_nodes);
-    
-    d2_folded_neighborhood.push_back(adj_list[u]);
-    
-    removeVertex(G, adj_list, v);
-    
-    NodeID x = u;
-    NodeID y = w;
-    
-    if (adj_list[u].size() < adj_list[w].size()){
-        x = w;
-        y = u;
-    }
-    
-    for (unsigned int i = 0; i < adj_list[x].size(); i++){
-        NodeID z  = adj_list[x][i];
-        scratch[z] = true;
-    }
-    
-    for (unsigned int i = 0; i < adj_list[y].size(); i++){
-        NodeID z = adj_list[y][i];
-        if (z == x){
+        if (q == y){
             continue;
         }
-        if (scratch[z]){
+        if (scratch[q]){
             continue;
         }
-        adj_list[x].push_back(z);
-        adj_list[z].push_back(x);
-        std::sort(adj_list[z].begin(), adj_list[z].end());
+        adj_list[y].push_back(q);
+        adj_list[q].push_back(y);
+
+        std::sort(adj_list[q].begin(), adj_list[q].end());
     }
-    std::sort(adj_list[x].begin(), adj_list[x].end());
-    
-    for (unsigned int i = 0; i < adj_list[x].size(); i++){
-        NodeID z  = adj_list[x][i];
+
+    for (NodeID r : adj_list[y]){
+        scratch[r] = true;
+    }
+
+    for (NodeID p : adj_list[w]){
+
+        if (p == y){
+            continue;
+        }
+        if (scratch[p]){
+            continue;
+        }
+        adj_list[y].push_back(p);
+        adj_list[p].push_back(y);
+
+        std::sort(adj_list[p].begin(), adj_list[p].end());
+    }
+    std::sort(adj_list[y].begin(), adj_list[y].end());
+
+
+    for (NodeID z : adj_list[y]){
         scratch[z] = false;
     }
-    
-    removeVertex(G, adj_list, y);
-    d2_fold.push_back(x);
+
+    removeVertex(adj_list, node_status, w);
+    removeVertex(adj_list, node_status, x);
+
 }
 
 
-bool Reduction::checkValidDegreeTwo(graph_access &G, std::vector<std::vector<NodeID>> &adj_list, NodeID &v){
-    
-    NodeID u = adj_list[v][0];
-    NodeID w = adj_list[v][1];
-    
-    if (adj_list[u].size() == 2 && adj_list[w].size() == 2){
-//        std::cout << adj_list[u].size() << adj_list[w].size() << std::endl;
-        for (unsigned int i = 0; i < adj_list[u].size(); i++){
-            if (adj_list[u][i] == w){
-                return false;
-            }
+void TwinReduction::addChangedNodesToQueueRemoveType (std::vector<std::vector<NodeID>> &adj_list, Queue *q){
+
+
+    for (NodeID p : adj_list[v]){
+
+        if (!q->in_queue(p)){
+            q->push(p);
         }
-    }
-    
-    for (unsigned int i = 0; i < adj_list[w].size(); i++){
-        NodeID x = adj_list[w][i];
-        scratch[x] = true;
-    }
-    for (unsigned int i = 0; i < adj_list[u].size(); i++){
-        NodeID x = adj_list[u][i];
-        scratch[x] = false;
-    }
-    
-    for (unsigned int i = 0; i < adj_list[u].size(); i++){
-        NodeID x = adj_list[u][i];
-        
-        if (!node_status[x]){
-            continue;
-        }
-        if (x == v || x == w) {
-            continue;
-        }
-        for (unsigned int j = 0; j < adj_list[x].size(); j++){
-            NodeID y = adj_list[x][j];
-            if (!node_status[y]){
-                continue;
+        for (NodeID r : adj_list[p]){
+            if (!q->in_queue(r)){
+                q->push(r);
             }
-            if (y == u || y == w){
-                continue;
-            }
-            if (scratch[y]){
-                for (unsigned int i = 0; i < adj_list[w].size(); i++){
-                    NodeID x = adj_list[w][i];
-                    scratch[x] = false;
+            for (NodeID s : adj_list[w]){
+                if (!q->in_queue(s)){
+                    q->push(s);
                 }
-                return false;
             }
         }
     }
-    for (unsigned int i = 0; i < adj_list[w].size(); i++){
-        NodeID x = adj_list[w][i];
-        scratch[x] = false;
+}
+
+void TwinReduction::removeTwin(std::vector<std::vector<NodeID>> &adj_list, std::vector<bool> &node_status, std::vector<std::vector<NodeID>> &clique_cover, std::vector<unsigned int> &node_clique){
+
+    std::vector<NodeID> clique1;
+    clique1.push_back(v);
+    for (NodeID p : edge_neighbors){
+        clique1.push_back(p);
     }
-    
+    std::sort(clique1.begin(), clique1.end());
+    addCliqueToCover(clique_cover, node_clique, clique1);
+
+    for (NodeID p : clique1){
+        removeVertex(adj_list, node_status, p);
+    }
+
+    std::vector<NodeID> clique2;
+    clique2.push_back(u);
+    clique2.push_back(non_edge_node);
+    std::sort(clique2.begin(), clique2.end());
+    addCliqueToCover(clique_cover, node_clique, clique2);
+
+    for (NodeID p : clique2){
+        removeVertex(adj_list, node_status, p);
+    }
+}
+
+bool TwinReduction::existsEdgeBetweenNeighbors(std::vector<std::vector<NodeID>> &adj_list){
+
+    for (NodeID p : adj_list[w]){
+        if (p == x){
+            edge_neighbors.push_back(w);
+            edge_neighbors.push_back(x);
+            non_edge_node = y;
+            return true;
+        }
+        if (p == y){
+            edge_neighbors.push_back(w);
+            edge_neighbors.push_back(y);
+            non_edge_node = x;
+            return true;
+        }
+    }
+    for (NodeID p : adj_list[x]){
+        if (p == y){
+            edge_neighbors.push_back(x);
+            edge_neighbors.push_back(y);
+            non_edge_node = w;
+            return true;
+        }
+    }
+    return false;
+}
+
+void TwinReduction::reduce(std::vector<std::vector<NodeID>> &adj_list, std::vector<bool> &node_status, Queue *q, std::vector<std::vector<int>> &int_adj_list, std::vector<NodeID> &new_to_old_map, std::vector<std::vector<NodeID>> &clique_cover, std::vector<unsigned int> &node_clique, std::vector<bool> &scratch, NodeID &node, NodeID &partner_node){
+
+    v = node;
+    u = partner_node;
+
+    TwinReduction::assignNeighborsBySize(adj_list, v, w, x, y);
+
+    remove_type_twin = existsEdgeBetweenNeighbors(adj_list);
+    if (remove_type_twin){
+        addChangedNodesToQueueRemoveType(adj_list, q);
+        removeTwin(adj_list, node_status, clique_cover, node_clique);
+    }
+    else {
+        original_neighborhood_w = adj_list[w];
+        original_neighborhood_x = adj_list[x];
+        foldTwin(adj_list, node_status, scratch);
+        addChangedNodesToQueueFoldType(adj_list, q);
+    }
+}
+
+
+void TwinReduction::unreduce(std::vector<std::vector<NodeID>> &adj_list, std::vector<bool> &node_status, std::vector<std::vector<NodeID>> &clique_cover, std::vector<unsigned int> &node_clique) {
+
+    if (remove_type_twin){
+        return;
+    }
+
+    unsigned int fold_cliqueID = node_clique[y];
+    std::vector<NodeID> fold_clique = clique_cover[fold_cliqueID];
+
+    NodeID p = y;
+    NodeID q = x;
+    NodeID r = w;
+
+    if (cliqueIsSubset(fold_clique, y, original_neighborhood_w)){
+        p = w;
+        q = x;
+        r = y;
+    }
+
+    else if (cliqueIsSubset(fold_clique, y, original_neighborhood_x)){
+        p = x;
+        q = w;
+        r = y;
+    }
+
+    for (unsigned int i = 0; i < fold_clique.size(); i++){
+        if (fold_clique[i] == y){
+            fold_clique[i] = p;
+            node_clique[p] = fold_cliqueID;
+            std::sort(fold_clique.begin(), fold_clique.end());
+            break;
+        }
+    }
+    clique_cover[fold_cliqueID] = fold_clique;
+
+    std::vector<NodeID> new_clique1;
+    new_clique1.push_back(v);
+    new_clique1.push_back(q);
+    std::sort(new_clique1.begin(), new_clique1.end());
+    addCliqueToCover(clique_cover, node_clique, new_clique1);
+
+    std::vector<NodeID> new_clique2;
+    new_clique2.push_back(u);
+    new_clique2.push_back(r);
+    std::sort(new_clique2.begin(), new_clique2.end());
+    addCliqueToCover(clique_cover, node_clique, new_clique2);
+}
+
+
+class DominationReduction: public Reduction {
+private:
+    NodeID v;
+    NodeID u;
+
+    void addChangedNodesToQueue(std::vector<std::vector<NodeID>> &G, Queue *q);
+
+
+public:
+    static bool isDominant(std::vector<std::vector<NodeID>> &adj_list, std::vector<bool> &node_status, NodeID &v, NodeID &u);
+    static bool nodeDominates(std::vector<std::vector<NodeID>> &adj_list, NodeID &v, NodeID &p);
+
+    void reduce(std::vector<std::vector<NodeID>> &adj_list, std::vector<bool> &node_status, Queue *q, std::vector<std::vector<int>> &int_adj_list, std::vector<NodeID> &new_to_old_map, std::vector<std::vector<NodeID>> &clique_cover, std::vector<unsigned int> &node_clique, std::vector<bool> &scratch, NodeID &node, NodeID &partner_node);
+    void unreduce(std::vector<std::vector<NodeID>> &adj_list, std::vector<bool> &node_status, std::vector<std::vector<NodeID>> &clique_cover, std::vector<unsigned int> &node_clique);
+};
+
+
+bool DominationReduction::nodeDominates(std::vector<std::vector<NodeID>> &adj_list, NodeID &v, NodeID &p){
+
+    unsigned int i = 0;
+    unsigned int j = 0;
+
+    while (j < adj_list[p].size()){
+        if (adj_list[p][j] == v){
+            j++;
+            continue;
+        }
+        if (i == adj_list[v].size()){
+            return false;
+        }
+        if (adj_list[v][i] == p){
+            i++;
+            continue;
+        }
+        if (adj_list[v][i] > adj_list[p][j]){
+            return false;
+        }
+        if (adj_list[v][i] < adj_list[p][j]){
+            i++;
+        }
+        else {
+            i++;
+            j++;
+        }
+    }
     return true;
 }
 
 
-int Reduction::getDegreeTwo(graph_access &G, std::vector<std::vector<NodeID>> &adj_list){
+bool DominationReduction::isDominant(std::vector<std::vector<NodeID>> &adj_list, std::vector<bool> &node_status, NodeID &v, NodeID &u) {
+
+    if (adj_list[v].size() > 2) {
+        for (NodeID p : adj_list[v]){
+            if (adj_list[v].size() < adj_list[p].size()){
+                continue;
+            }
+            if (DominationReduction::nodeDominates(adj_list, v, p)){
+                u = p;
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+
+void DominationReduction::addChangedNodesToQueue(std::vector<std::vector<NodeID>> &adj_list, Queue *q){
+
+    for (NodeID w : adj_list[v]){
+        if (!q->in_queue(w)){
+            q->push(w);
+        }
+    }
+}
+
+
+void DominationReduction::reduce(std::vector<std::vector<NodeID>> &adj_list, std::vector<bool> &node_status, Queue *q, std::vector<std::vector<int>> &int_adj_list, std::vector<NodeID> &new_to_old_map, std::vector<std::vector<NodeID>> &clique_cover, std::vector<unsigned int> &node_clique, std::vector<bool> &scratch, NodeID &node, NodeID &partner_node){
+
+    v = node;
+    u = partner_node;
+
+    addChangedNodesToQueue(adj_list, q);
+    removeVertex(adj_list, node_status, v);
+}
+
+void DominationReduction::unreduce(std::vector<std::vector<NodeID>> &adj_list, std::vector<bool> &node_status, std::vector<std::vector<NodeID>> &clique_cover, std::vector<unsigned int> &node_clique) {
+
+    unsigned int clique_ID = node_clique[u];
+    std::vector<NodeID> clique = clique_cover[clique_ID];
+
+    clique.push_back(v);
+    std::sort(clique.begin(), clique.end());
+    node_clique[v] = clique_ID;
+
+    clique_cover[clique_ID] = clique;
+}
+
+
+class CrownReduction: public Reduction {
+private:
     
-    int num_folds = 0;
-    forall_nodes(G, v) {
+    void addCrownCliquesToCover(std::vector<std::vector<NodeID>> &adj_list, std::vector<bool> &node_status, std::vector<std::vector<int>> &int_adj_list, std::vector<NodeID> &new_to_old_map, std::vector<std::vector<NodeID>> &clique_cover, std::vector<unsigned int> &node_clique, std::vector<std::vector<int>> &crown_cliques);
+    
+public:
+    
+    void reduce(std::vector<std::vector<NodeID>> &adj_list, std::vector<bool> &node_status, Queue *q, std::vector<std::vector<int>> &int_adj_list, std::vector<NodeID> &new_to_old_map, std::vector<std::vector<NodeID>> &clique_cover, std::vector<unsigned int> &node_clique, std::vector<bool> &scratch, NodeID &v, NodeID &partner_node);
+    void unreduce(std::vector<std::vector<NodeID>> &adj_list, std::vector<bool> &node_status, std::vector<std::vector<NodeID>> &clique_cover, std::vector<unsigned int> &node_clique) {return;}
+
+    
+};
+
+void CrownReduction::addCrownCliquesToCover (std::vector<std::vector<NodeID>> &adj_list, std::vector<bool> &node_status, std::vector<std::vector<int>> &int_adj_list, std::vector<NodeID> &new_to_old_map, std::vector<std::vector<NodeID>> &clique_cover, std::vector<unsigned int> &node_clique, std::vector<std::vector<int>> &crown_cliques) {
+    
+    for (unsigned int i = 0; i < crown_cliques.size(); i++){
+        std::vector<NodeID> clique;
         
+        for (unsigned int j = 0; j < crown_cliques[i].size(); j++){
+            int v = crown_cliques[i][j];
+            NodeID old_v = new_to_old_map[v];
+            
+            removeVertex(adj_list, node_status, old_v);
+            clique.push_back(old_v);
+        }
+        std::sort(clique.begin(), clique.end());
+        
+        addCliqueToCover(clique_cover, node_clique, clique);
+    }
+}
+
+void CrownReduction::reduce(std::vector<std::vector<NodeID>> &adj_list, std::vector<bool> &node_status, Queue *q, std::vector<std::vector<int>> &int_adj_list, std::vector<NodeID> &new_to_old_map, std::vector<std::vector<NodeID>> &clique_cover, std::vector<unsigned int> &node_clique, std::vector<bool> &scratch, NodeID &v, NodeID &partner_node) {
+    
+    branch_and_reduce_algorithm b_and_r(int_adj_list, int_adj_list.size());
+    if (b_and_r.lpCrownReduction()){
+        addCrownCliquesToCover(adj_list, node_status, int_adj_list, new_to_old_map, clique_cover, node_clique, b_and_r.crown_cliques);
+    }
+}
+
+
+class Reducer {
+private:
+    Queue *q;
+    std::vector<Reduction*> reduction_stack;
+
+    std::vector<bool> bool_scratch;
+    
+    std::vector<std::vector<int>> int_adj_list;
+    std::vector<int> old_to_new_map;
+    std::vector<NodeID> new_to_old_map;
+
+    void makeAdjList(graph_access &G);
+    void remakeAdjList(graph_access &G);
+    
+    int assignAdjMaps(graph_access &G);
+
+    void performIsolatedReductions(graph_access &G);
+    void performDegreeTwoReductions(graph_access &G);
+    void performTwinReductions(graph_access &G);
+    void performDominationReductions(graph_access &G);
+    void performCrownReductions(graph_access &G);
+
+public:
+    unsigned int graph_size;
+    unsigned int remaining_nodes;
+
+    std::vector<std::vector<NodeID>> adj_list;
+    std::vector<bool> node_status;
+
+    std::vector<std::vector<NodeID>> clique_cover;
+    std::vector<unsigned int> node_clique;
+
+    Reducer(graph_access &G);
+    unsigned int getSubgraphSize(graph_access &G);
+    void performReductions(graph_access &G);
+    void computeSubgraph(graph_access &G, PartitionConfig &partition_config);
+    void unwindReductions(graph_access &G);
+
+    void analyzeGraph(std::string &filename, graph_access &G, timer &t);
+};
+
+void Reducer::makeAdjList(graph_access &G){
+
+    forall_nodes(G, v){
+        std::vector<NodeID> neighbors_of_v;
+
+        forall_out_edges(G, e, v){
+            NodeID u = G.getEdgeTarget(e);
+            neighbors_of_v.push_back(u);
+
+        } endfor
+        adj_list.push_back(neighbors_of_v);
+
+    } endfor
+}
+
+int Reducer::assignAdjMaps(graph_access &G) {
+    
+    old_to_new_map.clear();
+    old_to_new_map.resize(G.number_of_nodes());
+    new_to_old_map.clear();
+    new_to_old_map.resize(G.number_of_nodes());
+    
+    int u = 0;
+    for (unsigned int i = 0; i < G.number_of_nodes(); i++){
+        if (!node_status[i]){
+            continue;
+        }
+        old_to_new_map[i] = u;
+        new_to_old_map[u] = i;
+        u++;
+    }
+    
+    int sub_graph_size = u;
+    return sub_graph_size;
+}
+
+void Reducer::remakeAdjList(graph_access &G) {
+    
+    int sub_graph_size = assignAdjMaps(G);
+    
+    int_adj_list.clear();
+    int_adj_list.resize(sub_graph_size);
+    
+    for (unsigned int i = 0; i < G.number_of_nodes(); i++){
+        if (!node_status[i]){
+            continue;
+        }
+        int new_v = old_to_new_map[i];
+        std::vector<int> adj;
+        for (unsigned int j = 0; j < adj_list[i].size(); j++){
+            NodeID u  = adj_list[i][j];
+            int new_u = old_to_new_map[u];
+            adj.push_back(new_u);
+        }
+        std::sort(adj.begin(), adj.end());
+        int_adj_list[new_v] = adj;
+    }
+    
+    
+}
+
+Reducer::Reducer(graph_access &G){
+
+    graph_size = 0;
+    remaining_nodes = G.number_of_nodes();
+
+    makeAdjList(G);
+    node_status.assign(G.number_of_nodes(), true);
+    node_clique.resize(G.number_of_nodes());
+
+    bool_scratch.assign(G.number_of_nodes(), false);
+}
+
+
+unsigned int Reducer::getSubgraphSize(graph_access &G){
+
+    unsigned int nodes_in_graph = 0;
+
+    for (unsigned int i = 0; i < G.number_of_nodes(); i++){
+        if (node_status[i]){
+            nodes_in_graph++;
+        }
+    }
+
+    return nodes_in_graph;
+
+}
+
+
+void Reducer::performIsolatedReductions(graph_access &G){
+    q = new Queue(G, node_status);
+    for(;;){
+        bool reductions_complete = q->empty();
+        if (reductions_complete){
+            break;
+        }
+
+        NodeID v = q->pop();
+
+//        int vertices_reduced = 0;
+//        forall_nodes(G, v){
+
+            if (!node_status[v]){
+                continue;
+            }
+
+            NodeID u;
+            Reduction *pReduction = nullptr;
+
+            if (IsolatedReduction::isIsolated(adj_list, node_status, v)){
+//                vertices_reduced++;
+                pReduction = new IsolatedReduction();
+            }
+
+            else {
+                continue;
+            }
+            pReduction->reduce(adj_list, node_status, q, int_adj_list, new_to_old_map, clique_cover, node_clique, bool_scratch, v, u);
+            reduction_stack.push_back(pReduction);
+
+//        } endfor
+//
+//        if (vertices_reduced == 0){
+//            break;
+//        }
+    }
+
+    delete q;
+}
+
+void Reducer::performDegreeTwoReductions(graph_access &G){
+    q = new Queue(G, node_status);
+    for(;;){
+        bool reductions_complete = q->empty();
+        if (reductions_complete){
+            break;
+        }
+
+        NodeID v = q->pop();
+
+//                        int vertices_reduced = 0;
+//                        forall_nodes(G, v){
+
         if (!node_status[v]){
             continue;
         }
-        
-        if (adj_list[v].size() == 2){
-            // NodeID u = adj_list[v][0];
-            // NodeID w = adj_list[v][1];
-            if (checkValidDegreeTwo(G, adj_list, v)){
-                foldDegreeTwo(G, adj_list, v);
-                num_folds++;
-                reductions.push_back(1);
-//                std::cout << "valid: " << v << std::endl;
-            }
+
+        NodeID u;
+        Reduction *pReduction = nullptr;
+
+        if (DegreeTwoReduction::isDegreeTwo(adj_list, node_status, bool_scratch, v)){
+//                                        vertices_reduced++;
+            pReduction = new DegreeTwoReduction();
         }
-    } endfor
-    return num_folds;
-}
 
-
-void Reduction::reduceDegreeTwo(graph_access &G, std::vector<std::vector<NodeID>> &adj_list){
-    
-    bool folding = true;
-    
-    while (folding){
-        int num_folds = getDegreeTwo(G, adj_list);
-        if (num_folds == 0){
-            folding = false;
-        }
-    }
-}
-
-//void followPath(graph_access &G, std::vector<bool> &node_status, std::vector<bool> &no\
-//de_checked, NodeID &v){
-//
-//  node_checked[v] = true;
-//
-//  std::vector<NodeID> path_components;
-//  path_components.push_back(v);
-//
-//  int path_size = 1;
-//
-//  EdgeID e = G.get_first_edge(v);
-//
-//  while (e != G.get_first_invalid_edge(v)) {
-//  //forall_out_edges(G, e, v){
-//    NodeID u = G.getEdgeTarget(e);
-//
-//    if (!node_status[u]) {
-//    e++;
-//    continue;
-//    }
-//
-//    while (G.getNodeDegree(u) == 2 && !node_checked[u]){
-//      node_checked[u] = true;
-//      path_size++;
-//
-//      EdgeID e_u = G.get_first_edge(u);
-//
-//      if (!node_checked[G.getEdgeTarget(e_u)]){
-//        u = G.getEdgeTarget(e_u);
-//      }
-//      else {
-//        u = G.getEdgeTarget(e_u + 1);
-//      }
-//    }
-//    e++;
-//  }
-//
-//  std::cout << path_size << std::endl;
-//}
-//
-//void getPath(graph_access &G, std::vector<bool> &node_status, std::vector<bool> &node_\
-//checked, std::vector<NodeID> &path_vertices){
-//
-//  forall_nodes(G, v){
-//
-//    if (node_status[v] == false) {
-//      continue;
-//    }
-//
-//    if (G.getNodeDegree(v) == 2 && !node_checked[v]) {
-//      std::cout << "Degree 2 vertex : " << v << std::endl;
-//
-//      followPath(G, node_status, node_checked, v);
-//
-//      path_vertices.push_back(v);
-//    }
-//  } endfor
-//}
-
-
-void Reduction::removeIsolated(graph_access &G, std::vector<std::vector<NodeID>> &adj_list, NodeID &v){
-    
-    while (adj_list[v].size() > 0){
-        NodeID u = adj_list[v][0];
-        removeVertex(G, adj_list, u);
-    }
-    removeVertex(G, adj_list, v);
-}
-
-
-void Reduction::addIsolatedClique(graph_access &G, std::vector<std::vector<NodeID>> &adj_list, NodeID &v){
-    
-    std::vector<NodeID> clique;
-    clique.push_back(v);
-    
-    for (unsigned int i = 0; i < adj_list[v].size(); i++){
-        NodeID u = adj_list[v][i];
-        clique.push_back(u);
-    }
-    
-    std::sort(clique.begin(), clique.end());
-    clique_cover.push_back(clique);
-    
-    unsigned int cliqueID = clique_cover.size() - 1;
-    for (unsigned int i = 0; i < clique.size(); i++){
-        NodeID u = clique[i];
-        node_clique[u] = cliqueID;
-    }
-}
-
-
-bool Reduction::checkNeighbor(graph_access &G, std::vector<std::vector<NodeID>> &adj_list, NodeID &v, NodeID &u){
-    
-    EdgeID e_v = 0;
-    EdgeID e_u = 0;
-    
-    bool not_found = false;
-    
-    while (e_v < adj_list[v].size()) {
-        NodeID x = adj_list[v][e_v];
-        NodeID w = adj_list[u][e_u];
-        
-        if (x == u) {
-            e_v++;
-            continue;
-        }
-        
-        if (e_u == adj_list[u].size()){
-            not_found = true;
-            break;
-        }
-        
-        if (x == w){
-            e_v++;
-            e_u++;
-        }
-        else if (x > w) {
-            e_u++;
-        }
         else {
-            not_found = true;
-            break;
-        }
-    }
-    
-    return not_found;
-}
-
-
-int Reduction::getIsolated(graph_access &G, std::vector<std::vector<NodeID>> &adj_list){
-    
-    int num_isolated = 0;
-    
-    forall_nodes(G, v) {
-        bool isolated = true;
-        
-        if (node_status[v] == false){
             continue;
         }
+        pReduction->reduce(adj_list, node_status, q, int_adj_list, new_to_old_map, clique_cover, node_clique, bool_scratch, v, u);
+        reduction_stack.push_back(pReduction);
+
+//                        } endfor
+//                        if (vertices_reduced == 0){
+//
+//                            break;
+//                        }
+    }
+
+    delete q;
+}
+
+
+void Reducer::performTwinReductions(graph_access &G){
+    q = new Queue(G, node_status);
+    for(;;){
+                bool reductions_complete = q->empty();
+                if (reductions_complete){
+                    break;
+                }
+
+                NodeID v = q->pop();
         
-        for (unsigned int i = 0; i < adj_list[v].size(); i++){
-            NodeID u = adj_list[v][i];
-            
-            bool not_found = checkNeighbor(G, adj_list, v, u);
-            
-            if (not_found){
-                isolated = false;
-                break;
+//        int vertices_reduced = 0;
+//        forall_nodes(G, v){
+        
+            if (!node_status[v]){
+                continue;
             }
-        }
-        
-        if (isolated) {
-            num_isolated++;
-            addIsolatedClique(G, adj_list, v);
-            removeIsolated(G, adj_list, v);
-            reductions.push_back(0);
-        }
-    } endfor
+            
+            NodeID u;
+            Reduction *pReduction = nullptr;
+            
+            if (TwinReduction::isTwin(adj_list, node_status, bool_scratch, v, u)){
+//                vertices_reduced++;
+                pReduction = new TwinReduction();
+            }
+            
+            else {
+                continue;
+            }
+            pReduction->reduce(adj_list, node_status, q, int_adj_list, new_to_old_map, clique_cover, node_clique, bool_scratch, v, u);
+            reduction_stack.push_back(pReduction);
+            //
+//        } endfor
+//
+//        if (vertices_reduced == 0){
+//            break;
+//        }
+    }
     
-    return num_isolated;
+    delete q;
 }
 
 
-void Reduction::reduceIsolated(graph_access &G, std::vector<std::vector<NodeID>> &adj_list){
-    
-    int isolated_found = true;
-    
-    while (isolated_found){
-        
-        int num_isolated = getIsolated(G, adj_list);
-        
-        if (num_isolated == 0){
-            isolated_found = false;
-        }
+void Reducer::performDominationReductions(graph_access &G){
+    q = new Queue(G, node_status);
+    for(;;){
+                bool reductions_complete = q->empty();
+                if (reductions_complete){
+                    break;
+                }
+
+                NodeID v = q->pop();
+
+//        int vertices_reduced = 0;
+//        forall_nodes(G, v){
+
+            if (!node_status[v]){
+                continue;
+            }
+
+            NodeID u;
+            Reduction *pReduction = nullptr;
+
+            if (DominationReduction::isDominant(adj_list, node_status, v, u)){
+//                vertices_reduced++;
+                pReduction = new DominationReduction();
+            }
+
+            else {
+                continue;
+            }
+            pReduction->reduce(adj_list, node_status, q, int_adj_list, new_to_old_map, clique_cover, node_clique, bool_scratch, v, u);
+            reduction_stack.push_back(pReduction);
+
+//        } endfor
+
+//        if (vertices_reduced == 0){
+//            break;
+//        }
     }
+
+    delete q;
+}
+
+void Reducer::performCrownReductions(graph_access &G){
+    
+    remakeAdjList(G);
+    
+    NodeID v;
+    NodeID u;
+    
+    Reduction *pReduction = new  CrownReduction();
+    pReduction->reduce(adj_list, node_status, q, int_adj_list, new_to_old_map, clique_cover, node_clique, bool_scratch, v, u);
+    reduction_stack.push_back(pReduction);
 }
 
 
-int Reduction::getGraphSize(graph_access &G){
-    
-    int in_nodes = 0;
-    
-    for (unsigned int i = 0; i < node_status.size(); i++){
-        if (node_status[i]){
-            in_nodes++;
-        }
+void Reducer::performReductions(graph_access &G){
+
+    unsigned int sub_graph_size = 0;
+
+    while (sub_graph_size != remaining_nodes){
+        sub_graph_size =  remaining_nodes;
+        performIsolatedReductions(G);
+        performDegreeTwoReductions(G);
+        
+        performCrownReductions(G);
+        
+        performTwinReductions(G);
+        performDominationReductions(G);
+
+        remaining_nodes = getSubgraphSize(G);
     }
-    return in_nodes;
 }
 
-
-void Reduction::makeSubGraph(graph_access &G, std::vector<std::vector<NodeID>> &adj_list, PartitionConfig &partition_config){
-
-  makeNewAdj(G, adj_list);
-
-  unsigned int n = 0;
-  unsigned long e = 0;
-
-  for (unsigned int i = 0; i < int_adj_list.size(); i++){
-    for (unsigned int j = 0; j < int_adj_list[i].size(); j++){
-      e++;
+void Reducer::computeSubgraph(graph_access &G, PartitionConfig &partition_config){
+    
+    if (remaining_nodes == 0){
+        return;
     }
-    n++;
-  }
-
-  std::cout << n << " " << e / 2 << std::endl;
+    
+    remakeAdjList(G);
+    
+    unsigned int num_nodes = 0;
+    unsigned long num_edges = 0;
+    
+    for (unsigned int i = 0; i < int_adj_list.size(); i++){
+        for (unsigned int j = 0; j < int_adj_list[i].size(); j++){
+            num_edges++;
+        }
+        num_nodes++;
+    }
     
     cli *cli_instance;
-    
     cli_instance = new cli(partition_config.seed);
-    cli_instance->start_cli(int_adj_list, n, e);
+    cli_instance->start_cli(int_adj_list, num_nodes, num_edges);
+
     
-    for (unsigned int i = 0; i < cli_instance->clique_cover.size(); i++){
-        for (unsigned int j = 0; j < cli_instance->clique_cover[i].size(); j++){
-            std::cout << cli_instance->clique_cover[i][j] << " ";
-        }
-        std::cout << std::endl;
-    }
-    
-    addCrownCliques(G, adj_list, cli_instance->clique_cover);
+    Reduction::addIntCliquesToCover(adj_list, node_status, int_adj_list, new_to_old_map, clique_cover, node_clique, cli_instance->clique_cover);
     
     delete(cli_instance);
-    
-    return;
-  
-  std::ofstream subGfile;
-  subGfile.open("sub.graph");
-  subGfile << n << " " << e / 2 << " 00\n";
+}
 
-  for (unsigned int i = 0; i < int_adj_list.size() - 1; i++){
-    for (unsigned int j = 0; j < int_adj_list[i].size() - 1; j++){
-      subGfile << int_adj_list[i][j] + 1 << " ";
+
+void Reducer::unwindReductions(graph_access &G){
+
+    while (reduction_stack.size() > 0){
+        Reduction *pReduction = reduction_stack.back();
+        reduction_stack.pop_back();
+
+        pReduction->unreduce(adj_list, node_status, clique_cover, node_clique);
+
+        delete pReduction;
     }
-    subGfile << int_adj_list[i].back() + 1 << "\n";
-  }
-  for (unsigned int i = 0; i < int_adj_list.back().size() - 1; i++){
-    subGfile << int_adj_list.back()[i] << " ";
-  }
-  subGfile << int_adj_list.back().back();  
-  subGfile.close();
+
 }
 
+void Reducer::analyzeGraph(std::string &filename, graph_access &G, timer &t){
 
-void Reduction::reduceGraph(graph_access &G, std::vector<std::vector<NodeID>> &adj_list, PartitionConfig &partition_config){
-    
-   unsigned int num_nodes = G.number_of_nodes();
-
-   unsigned int old_G = 0;
-   unsigned int new_G = num_nodes;
-
-   while (new_G != old_G){
-       old_G = new_G;
-       // std::cout << "cycle" << std::endl;
-       reduceIsolated(G, adj_list);
-       reduceDegreeTwo(G, adj_list);
-       reduceCrown(G, adj_list);
-       reduceTwin(G, adj_list);
-       reduceDominance(G, adj_list);
-       //reduceCrown(G, adj_list);
-       new_G = getGraphSize(G);
-   }
-
-     // reduceCrown(G, adj_list);
-     // reduceIsolated(G, adj_list);
-     
-     //   reduceCrown(G, adj_list);
-   makeNewAdj(G, adj_list);
-   if (int_adj_list.size() > 0){
-     std::cout << "remaining v" << std::endl;
-     makeSubGraph(G, adj_list, partition_config);
-   }
-}
-
-void makeAdjList(graph_access &G, std::vector<std::vector<NodeID>> &adj_list){
-    
-    forall_nodes(G, v) {
-        std::vector<NodeID> neighbors;
-        forall_out_edges(G, e, v){
-            NodeID u = G.getEdgeTarget(e);
-            neighbors.push_back(u);
-        } endfor
-        adj_list.push_back(neighbors);
-    } endfor
-}
-
-
-void analyzeGraph(std::string &filename, graph_access &G, std::vector<std::vector<NodeID>> &adj_list, Reduction &R, timer &t){
-    
     std::cout << filename << ", ";
-    
-    int num_nodes = G.number_of_nodes();
-    std::cout << num_nodes << ", ";
-    
-    int num_edges = G.number_of_edges();
-    std::cout << num_edges << ", ";
-    
-    int remaining_vertices = 0;
-    for (unsigned int i = 0; i < R.node_status.size(); i++){
-        if (R.node_status[i]){
-            remaining_vertices++;
+
+    std::cout << G.number_of_nodes() << ", ";
+    std::cout << G.number_of_edges() << ", ";
+
+    unsigned int remaining_nodes = 0;
+    for (unsigned int i = 0; i < G.number_of_nodes(); i++){
+        if (node_status[i]) {
+            remaining_nodes++;
         }
     }
-    
-    std::cout << remaining_vertices << ", ";
-    
+
+    std::cout << remaining_nodes << ", ";
+
     std::cout << t.elapsed() << ", ";
-    
-    std::cout << R.clique_cover.size() << ", ";
-    
+
+    std::cout << clique_cover.size() << ", ";
+
     std::vector<bool> in_clique(G.number_of_nodes(), false);
-    for (unsigned int i = 0; i < R.clique_cover.size(); i++){
-        std::vector<NodeID> clique = R.clique_cover[i];
-        for (unsigned int j = 0; j < clique.size(); j++){
-            NodeID x = clique[j];
-            if (in_clique[x]){
-                std::cout << "Duplicate: " << x << ", ";
+    for (std::vector<NodeID> clique : clique_cover){
+        for (NodeID v : clique){
+            if(in_clique[v]){
+                std::cout << "Duplicate: " << v << ", ";
             }
             else {
-                in_clique[x] = true;
+                in_clique[v] = true;
             }
         }
     }
-    for (unsigned int i = 0; i < in_clique.size(); i++){
-        if (in_clique[i] == false){
+
+    for (bool in : in_clique){
+        if (!in){
             std::cout << "Error" << std::endl;
             return;
         }
     }
+
     std::cout << "Complete" << std::endl;
 }
 
-int main(int argn, char **argv) {
+
+class CliqueCoverBranchAndReduce {
     
+    void makeAdjMatrix(graph_access &G);
+    
+public:
+    
+    char** adjacency_matrix;
+    
+    CliqueCoverBranchAndReduce(graph_access &G);
+};
+
+void CliqueCoverBranchAndReduce::makeAdjMatrix(graph_access &G){
+    
+    
+    
+    unsigned int nodes = G.number_of_nodes();
+    adjacency_matrix = (char **) malloc (sizeof(char **)*nodes);
+
+    for (unsigned int i = 0; i < nodes; i++){
+        adjacency_matrix[i] = (char *) malloc (sizeof(char)*nodes);
+    }
+
+    for (unsigned int i = 0; i < nodes; i++){
+        for (unsigned int j = 0; j < nodes; j++){
+            adjacency_matrix[i][j] = 0;
+        }
+    }
+
+    forall_nodes(G, v){
+        forall_out_edges(G, e, v){
+            NodeID u = G.getEdgeTarget(e);
+            adjacency_matrix[v][u] = 1;
+        } endfor
+    } endfor
+}
+
+CliqueCoverBranchAndReduce::CliqueCoverBranchAndReduce(graph_access &G){
+    
+    makeAdjMatrix(G);
+}
+
+int main(int argn, char **argv) {
+
     PartitionConfig partition_config;
     std::string graph_filename;
 
@@ -1321,18 +1465,13 @@ int main(int argn, char **argv) {
     graph_io::readGraphWeighted(G, graph_filename);
     //  std::cout << "io time: " << t.elapsed()  << std::endl;
 
-    //  unsigned int num_nodes = G.number_of_nodes();
-
     timer s;
     std::vector<std::vector<NodeID>> adj_list;
-    makeAdjList(G, adj_list);
-    //  std::vector<bool> node_status(num_nodes, true);
 
-    Reduction R(G);
-//      reduceGraph(G, adj_list, node_status);
-    R.reduceGraph(G, adj_list, partition_config);
-      R.unreduceGraph(G, adj_list);
-    analyzeGraph(graph_filename, G, adj_list, R, s);
+    
+    Reducer R(G);
+//    R.performReductions(G);
+    R.computeSubgraph(G, partition_config);
+//    R.unwindReductions(G);
+    R.analyzeGraph(graph_filename, G, s);
 }
-
-
