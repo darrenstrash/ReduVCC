@@ -1014,7 +1014,7 @@ public:
     Reducer(graph_access &G);
     unsigned int getSubgraphSize(graph_access &G);
     void performReductions(graph_access &G);
-    void computeSubgraph(graph_access &G, PartitionConfig &partition_config);
+    void computeSubgraph(graph_access &G, PartitionConfig &partition_config, timer &t);
     void unwindReductions(graph_access &G);
 
     void analyzeGraph(std::string &filename, graph_access &G, timer &t);
@@ -1306,7 +1306,7 @@ void Reducer::performReductions(graph_access &G){
     }
 }
 
-void Reducer::computeSubgraph(graph_access &G, PartitionConfig &partition_config){
+void Reducer::computeSubgraph(graph_access &G, PartitionConfig &partition_config, timer &t){
     
     if (remaining_nodes == 0){
         return;
@@ -1326,11 +1326,14 @@ void Reducer::computeSubgraph(graph_access &G, PartitionConfig &partition_config
     
     cli *cli_instance;
     cli_instance = new cli(partition_config.seed);
-    cli_instance->start_cli(int_adj_list, num_nodes, num_edges);
+    cli_instance->start_cli(int_adj_list, num_nodes, num_edges, t.elapsed(), 60);
 
-    
-    Reduction::addIntCliquesToCover(adj_list, node_status, int_adj_list, new_to_old_map, clique_cover, node_clique, cli_instance->clique_cover);
-    
+    if (cli_instance->clique_cover.size() != 0){
+        Reduction::addIntCliquesToCover(adj_list, node_status, int_adj_list, new_to_old_map, clique_cover, node_clique, cli_instance->clique_cover);
+    }
+    else {
+        std::cout << "Chalupa's algorithm unable to solve in given time." << std::endl;
+    }
     delete(cli_instance);
 }
 
@@ -1390,48 +1393,6 @@ void Reducer::analyzeGraph(std::string &filename, graph_access &G, timer &t){
     std::cout << "Complete" << std::endl;
 }
 
-
-class CliqueCoverBranchAndReduce {
-    
-    void makeAdjMatrix(graph_access &G);
-    
-public:
-    
-    char** adjacency_matrix;
-    
-    CliqueCoverBranchAndReduce(graph_access &G);
-};
-
-void CliqueCoverBranchAndReduce::makeAdjMatrix(graph_access &G){
-    
-    
-    
-    unsigned int nodes = G.number_of_nodes();
-    adjacency_matrix = (char **) malloc (sizeof(char **)*nodes);
-
-    for (unsigned int i = 0; i < nodes; i++){
-        adjacency_matrix[i] = (char *) malloc (sizeof(char)*nodes);
-    }
-
-    for (unsigned int i = 0; i < nodes; i++){
-        for (unsigned int j = 0; j < nodes; j++){
-            adjacency_matrix[i][j] = 0;
-        }
-    }
-
-    forall_nodes(G, v){
-        forall_out_edges(G, e, v){
-            NodeID u = G.getEdgeTarget(e);
-            adjacency_matrix[v][u] = 1;
-        } endfor
-    } endfor
-}
-
-CliqueCoverBranchAndReduce::CliqueCoverBranchAndReduce(graph_access &G){
-    
-    makeAdjMatrix(G);
-}
-
 int main(int argn, char **argv) {
 
     PartitionConfig partition_config;
@@ -1470,8 +1431,9 @@ int main(int argn, char **argv) {
 
     
     Reducer R(G);
-//    R.performReductions(G);
-    R.computeSubgraph(G, partition_config);
-//    R.unwindReductions(G);
+    R.performReductions(G);
+    std::cout << "Reductions complete at " << s.elapsed() << " seconds." << std::endl;
+    R.computeSubgraph(G, partition_config, s);
+    R.unwindReductions(G);
     R.analyzeGraph(graph_filename, G, s);
 }
