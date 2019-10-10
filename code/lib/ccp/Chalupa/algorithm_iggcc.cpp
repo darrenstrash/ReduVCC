@@ -86,8 +86,11 @@ long algorithm_iggcc::greedy_indset(graph G, long permutation_indset[])
     return indset_size;
 }
 
-bool algorithm_iggcc::iggcc_ccp(graph G, refer *result, refer *indset_size, refer *initial_indset, refer initial_indset_size)
+bool algorithm_iggcc::iggcc_ccp(graph G, refer *result, refer *indset_size, refer *initial_indset, refer initial_indset_size, double t_elapsed)
 {
+    
+    timer timer_s;
+    
     unsigned long long t,t_max,indset_it,t_stag,t_stag_max;
     long remainder;
     long q,r,s,aux,w;
@@ -171,7 +174,11 @@ bool algorithm_iggcc::iggcc_ccp(graph G, refer *result, refer *indset_size, refe
     t = 0;
     t_stag = 0;
     // while (t < t_max && fitness_indset < colors_count)
-    while (t_stag < t_stag_max && fitness_indset < colors_count)
+    //    while (t_stag < t_stag_max && fitness_indset < colors_count)
+    
+    printf("\nTime\t\tVCC\tIS\n");
+    printf("%f\t%ld\t%ld\n", timer_s.elapsed() + t_elapsed, colors_count, fitness_indset);
+    while (timer_s.elapsed() + t_elapsed < 600 && fitness_indset < colors_count)
     {
         colors_count_old = colors_count;
 
@@ -229,8 +236,14 @@ bool algorithm_iggcc::iggcc_ccp(graph G, refer *result, refer *indset_size, refe
             my_t_data->t_cliques[t][4]+=fourcliques;
             my_t_data->t_contributions[t]++;*/
             //printf("[%ld,%ld,%ld,%ld](%ld),",loners,edges,triangles,fourcliques,fitness_indset);
-            printf("[%ld](%ld),",colors_count,fitness_indset);
+            
+            
+//            printf("[%ld](%ld),",colors_count,fitness_indset);
 
+        }
+        
+        if (colors_count_old != colors_count){
+            printf("%f\t%ld\t%ld\n", timer_s.elapsed() + t_elapsed, colors_count, fitness_indset);
         }
 
         // reordering the classes
@@ -389,6 +402,8 @@ bool algorithm_iggcc::iggcc_ccp(graph G, refer *result, refer *indset_size, refe
 
         t++;
     }
+    
+    printf("%f\t%ld\t%ld\n", timer_s.elapsed() + t_elapsed, colors_count, fitness_indset);
 
     printf(" [iterations: %llu][independent set: %ld]\n",t,fitness_indset);
     *indset_size = fitness_indset;

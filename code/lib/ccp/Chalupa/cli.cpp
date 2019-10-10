@@ -4,6 +4,7 @@
 cli::cli(int s)
 {
     seed = s;
+    
     result_for_permutation = new refer[MAX_VERTICES];
     histogram              = new refer[MAX_VERTICES];
     sizes                  = new refer[MAX_VERTICES];
@@ -104,8 +105,15 @@ void cli::try_all_permutations()
     getchar();
 }
 
-int cli::start_cli(std::vector<std::vector<int>> adj_list, unsigned int num_v, unsigned long num_e)
+int cli::start_cli(std::vector<std::vector<int>> adj_list, unsigned int num_v, unsigned long num_e, double elapsed, double limit)
 {
+    
+    t_elapsed = elapsed;
+    t_limit = limit;
+    timer t;
+    
+    // printf("reductions: %f\n", t_elapsed);
+    
     int j;
     double max_runs = (double) (MAX_INSTANCE * MAX_ALGORITHM);
     printf("VERTEX CLIQUE COVERING PROBLEM (CCP) SOLVER\nversion 0.2\n");
@@ -120,7 +128,7 @@ int cli::start_cli(std::vector<std::vector<int>> adj_list, unsigned int num_v, u
     // instance loaded from file
     choose_instance(adj_list, num_v, num_e);
     compute_statistics();
-    choose_algorithm();
+    choose_algorithm(t);
     //try_all_permutations();
 
 
@@ -181,21 +189,26 @@ int cli::choose_instance(std::vector<std::vector<int>> adj_list, unsigned int nu
 int cli::compute_statistics()
 {
     refer i, maxdeg;
-    unsigned long triangles;
+//    unsigned long triangles;
 
     printf("Computing the basic statistics...\n");
 
     min_deg = statistics::min_degree(G);
+    printf("Found min...\n");
     max_deg = statistics::max_degree(G);
+    printf("Found max...\n");
     avg_deg = statistics::average_degree(G);
+    printf("Found avg...\n");
     stdev_deg = statistics::degree_stdev(G);
-    triangles = statistics::triangles(G);
+    printf("Found stdev...\n");
+//    triangles = statistics::triangles(G);
+//    printf("Fount triangles...\n");
 
     printf("G: %s\n",filename);
     printf("|V| = %ld, |E| = %ld, d = %0.3lf\n",G->n,G->m,(double)(2*G->m)/(double)(G->n)/(double)(G->n-1));
     printf("min degree = %ld, max degree = %ld\n",min_deg,max_deg);
     printf("average degree = %0.3lf, degree stdev = %0.3lf\n",avg_deg,stdev_deg);
-    printf("number of triangles = %lu\n",triangles);
+//    printf("number of triangles = %lu\n",triangles);
 
     printf("degree distribution: [");
     maxdeg = statistics::degree_distribution(G, degree_distrib);
@@ -212,7 +225,7 @@ int cli::compute_statistics()
     return 0;
 }
 
-int cli::choose_algorithm()
+int cli::choose_algorithm(timer &t)
 {
     long j;
     refer current_gcc;
@@ -286,7 +299,7 @@ int cli::choose_algorithm()
     avg_iter = 0;
     succ_rate = 0;
     min_iggcc = MAX_VERTICES;
-    for (i=0;i<MAX_ALGORITHM;i++)
+//    for (i=0;i<MAX_ALGORITHM;i++)
     {
 
         printf("Run %ld:",i+1);
@@ -295,7 +308,7 @@ int cli::choose_algorithm()
 
         //do
         {
-            is_optimal = iggcc_ccp->iggcc_ccp(G,result,&indset_size,initial_indset,initial_indset_size);
+            is_optimal = iggcc_ccp->iggcc_ccp(G,result,&indset_size,initial_indset,initial_indset_size, t.elapsed() + t_elapsed);
         }
         //while (! is_optimal && timer.elapsed() < 18000000);
 
@@ -305,6 +318,7 @@ int cli::choose_algorithm()
         }
 
         printf("\nThe algorithm needed %u cliques.\n",ccp->count_labels(G,result));
+        
 //        avg_time += timer.elapsed() / 1000;
         current_gcc = ccp->count_labels(G,result);
         avg_iggcc += (double) (current_gcc);
@@ -318,7 +332,7 @@ int cli::choose_algorithm()
             approx = (double) current_gcc / (double) indset_size;
             discrep = current_gcc - indset_size;
         }
-        sleep(1000);
+//        sleep(1000);
 //        timer.restart();
 
     }
@@ -330,7 +344,7 @@ int cli::choose_algorithm()
         {
             if (i == result[j])
             {
-//                fprintf(f,"%u ",j+1);
+//                fprintf(f,"%u ",j+1);
 //                fprintf(f,"%u ", j);
                 clique.push_back(j);
             }

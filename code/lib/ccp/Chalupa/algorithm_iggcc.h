@@ -1,6 +1,7 @@
 #ifndef ALGORITHM_IGGCC_H
 #define ALGORITHM_IGGCC_H
 #include "algorithm.h"
+#include "timer.h"
 
 class vertex_list
 {
@@ -70,7 +71,7 @@ private:
 public:
     algorithm_iggcc();
     ~algorithm_iggcc();
-    bool iggcc_ccp(graph G, refer *result, refer *indset_size, refer *initial_indset, refer initial_indset_size);
+    bool iggcc_ccp(graph G, refer *result, refer *indset_size, refer *initial_indset, refer initial_indset_size, double t_elapsed);
     bool gcc_ccp(graph G, refer *result, long *permutation);
     unsigned long long get_iterations();    
 };

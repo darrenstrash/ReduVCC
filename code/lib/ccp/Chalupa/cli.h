@@ -16,6 +16,8 @@
 #include "time.h"
 #include "statistics.h"
 
+#include "timer.h"
+
 class cli
 {
 private:
@@ -37,7 +39,7 @@ private:
     refer max_label;
     int choose_instance(std::vector<std::vector<int>> adj_list, unsigned int num_v, unsigned long num_e);
     int generate_instance();
-    int choose_algorithm();
+    int choose_algorithm(timer &t);
     int compute_statistics();
     void sleep(unsigned long long milisec);
     void try_all_permutations();
@@ -52,12 +54,15 @@ private:
     long discrep;
     
     int seed;
+    double t_elapsed;
+    double t_limit;
+    
 public:
     std::vector<std::vector<int>> clique_cover;
     
     cli(int s);
     ~cli();
-    int start_cli(std::vector<std::vector<int>> adj_list, unsigned int num_v, unsigned long num_e);
+    int start_cli(std::vector<std::vector<int>> adj_list, unsigned int num_v, unsigned long num_e, double elapsed, double limit);
 };
 
 #endif // CLI_H
