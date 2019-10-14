@@ -28,16 +28,29 @@
 \Fullfalse
 
 \newif\ifDoubleBlind
-\DoubleBlindtrue
-%\DoubleBlindfalse
+%\DoubleBlindtrue
+\DoubleBlindfalse
 
 \newcommand{\Id}[1]{{\texttt{#1}}}
-%%%% Changes Display 
+
+\let\acmcomment\comment
+\let\comment\undefined
 
 %\usepackage[final]{changes}
 \usepackage{changes}
 \definechangesauthor[name={Darren Strash}, color=blue]{DS}
 \definechangesauthor[name={Louise Thompson}, color=green]{LT}
+
+\let\mycomment\comment
+\let\comment\acmcomment
+
+\newcommand{\marrow}{\marginpar[\hfill$\longrightarrow$]{$\longleftarrow$}}
+\newcommand{\niceremark}[3]{\textcolor{red}{\textsc{#1 #2: }}\textcolor{blue}{\textsf{#3}}}
+\newcommand{\darren}[2][says]{\niceremark{Darren}{#1}{#2}}
+\newcommand{\louise}[2][says]{\niceremark{Darren}{#1}{#2}}
+
+%\renewcommand{\niceremark}[3]{}
+
 
 \usepackage{textcomp}
 \usepackage{amsmath}
@@ -51,8 +64,9 @@
 \usepackage{wasysym}
 \usepackage{array}
 \usepackage{subcaption,siunitx,booktabs}
-\usepackage{numprint}
 \usepackage{hyperref}
+\usepackage{doi}
+\usepackage{numprint}
 \npdecimalsign{.} % we want . not , in numbers
 
 \usepackage{color, colortbl}
@@ -82,10 +96,11 @@
 \newcommand{\eg}{e.\,g.,\xspace}
 \newcommand{\etal}{et~al.\xspace}
 
-\bibliographystyle{plainurl}
-
 \usepackage{xspace}
 \newcommand{\external}[0]{external\xspace}
+
+
+\newcommand{\CC}[0]{{\ensuremath\mathcal{C}}}
 
 \usepackage{enumerate}
 
@@ -133,9 +148,7 @@
 %%
 %% The "title" command has an optional parameter,
 %% allowing the author to define a "short title" to be used in page headers.
-\ifDoubleBlind
-\title{Kernelization for the Minimum Vertex Clique Cover Problem}
-\fi
+\title{Kernelization for the Clique Cover Problem}
 
 \date{}
 
@@ -151,9 +164,8 @@
 \authornote{Both authors contributed equally to this research.}
 \email{dstrash@hamilton.edu}
 \orcid{0000-0001-7095-8749}
-\authornotemark[1]
 \affiliation{%
-  \institution{Hamilton College}
+  \institution{Department of Computer Science\\Hamilton College}
   \streetaddress{198 College Hill Road}
   \city{Clinton}
   \state{New York}
@@ -161,6 +173,15 @@
 }
 \author{Louise Thompson}
 \authornotemark[1]
+\email{lmthomps@hamilton.edu}
+\affiliation{%
+  \institution{Department of Computer Science\\Hamilton College}
+  \streetaddress{198 College Hill Road}
+  \city{Clinton}
+  \state{New York}
+  \postcode{13323}
+}
+
 \fi{}%
 
 %%
@@ -175,6 +196,9 @@
 %% The abstract is a short summary of the work to be presented in the
 %% article.
 \begin{abstract}
+We introduce an extensive collection of data reduction rules for the clique cover problem, showing that the clique cover problem has a linear kernel in the (vertex) cover number and implying it is fixed-parameter tractable on the cover number. Furthermore, we implement our new data reduction rules and show their efficacy in practice. Using our new data reduction rules, we are able to exactly compute exact minimum clique covers on graphs on millions of vertices. Of those graphs that we are unable to solve exactly with our reductions, we are able to solve XX \darren{fill in} by combining our technique with the heuristic algorithm by Chalupa [ACM Bulletin, Slovakia, 6(3) pp. 1--8, 2014]. 
+
+Of further interest, our work provides a theoretical explanation for matching clique cover and independence numbers in practice, and furthermore, allows us to compute upper bounds of the independence number for huge instances that are not currently solved exactly.\darren{How close are we? Give a percentage, i.e., within 1\%?}
 \end{abstract}
 
 \maketitle
@@ -191,13 +215,33 @@
 
 \section{Introduction}
 \label{sec:Introduction}
+Given an undirected graph $G=(V,E)$, the \emph{clique cover problem}, also known as the clique partition problem~\cite{}, asks us to compute the smallest integer $k$ such that there exists a set of $k$ cliques $\mathcal{C} = \{C_1,C_2,\ldots, C_k\}$ where $\cup_{C\in\mathcal{C}} = V$. In other words, all vertices in the graph must be \emph{covered} by some clique. The smallest such $k$ is called the \emph{clique cover number} and is denoted by $\theta(G)$. 
+The clique cover problem is a fundamental problem that has long been known to be NP-hard: Its decision variant is one of Karp's 21 original NP-complete problems~\cite{karp1972reducibility}. Furthermore, it is known to be hard to approximate within $\varepsilon$~\cite{}. Like many NP-hard problems, it has applications. Clique covers are \darren{list application areas} and can be further used as upper bounds for pruning branch-and-bound search for independent sets~\cite{}.
+
+Expanding on work by Gramm et al. for \emph{edge} clique covers, Mujuni and Rosamond~\cite{mujuni-2008} introduced simple data reduction rules for the clique clique partition problem, proving the problem has a kernel of size $k^2$, where $k$ is the clique cover number. This result further gives a fixed-parameter tractable algorithm for the problem. That is, their algorithm has running time $O(f(k)n^c)$, where $f$ is a computable function and $c$ is a constant independent of $k$.
+
+Curiously, recent experiments by Chalupa show that the independence number and clique cover number match for many small sparse real-world graphs. There is currently no theoretical explanation for this, as it is well known that the independent number and clique cover number can be arbitrarily far apart~\cite{}.
 
 \subsection{Our Results.}
+\darren{Insert variation based on abstract; also note that we transfer many reductions designed for the vertex cover problem.}
 
 \section{Preliminaries}
 \label{sec:Preliminaries}
-\subsection{Related Work.}
+We work with a finite unweighted undirected graph $G=(V,E)$ with $n = |V|$ vertices and $m=|E|$ edges. The \emph{open neighborhood} of a vertex $v\in V$ is defined to be $N(v)=\{u\mid \{u,v\}\in E\}$, and the \emph{closed neighborhood} is defined to be $N[v] = N(v)\cup\{v\}$. The \emph{degree} of a vertex $v\in V$, is defined to be $d(v) = |N(v)|$.
+A \emph{clique}, also called a complete subgraph, is a set of vertices $C\subseteq V$ such that $\forall u,v\in C\,\,\{u,v\}\in E$. We say that a set of cliques $\CC=\{C_1,C_2,\ldots, C_k\}$ \emph{covers} the vertices graph $G$ if $\cup_{C\in\CC}C = V$ and $\CC$ is called a \emph{clique cover}. We denote by $\theta(G)$ the \emph{clique cover number}, the minimum cardinality of any clique cover of $G$.
+
+A \emph{clique partition} is a disjoint partition of the vertices of $V$ into cliques: that is, a clique cover $\CC=\{C_1,C_2,\ldots,C_k\}$ such that for $i\neq j$ $C_i\cap C_j\neq \emptyset$. Given any clique cover of $G$, a clique partition of the same size can be obtained. Hence, the clique cover problem is at times called the clique partition problem.
+
+Tightly connected to the clique cover problem is the \emph{independent set problem}, the NP-hard problem whose goal is to compute a maximum number of independent vertices --- that is, vertices that do not share an edge. This number is called the independence number, denoted $\alpha(G)$. It is well known that $\alpha(G)\subseteq \theta(G)$, since a clique can contain at most one vertex of an independent set.
+
+Furthermore, we note that graph coloring problem is complementary to the problem considered here. A valid coloring is a partition of the graph into independent sets, each one being a color class. Thus, a valid coloring of the complement graph $\overline{G}$, is a clique cover of $G$, hence the chromatic number $\gamma(\overline{G})$ is equivalent to $\theta(G)$. Indeed, this relationship is exploited a number of ways in the literature. Chalupa~\cite{} uses techniques from graph coloring to compute clique covers. The relationship is further borne out in the use of these problems in pruning for branch-and-bound solvers: graph coloring is used to prune search for cliques~\cite{}, and clique covers are used to prune search for independent sets~\cite{}.
+\section{Related Work.}
+\subsection{Clique Covers}
+\subsection{Graph Coloring}
+\subsection{Edge Clique Covers}
+\subsection{Data Reduction Rules and Fixed-Parameter Tractability}
 \label{sec:RelatedWork}
+
 
 \section{New Data Reduction Rules for Minimum Vertex Clique Cover}
 \section{Implementation Details}
