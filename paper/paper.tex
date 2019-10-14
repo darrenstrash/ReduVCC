@@ -1,0 +1,217 @@
+%%
+%% This is file `sample-sigconf.tex',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% samples.dtx  (with options: `sigconf')
+%% 
+%% IMPORTANT NOTICE:
+%% 
+%% For the copyright see the source file.
+%% 
+%% Any modified versions of this file must be renamed
+%% with new filenames distinct from sample-sigconf.tex.
+%% 
+%% For distribution of the original source see the terms
+%% for copying and modification in the file samples.dtx.
+%% 
+%% This generated file may be distributed as long as the
+%% original source files, as listed above, are part of the
+%% same distribution. (The sources need not necessarily be
+%% in the same archive or directory.)
+%%
+%% The first command in your LaTeX source must be the \documentclass command.
+\documentclass[sigconf]{acmart}
+
+\newif\ifFull
+\Fullfalse
+
+\newif\ifDoubleBlind
+\DoubleBlindtrue
+%\DoubleBlindfalse
+
+\newcommand{\Id}[1]{{\texttt{#1}}}
+%%%% Changes Display 
+
+%\usepackage[final]{changes}
+\usepackage{changes}
+\definechangesauthor[name={Darren Strash}, color=blue]{DS}
+\definechangesauthor[name={Louise Thompson}, color=green]{LT}
+
+\usepackage{textcomp}
+\usepackage{amsmath}
+\let\proof\relax
+\let\endproof\relax
+\usepackage{amsthm}
+\usepackage{amsfonts}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+\usepackage{mathtools}
+\usepackage{wasysym}
+\usepackage{array}
+\usepackage{subcaption,siunitx,booktabs}
+\usepackage{numprint}
+\usepackage{hyperref}
+\npdecimalsign{.} % we want . not , in numbers
+
+\usepackage{color, colortbl}
+\definecolor{Gray}{gray}{0.9}
+\definecolor{darkblue}{RGB}{0, 0, 255}
+
+\DeclarePairedDelimiter{\ceil}{\lceil}{\rceil}
+% fixing lines ending on one word etc...
+\setlength\parfillskip{0pt plus .4\textwidth}
+\setlength\emergencystretch{.1\textwidth}
+\clubpenalty10000
+\widowpenalty10000
+\displaywidowpenalty=10000
+
+\usepackage{xspace}
+\newcommand{\Is}       {:=}
+\newcommand{\setGilt}[2]{\left\{ #1\sodass #2\right\}}
+\newcommand{\sodass}{\,:\,}
+\newcommand{\set}[1]{\left\{ #1\right\}}
+\newcommand{\todoupdate}[1]{{\color{red}#1}}
+\newcommand{\gilt}{:}
+\newcommand{\pic}{}
+\newcommand{\erdos}{Erd{\H o}s-R{\'e}nyi}
+
+\def\MdR{\ensuremath{\mathbb{R}}}
+\newcommand{\ie}{i.\,e.,\xspace}
+\newcommand{\eg}{e.\,g.,\xspace}
+\newcommand{\etal}{et~al.\xspace}
+
+\bibliographystyle{plainurl}
+
+\usepackage{xspace}
+\newcommand{\external}[0]{external\xspace}
+
+\usepackage{enumerate}
+
+%% Rights management information.  This information is sent to you
+%% when you complete the rights form.  These commands have SAMPLE
+%% values in them; it is your responsibility as an author to replace
+%% the commands and values with those provided to you when you
+%% complete the rights form.
+\setcopyright{acmcopyright}
+\copyrightyear{2019}
+\acmYear{2019}
+\acmDOI{}
+
+%% These commands are for a PROCEEDINGS abstract or paper.
+\acmConference[SIGMOD '20]{SIGMOD '20: ACM International Conference on Management of Data}{Jun 14--19, 2020}{Portland Oregon}
+\acmBooktitle{SIGMOD '20: ACM International Conference on Management of Data,
+  June 14--19, 2020, Portland, OR}
+\acmPrice{}
+\acmISBN{}
+
+
+%%
+%% Submission ID.
+%% Use this when submitting an article to a sponsored event. You'll
+%% receive a unique submission ID from the organizers
+%% of the event, and this ID should be used as the parameter to this command.
+%%\acmSubmissionID{123-A56-BU3}
+
+%%
+%% The majority of ACM publications use numbered citations and
+%% references.  The command \citestyle{authoryear} switches to the
+%% "author year" style.
+%%
+%% If you are preparing content for an event
+%% sponsored by ACM SIGGRAPH, you must use the "author year" style of
+%% citations and references.
+%% Uncommenting
+%% the next command will enable that style.
+%%\citestyle{acmauthoryear}
+
+%%
+%% end of the preamble, start of the body of the document source.
+\begin{document}
+
+%%
+%% The "title" command has an optional parameter,
+%% allowing the author to define a "short title" to be used in page headers.
+\ifDoubleBlind
+\title{Kernelization for the Minimum Vertex Clique Cover Problem}
+\fi
+
+\date{}
+
+\pagestyle{plain}
+
+\ifDoubleBlind
+\author{}
+
+%\authorrunning{Anonymous}
+%\Copyright{Anonymous}
+\else
+\author{Darren Strash}
+\authornote{Both authors contributed equally to this research.}
+\email{dstrash@hamilton.edu}
+\orcid{0000-0001-7095-8749}
+\authornotemark[1]
+\affiliation{%
+  \institution{Hamilton College}
+  \streetaddress{198 College Hill Road}
+  \city{Clinton}
+  \state{New York}
+  \postcode{13323}
+}
+\author{Louise Thompson}
+\authornotemark[1]
+\fi{}%
+
+%%
+%% By default, the full list of authors will be used in the page
+%% headers. Often, this list is too long, and will overlap
+%% other information printed in the page headers. This command allows
+%% the author to define a more concise list
+%% of authors' names for this purpose.
+\renewcommand{\shortauthors}{Strash and Thompson}
+
+%%
+%% The abstract is a short summary of the work to be presented in the
+%% article.
+\begin{abstract}
+\end{abstract}
+
+\maketitle
+
+\begin{CCSXML}
+\end{CCSXML}
+
+\ccsdesc[500]{Computer systems organization~Embedded systems}
+\ccsdesc[300]{Computer systems organization~Redundancy}
+\ccsdesc{Computer systems organization~Robotics}
+\ccsdesc[100]{Networks~Network reliability}
+
+\keywords{minimum clique cover, data reductions, kernelization, fixed-parameter tractability}
+
+\section{Introduction}
+\label{sec:Introduction}
+
+\subsection{Our Results.}
+
+\section{Preliminaries}
+\label{sec:Preliminaries}
+\subsection{Related Work.}
+\label{sec:RelatedWork}
+
+\section{New Data Reduction Rules for Minimum Vertex Clique Cover}
+\section{Implementation Details}
+\section{Experiments}
+\subsection{Experimental Setup.}
+\subsection{Data Sets.}
+\subsection{Exactly Solved Instances}
+\subsection{Speeding up with Heuristic Search}
+\subsection{Checking the Quality of Independent Sets}
+
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{references}
+\end{document}
+
+\endinput
+%%
+%% End of file `sample-sigconf.tex'.
