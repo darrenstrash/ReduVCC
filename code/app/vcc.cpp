@@ -1034,7 +1034,7 @@ void Reducer::performReductions(graph_access &G){
 
         new_size = kernelSize(G);
     }
-
+    std::cout << "done" << std::endl;
 
     // performIsolatedReductions(G);
     // performDegreeTwoReductions(G);
