@@ -270,6 +270,7 @@ bool D2Reduction::validD2(std::vector<std::vector<NodeID>> &adj_list, std::vecto
     if (D2Reduction::isTriangle(adj_list, u, w)) {return false;}
 
     if (D2Reduction::validNeighbors(adj_list, v, u, w)) {
+        // std::cout << v << ": " << u << ", " << w << std::endl;
         for (NodeID x : adj_list[u]) {scratch1[x] = false;}
         for (NodeID x : adj_list[w]) {scratch2[x] = false;}
         return true;} 
@@ -311,7 +312,7 @@ void D2Reduction::foldD2(std::vector<std::vector<NodeID>> &adj_list, std::vector
         scratch1[x] = false;
     }
 
-    removeNode(adj_list, node_status, u);
+    removeVertex(adj_list, node_status, u);
 
 }
 
@@ -932,6 +933,7 @@ void Reducer::performIsolatedReductions(graph_access &G){
                  Reduction *pReduction = nullptr;
                  pReduction = new ISOReduction();
                  pReduction->reduce(adj_list, node_status, new_adj_list, new_to_old_map, clique_cover, node_clique, v, u);
+                 reduction_stack.push_back(pReduction);
             }
          } endfor
     }
@@ -951,6 +953,7 @@ void Reducer::performDegreeTwoReductions(graph_access &G){
             Reduction *pReduction = nullptr;
             pReduction = new D2Reduction();
             pReduction->reduce(adj_list, node_status, new_adj_list, new_to_old_map, clique_cover, node_clique, v, u);
+            reduction_stack.push_back(pReduction);
         }
     } endfor
     }
@@ -972,6 +975,7 @@ void Reducer::performTwinReductions(graph_access &G){
             Reduction *pReduction = nullptr;
             pReduction = new TWINReduction();
             pReduction->reduce(adj_list, node_status,new_adj_list, new_to_old_map, clique_cover, node_clique, v, u);
+            reduction_stack.push_back(pReduction);
         }
     } endfor
     }
@@ -995,6 +999,7 @@ void Reducer::performDomReductions(graph_access &G){
             Reduction *pReduction = nullptr;
             pReduction = new DOMReduction();
             pReduction->reduce(adj_list, node_status, new_adj_list, new_to_old_map, clique_cover, node_clique, v, u);
+            reduction_stack.push_back(pReduction);
         }
     } endfor
     }
@@ -1029,9 +1034,10 @@ void Reducer::performReductions(graph_access &G){
 
         new_size = kernelSize(G);
     }
-   // std::cout << "missed" << std::endl;
-   // performDomReductions(G);
-   //    performDomReductions(G);
+
+
+    // performIsolatedReductions(G);
+    // performDegreeTwoReductions(G);
 
 }
 
@@ -1097,6 +1103,8 @@ void Reducer::addKernelCliques(std::vector<std::vector<int>> &clique_set){
         for (unsigned int j = 0; j < clique_set[i].size(); j++){
             int v = clique_set[i][j];
             NodeID old_v = new_to_old_map[v];
+
+            // std::cout << v << ", ";
             
             Reduction::removeVertex(adj_list, node_status, old_v);
             clique.push_back(old_v);
@@ -1105,6 +1113,7 @@ void Reducer::addKernelCliques(std::vector<std::vector<int>> &clique_set){
         
         Reduction::addCliqueToCover(clique_cover, node_clique, clique);
     }
+    // std::cout << std::endl;
 
 }
 
@@ -1119,6 +1128,11 @@ void Reducer::solveKernel(graph_access &G, PartitionConfig &partition_config, ti
     }
 
     if (!nodes_remaining) {return;}
+
+    // forall_nodes(G,v){
+    //     if (node_status[v]){std::cout << v << ", ";}
+    // }endfor
+    // std::cout << std::endl;
 
     generateNewAdjList(G);
     
@@ -1160,7 +1174,6 @@ void Reducer::unwindReductions(graph_access &G) {
 }
 
 void Reducer::analyzeGraph(std::string &filename, graph_access &G, timer &t){
-
     
     std::cout << filename << ", ";
 
@@ -1191,6 +1204,10 @@ void Reducer::analyzeGraph(std::string &filename, graph_access &G, timer &t){
             }
         }
     }
+
+    // forall_nodes(G,v){
+    //     if (!in_clique[v]){std::cout << v << std::endl;}
+    // }endfor
 
     for (bool in : in_clique){
         if (!in){
@@ -1243,8 +1260,8 @@ int main(int argn, char **argv) {
     Reducer R(G);
     R.performReductions(G);
     R.analyzeGraph(graph_filename, G, s);
-    // R.solveKernel(G, partition_config, s);
-    // R.unwindReductions(G);
-    // R.analyzeGraph(graph_filename, G, s);
+    R.solveKernel(G, partition_config, s);
+    R.unwindReductions(G);
+    R.analyzeGraph(graph_filename, G, s);
 
 }
