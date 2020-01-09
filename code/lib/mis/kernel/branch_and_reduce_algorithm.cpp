@@ -455,6 +455,7 @@ void branch_and_reduce_algorithm::updateLP() {
 // reductions
 
 bool branch_and_reduce_algorithm::lpCrownReduction() {
+//    std::cout << "looking for crown" << std::endl;
     int oldn = rn;
     ////    if (debug >= 3 && depth <= maxDepth) fprintf(stderr, "%sLP:start\n", debugString().c_str());
     updateLP(); //updates matching
@@ -474,9 +475,9 @@ bool branch_and_reduce_algorithm::lpCrownReduction() {
 	  clique.push_back(out[v]);
 	  std::sort(clique.begin(), clique.end());
 	}
-	else {
-	  clique.push_back(v);
-	}
+//    else {                        lollll i sent this to fix something.. it did so f itttt
+//      clique.push_back(v);
+//    }
 	crown_cliques.push_back(clique);
       }
     }

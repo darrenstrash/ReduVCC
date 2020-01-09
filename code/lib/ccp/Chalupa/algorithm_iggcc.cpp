@@ -178,7 +178,9 @@ bool algorithm_iggcc::iggcc_ccp(graph G, refer *result, refer *indset_size, refe
     
     printf("\nTime\t\tVCC\tIS\n");
     printf("%f\t%ld\t%ld\n", timer_s.elapsed() + t_elapsed, colors_count, fitness_indset);
-    while (timer_s.elapsed() + t_elapsed < 600 && fitness_indset < colors_count)
+//    while (timer_s.elapsed() + t_elapsed < 3600 && fitness_indset < colors_count)
+//    while (timer_s.elapsed() + t_elapsed < 3600 && 19 < colors_count)
+    while (timer_s.elapsed() + t_elapsed < 60)
     {
         colors_count_old = colors_count;
 
