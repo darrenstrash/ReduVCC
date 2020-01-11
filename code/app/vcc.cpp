@@ -321,33 +321,86 @@ void D2Reduction::reduce(std::vector<std::vector<NodeID>> &adj_list, std::vector
     v = node;
     D2Reduction::assignNodes(adj_list, v, u, w);
 
+    // if (v == 5878 || v == 102744) {
+    //     std::cout << "d2 v: " << v << std::endl;
+    // }
+
+    // if (u == 5878 || u == 102744) {
+    //     std::cout << "d2 u: " << u << std::endl;
+    // }
+
+    // if (w == 5878 || w == 102744) {
+    //     std::cout << "d2 w: " << w << std::endl;
+    //     std::cout << "N_102744: ";
+    //     for (NodeID a : adj_list[w]){
+    //         if (a == v){
+    //             continue;
+    //         }
+    //         std::cout << a << ", ";
+    //     }
+    //     std::cout << std::endl;
+    // }
+
     removeNode(adj_list, node_status, v);
 
     N_u = adj_list[u];
+    // if (w == 5878 || w == 102744) {
+    //     std::cout << "u: " << u << std::endl;
+    //     std::cout << "N_u: ";
+    //     for (NodeID a : adj_list[u]){
+    //         if (a == v){
+    //             continue;
+    //         }
+    //         std::cout << a << ", ";
+    //     }
+    //     std::cout << std::endl;
+
+    // }
     foldD2(adj_list, node_status);
+
+    // if (w == 5878 || w == 102744) {
+    //     std::cout << " fold N_w: ";
+    //     for (NodeID a : adj_list[w]){
+    //         if (a == v){
+    //             continue;
+    //         }
+    //         std::cout << a << ", ";
+    //     }
+    //     std::cout << std::endl;
+    //     std::cout << std::endl;
+    // }
 }
 
 
 void D2Reduction::unreduce(std::vector<std::vector<NodeID>> &adj_list, std::vector<bool> &node_status, std::vector<std::vector<NodeID>> &clique_cover, std::vector<unsigned int> &node_clique){
     // std::cout << "Unreducing D2... " << std::endl;
 
-    unsigned int fold_cliqueID = node_clique[u];
+    unsigned int fold_cliqueID = node_clique[w];
     std::vector<NodeID> fold_clique = clique_cover[fold_cliqueID];
 
-    NodeID x = u;   // x denotes vertex connected to external
-    NodeID y = w;   // y is connected to v
+    NodeID x = u;   // x - connected to external
+    NodeID y = w;   // y - connected to v
 
-    for (NodeID p : N_u) {scratch1[p] = true;}
-    for (NodeID p : fold_clique) {
-        if (scratch1[p] == false) {
-            x = w;
-            y = u;
+    bool w_in = false;
+
+    for (NodeID a : N_u) {scratch1[a] = true;}
+    for (NodeID a : fold_clique){
+        if (a == w){
+            continue;
+        }
+        if (!scratch1[a]){
+            w_in = true;
         }
     }
-    for (NodeID p : N_u) {scratch1[p] = false;}
+    for (NodeID a : N_u) {scratch1[a] = false;}
+
+    if (w_in){
+        x = w;
+        y = u;
+    }
 
     for (unsigned int i = 0; i < fold_clique.size(); i++){
-        if (fold_clique[i] == u){
+        if (fold_clique[i] == w){
             fold_clique[i] = x;
             node_clique[x] = fold_cliqueID;
             std::sort(fold_clique.begin(), fold_clique.end());
@@ -361,6 +414,44 @@ void D2Reduction::unreduce(std::vector<std::vector<NodeID>> &adj_list, std::vect
     new_clique.push_back(y);
     std::sort(new_clique.begin(), new_clique.end());
     addCliqueToCover(clique_cover, node_clique, new_clique);
+
+
+
+    // for (NodeID a : fold_clique) {
+    //     std::cout << a << ", ";
+    // }
+    // std::cout << std::endl;
+
+    // NodeID x = u;   // x denotes vertex connected to external
+    // NodeID y = w;   // y is connected to v
+
+    // for (NodeID p : N_u) {scratch1[p] = true;}
+    // for (NodeID p : fold_clique) {
+    //     if (p == w){
+    //         continue;
+    //     }
+    //     if (scratch1[p] == false) {
+    //         x = u;
+    //         y = w;
+    //     }
+    // }
+    // for (NodeID p : N_u) {scratch1[p] = false;}
+
+    // for (unsigned int i = 0; i < fold_clique.size(); i++){
+    //     if (fold_clique[i] == u){
+    //         fold_clique[i] = x;
+    //         node_clique[x] = fold_cliqueID;
+    //         std::sort(fold_clique.begin(), fold_clique.end());
+    //         break;
+    //     }
+    // }
+    // clique_cover[fold_cliqueID] = fold_clique;
+
+    // std::vector<NodeID> new_clique;
+    // new_clique.push_back(v);
+    // new_clique.push_back(y);
+    // std::sort(new_clique.begin(), new_clique.end());
+    // addCliqueToCover(clique_cover, node_clique, new_clique);
 }
 
 
@@ -385,6 +476,8 @@ private:
     void removeNode(std::vector<std::vector<NodeID>> &adj_list, std::vector<bool> &node_status, NodeID &a);
     void removeTWIN(std::vector<std::vector<NodeID>> &adj_list, std::vector<bool> &node_status, std::vector<std::vector<NodeID>> &clique_cover, std::vector<unsigned int> &node_clique);
     void foldTWIN(std::vector<std::vector<NodeID>> &adj_list, std::vector<bool> &node_status);
+
+    void unfoldTWIN(std::vector<std::vector<NodeID>> &clique_cover, std::vector<unsigned int> &node_clique, std::vector<NodeID> &fold_clique, unsigned int &fold_cliqueID, NodeID &a, NodeID &b, NodeID &c);
 
 public:
 	static bool twinFound(std::vector<std::vector<NodeID>> &adj_list, NodeID &v, NodeID &u, NodeID &w, NodeID &x, NodeID &y);
@@ -503,9 +596,6 @@ void TWINReduction::removeNode(std::vector<std::vector<NodeID>> &adj_list, std::
 void TWINReduction::foldTWIN(std::vector<std::vector<NodeID>> &adj_list, std::vector<bool> &node_status){
 
 
-	removeNode(adj_list, node_status, v);
-    removeNode(adj_list, node_status, u);
-
     for (NodeID p : adj_list[y]){
         scratch1[p] = true;
     }
@@ -515,6 +605,7 @@ void TWINReduction::foldTWIN(std::vector<std::vector<NodeID>> &adj_list, std::ve
         if (p == y){
             continue;
         }
+
         if (scratch1[p]){
             continue;
         }
@@ -547,8 +638,8 @@ void TWINReduction::foldTWIN(std::vector<std::vector<NodeID>> &adj_list, std::ve
         scratch1[z] = false;
     }
 
-    removeNode(adj_list, node_status, w);
-    removeNode(adj_list, node_status, x);
+    removeVertex(adj_list, node_status, w);
+    removeVertex(adj_list, node_status, x);
 
  //    std::cout << "fold" << std::endl;
  //    std::cout << "y: " << y << std::endl;
@@ -564,7 +655,7 @@ void TWINReduction::removeTWIN(std::vector<std::vector<NodeID>> &adj_list, std::
 
 	std::vector<NodeID> clique1;
 	clique1.push_back(v);
-	removeNode(adj_list, node_status, v);
+	removeVertex(adj_list, node_status, v);
 
 	for (NodeID p : edge_nodes){
         clique1.push_back(p);
@@ -573,7 +664,7 @@ void TWINReduction::removeTWIN(std::vector<std::vector<NodeID>> &adj_list, std::
     addCliqueToCover(clique_cover, node_clique, clique1);
 
     for (NodeID p : edge_nodes){
-        removeNode(adj_list, node_status, p);
+        removeVertex(adj_list, node_status, p);
     }
 
     std::vector<NodeID> clique2;
@@ -583,7 +674,7 @@ void TWINReduction::removeTWIN(std::vector<std::vector<NodeID>> &adj_list, std::
     addCliqueToCover(clique_cover, node_clique, clique2);
 
     for (NodeID p : clique2){
-        removeNode(adj_list, node_status, p);
+        removeVertex(adj_list, node_status, p);
     }
 
 }
@@ -629,56 +720,132 @@ void TWINReduction::reduce(std::vector<std::vector<NodeID>> &adj_list, std::vect
 	}
 	else {
 		remove_type = false;
+
+        removeVertex(adj_list, node_status, v);
+        removeVertex(adj_list, node_status, u);
+
 		N_w = adj_list[w];
 		N_x = adj_list[x];
+
 		foldTWIN(adj_list, node_status);
 	}
 }
 
-
-void TWINReduction::unreduce(std::vector<std::vector<NodeID>> &adj_list, std::vector<bool> &node_status, std::vector<std::vector<NodeID>> &clique_cover, std::vector<unsigned int> &node_clique){
-	if (remove_type) {return;}
-
-	NodeID p = y;
-    NodeID q = x;
-    NodeID r = w;
-
-    unsigned int fold_cliqueID = node_clique[y];
-    std::vector<NodeID> fold_clique = clique_cover[fold_cliqueID];
-
-	if (isSubset(fold_clique, y, N_w)){
-        p = w;
-        q = x;
-        r = y;
-    }
-
-    else if (isSubset(fold_clique, y, N_x)){
-        p = x;
-        q = w;
-        r = y;
-    }
+void TWINReduction::unfoldTWIN(std::vector<std::vector<NodeID>> &clique_cover, std::vector<unsigned int> &node_clique, std::vector<NodeID> &fold_clique, unsigned int &fold_cliqueID, NodeID &a, NodeID &b, NodeID &c){
 
     for (unsigned int i = 0; i < fold_clique.size(); i++){
         if (fold_clique[i] == y){
-            fold_clique[i] = p;
-            node_clique[p] = fold_cliqueID;
-            std::sort(fold_clique.begin(), fold_clique.end());
+            fold_clique[i] = a;
+            node_clique[a] = fold_cliqueID;
             break;
         }
     }
+    std::sort(fold_clique.begin(), fold_clique.end());
     clique_cover[fold_cliqueID] = fold_clique;
 
     std::vector<NodeID> new_clique1;
     new_clique1.push_back(v);
-    new_clique1.push_back(q);
+    new_clique1.push_back(b);
     std::sort(new_clique1.begin(), new_clique1.end());
     addCliqueToCover(clique_cover, node_clique, new_clique1);
 
     std::vector<NodeID> new_clique2;
     new_clique2.push_back(u);
-    new_clique2.push_back(r);
+    new_clique2.push_back(c);
     std::sort(new_clique2.begin(), new_clique2.end());
     addCliqueToCover(clique_cover, node_clique, new_clique2);
+
+}
+
+
+void TWINReduction::unreduce(std::vector<std::vector<NodeID>> &adj_list, std::vector<bool> &node_status, std::vector<std::vector<NodeID>> &clique_cover, std::vector<unsigned int> &node_clique){
+	
+    if (remove_type) {return;}
+
+    unsigned int fold_cliqueID = node_clique[y];
+    std::vector<NodeID> fold_clique = clique_cover[fold_cliqueID];
+
+    bool w_in = true;
+
+    for (NodeID a : N_w) {scratch1[a] = true;}
+    for (NodeID a : fold_clique){
+        if (a == y){
+            continue;
+        }
+        if (!scratch1[a]){
+            w_in = false;
+        }
+    }
+    for (NodeID a : N_w) {scratch1[a] = false;}
+
+    if (w_in){
+        unfoldTWIN(clique_cover, node_clique, fold_clique, fold_cliqueID, w, x, y);
+        return;
+    }
+
+    bool x_in = true;
+
+    for (NodeID a : N_x) {scratch1[a] = true;}
+    for (NodeID a : fold_clique){
+        if (a == y){
+            continue;
+        }
+        if (!scratch1[a]){
+            x_in = false;
+        }
+    }
+    for (NodeID a : N_x) {scratch1[a] = false;}
+
+    if (x_in){
+        unfoldTWIN(clique_cover, node_clique, fold_clique, fold_cliqueID, x, w, y);
+        return;
+    }
+
+    unfoldTWIN(clique_cover, node_clique, fold_clique, fold_cliqueID, y, x, w);
+        return;
+
+
+
+	// NodeID p = y;
+ //    NodeID q = x;
+ //    NodeID r = w;
+
+ //    unsigned int fold_cliqueID = node_clique[y];
+ //    std::vector<NodeID> fold_clique = clique_cover[fold_cliqueID];
+
+	// if (isSubset(fold_clique, y, N_w)){
+ //        p = w;
+ //        q = x;
+ //        r = y;
+ //    }
+
+ //    else if (isSubset(fold_clique, y, N_x)){
+ //        p = x;
+ //        q = w;
+ //        r = y;
+ //    }
+
+ //    for (unsigned int i = 0; i < fold_clique.size(); i++){
+ //        if (fold_clique[i] == y){
+ //            fold_clique[i] = p;
+ //            node_clique[p] = fold_cliqueID;
+ //            std::sort(fold_clique.begin(), fold_clique.end());
+ //            break;
+ //        }
+ //    }
+ //    clique_cover[fold_cliqueID] = fold_clique;
+
+ //    std::vector<NodeID> new_clique1;
+ //    new_clique1.push_back(v);
+ //    new_clique1.push_back(q);
+ //    std::sort(new_clique1.begin(), new_clique1.end());
+ //    addCliqueToCover(clique_cover, node_clique, new_clique1);
+
+ //    std::vector<NodeID> new_clique2;
+ //    new_clique2.push_back(u);
+ //    new_clique2.push_back(r);
+ //    std::sort(new_clique2.begin(), new_clique2.end());
+ //    addCliqueToCover(clique_cover, node_clique, new_clique2);
 
 
 }
@@ -809,21 +976,39 @@ void CROWNReduction::removeNode(std::vector<std::vector<NodeID>> &adj_list, std:
 
 void CROWNReduction::addCrownCliques (std::vector<std::vector<NodeID>> &adj_list, std::vector<bool> &node_status, std::vector<std::vector<int>> &int_adj_list, std::vector<NodeID> &new_to_old_map, std::vector<std::vector<NodeID>> &clique_cover, std::vector<unsigned int> &node_clique, std::vector<std::vector<int>> &crown_cliques) {
     
+    // int num = 0;
     // std::cout << crown_cliques.size() << std::endl;
     for (unsigned int i = 0; i < crown_cliques.size(); i++){
+        
+        // if (crown_cliques[i].size() == 0){
+        //     continue;
+        // }
+        // num++;
         std::vector<NodeID> clique;
         
+        // std::cout << "clique ";
+        // for (unsigned int j = 0; j < crown_cliques[i].size(); j++){
+        //     int v = crown_cliques[i][j];
+        //     NodeID old_v = new_to_old_map[v];
+        //     std::cout << old_v << ", ";
+        // }
+        // std::cout << std::endl;
+
         for (unsigned int j = 0; j < crown_cliques[i].size(); j++){
             int v = crown_cliques[i][j];
             NodeID old_v = new_to_old_map[v];
+            // std::cout << v << ", ";
             
             removeNode(adj_list, node_status, old_v);
             clique.push_back(old_v);
         }
         std::sort(clique.begin(), clique.end());
+        // std::cout << std::endl;
         
         addCliqueToCover(clique_cover, node_clique, clique);
     }
+
+    // std::cout << num << std::endl;
 }
 
 void CROWNReduction::reduce(std::vector<std::vector<NodeID>> &adj_list, std::vector<bool> &node_status, std::vector<std::vector<int>> &int_adj_list, std::vector<NodeID> &new_to_old_map, std::vector<std::vector<NodeID>> &clique_cover, std::vector<unsigned int> &node_clique, NodeID &node, NodeID &other_node){
@@ -858,6 +1043,8 @@ private:
 
 
 public:
+    bool complete = false;
+
     std::vector<std::vector<NodeID>> adj_list;
     std::vector<bool> node_status;
 
@@ -929,6 +1116,9 @@ void Reducer::performIsolatedReductions(graph_access &G){
              if (!node_status[v]) {continue;}
              
              if (ISOReduction::validISO(adj_list, node_status, v)){
+                // if (v == 5878 || v == 102744) {
+                //     std::cout << "iso: " << v << std::endl;
+                // }
                 vertexReduced = true;
                  Reduction *pReduction = nullptr;
                  pReduction = new ISOReduction();
@@ -1028,16 +1218,19 @@ void Reducer::performReductions(graph_access &G){
 
         performIsolatedReductions(G);
         performDegreeTwoReductions(G);
-        performTwinReductions(G);
+        // performTwinReductions(G);
         performDomReductions(G);
         performCrownReductions(G);
 
         new_size = kernelSize(G);
     }
-    std::cout << "done" << std::endl;
+    // std::cout << "done" << std::endl;
 
     // performIsolatedReductions(G);
     // performDegreeTwoReductions(G);
+    // performTwinReductions(G);
+    // performDomReductions(G);
+    // performCrownReductions(G);
 
 }
 
@@ -1205,18 +1398,68 @@ void Reducer::analyzeGraph(std::string &filename, graph_access &G, timer &t){
         }
     }
 
+    if (remaining_nodes != 0){
+        std::cout << std::endl;
+        return;
+    }
+
     // forall_nodes(G,v){
     //     if (!in_clique[v]){std::cout << v << std::endl;}
     // }endfor
 
-    for (bool in : in_clique){
-        if (!in){
-            std::cout << "Error" << std::endl;
-            return;
+    adj_list.clear();
+    node_status.clear();
+    node_status.assign(G.number_of_nodes(), true);
+    generateAdjList(G);
+
+    for (std::vector<NodeID> clique : clique_cover){
+        NodeID x = clique[0];
+        // for (NodeID y : clique){
+        //     std::cout << y << ", ";
+        // }
+        // std::cout << std::endl;
+        // std::cout << x << ", ";
+        // for (NodeID y : adj_list[x]){
+        //     std::cout << y << ", ";
+        // }
+        // std::cout << std::endl;
+        // std::cout << std::endl;
+        for (unsigned int i = 1; i < clique.size(); i++){
+            NodeID y = clique[i];
+            bool in = false;
+            for (NodeID z : adj_list[x]){
+                if (z == y){
+                    in = true;
+                    break;
+                }
+            }
+            if (in == false){
+                std::cout << std::endl;
+                for (NodeID a : clique){
+                     std::cout << a << ", ";
+                }
+                std::cout << std::endl;
+                std::cout << x << ", ";
+                for (NodeID b : adj_list[x]){
+                    std::cout << b << ", ";
+                }
+                std::cout << std::endl; 
+                std::cout << "Error" << std::endl;
+                return;
+            }
         }
     }
 
+    // for (bool in : in_clique){
+    //     if (!in){
+    //         std::cout << "Error" << std::endl;
+    //         return;
+    //     }
+    // }
+
     std::cout << "Complete" << std::endl;
+
+    complete = true;
 }
 
 int main(int argn, char **argv) {
@@ -1260,8 +1503,10 @@ int main(int argn, char **argv) {
     Reducer R(G);
     R.performReductions(G);
     R.analyzeGraph(graph_filename, G, s);
-    R.solveKernel(G, partition_config, s);
-    R.unwindReductions(G);
-    R.analyzeGraph(graph_filename, G, s);
+    if (!R.complete){
+        R.solveKernel(G, partition_config, s);
+        R.unwindReductions(G);
+        R.analyzeGraph(graph_filename, G, s);
+    }
 
 }
