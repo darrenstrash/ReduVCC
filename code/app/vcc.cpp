@@ -1054,6 +1054,8 @@ public:
     void validCover(graph_access &G);
     unsigned int kernelSize(graph_access &G);
 
+    void constructKernelGraph(std::string &filename, graph_access &G);
+ 
 };
 
 void Reducer::generateAdjList(graph_access &G){
@@ -1449,6 +1451,57 @@ void Reducer::validCover(graph_access &G) {
     std::cout << "Valid Cover" << std::endl;
 }
 
+void Reducer::constructKernelGraph(std::string &filename, graph_access &G) {
+ 
+    bool nodes_remaining = false;
+    for (unsigned int i = 0; i < G.number_of_nodes(); i++){
+        if (node_status[i]) {
+            nodes_remaining = true;
+            break;
+        }
+    }
+
+    if (!nodes_remaining) {return;}
+
+    // forall_nodes(G,v){
+    //     if (node_status[v]){std::cout << v << ", ";}
+    // }endfor
+    // std::cout << std::endl;
+
+    generateNewAdjList(G);
+    
+    unsigned int num_nodes = 0;
+    unsigned long num_edges = 0;
+    
+    for (unsigned int i = 0; i < new_adj_list.size(); i++){
+        for (unsigned int j = 0; j < new_adj_list[i].size(); j++){
+           num_edges++;
+        }
+        num_nodes++;
+    }
+
+    std::string kernelname = "../../kernel_graphs/kernel_" + filename.substr(filename.find_last_of("/") + 1);
+
+    std::ofstream file;
+    file.open(kernelname);
+    if (!file) {
+	std::cout<< "no file \n";
+    }
+    file << num_nodes << " " << num_edges / 2 << " 0\n";
+    for (unsigned int i = 0; i < new_adj_list.size(); i++){
+	for(unsigned int j = 0; j < new_adj_list[i].size(); j++){
+		if (j == new_adj_list[i].size() - 1) {
+			file << new_adj_list[i][j] + 1 << "\n";
+		}
+		else {
+			file << new_adj_list[i][j] + 1 << " ";
+		}
+	}
+    }
+    file.close();
+  
+}
+
 int main(int argn, char **argv) {
 
     PartitionConfig partition_config;
@@ -1482,6 +1535,8 @@ int main(int argn, char **argv) {
     graph_io::readGraphWeighted(G, graph_filename);
     //  std::cout << "io time: " << t.elapsed()  << std::endl;
 
+    std::cout << "here" << std::endl;
+
     timer s;
 
     scratch1.assign(G.number_of_nodes(), false);
@@ -1491,6 +1546,7 @@ int main(int argn, char **argv) {
     R.performReductions(G);
     R.analyzeGraph(graph_filename, G, s);
     std::cout << std::endl;
+    //R.constructKernelGraph(graph_filename, G);
     R.solveKernel(G, partition_config, s);
     R.unwindReductions(G);
     R.analyzeGraph(graph_filename, G, s);
