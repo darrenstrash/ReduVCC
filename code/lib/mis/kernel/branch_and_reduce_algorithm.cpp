@@ -475,10 +475,12 @@ bool branch_and_reduce_algorithm::lpCrownReduction() {
 	  clique.push_back(out[v]);
 	  std::sort(clique.begin(), clique.end());
 	}
-//    else {                        lollll i sent this to fix something.. it did so f itttt
-//      clique.push_back(v);
-//    }
+       else {                       // lollll i sent this to fix something.. it did so f itttt
+      clique.push_back(v);
+     }
+	if (clique.size() != 0){
 	crown_cliques.push_back(clique);
+	}
       }
     }
     ////    if (debug >= 3 && depth <= maxDepth) fprintf(stderr, "%sLP:afterSets\n", debugString().c_str());
