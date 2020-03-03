@@ -158,7 +158,7 @@ bool ISOReduction::validISO(std::vector<std::vector<NodeID>> &adj_list, std::vec
 }
 
 void ISOReduction::removeNode(std::vector<std::vector<NodeID>> &adj_list, std::vector<bool> &node_status, NodeID &a){
-    
+
     node_status[a] = false;
     for (NodeID b : adj_list[a]){
         for (unsigned int i = 0; i < adj_list[b].size(); i++){
@@ -273,7 +273,7 @@ bool D2Reduction::validD2(std::vector<std::vector<NodeID>> &adj_list, std::vecto
         // std::cout << v << ": " << u << ", " << w << std::endl;
         for (NodeID x : adj_list[u]) {scratch1[x] = false;}
         for (NodeID x : adj_list[w]) {scratch2[x] = false;}
-        return true;} 
+        return true;}
 
     for (NodeID x : adj_list[u]) {scratch1[x] = false;}
     for (NodeID x : adj_list[w]) {scratch2[x] = false;}
@@ -928,7 +928,7 @@ bool DOMReduction::validDOM(std::vector<std::vector<NodeID>> &adj_list, std::vec
 }
 
 void DOMReduction::removeNode(std::vector<std::vector<NodeID>> &adj_list, std::vector<bool> &node_status, NodeID &a){
-    
+
     node_status[a] = false;
     for (NodeID b : adj_list[a]){
         for (unsigned int i = 0; i < adj_list[b].size(); i++){
@@ -974,7 +974,7 @@ public:
 };
 
 void CROWNReduction::removeNode(std::vector<std::vector<NodeID>> &adj_list, std::vector<bool> &node_status, NodeID &a){
-    
+
     node_status[a] = false;
     for (NodeID b : adj_list[a]){
         for (unsigned int i = 0; i < adj_list[b].size(); i++){
@@ -989,20 +989,20 @@ void CROWNReduction::removeNode(std::vector<std::vector<NodeID>> &adj_list, std:
 }
 
 void CROWNReduction::addCrownCliques (std::vector<std::vector<NodeID>> &adj_list, std::vector<bool> &node_status, std::vector<std::vector<int>> &int_adj_list, std::vector<NodeID> &new_to_old_map, std::vector<std::vector<NodeID>> &clique_cover, std::vector<unsigned int> &node_clique, std::vector<std::vector<int>> &crown_cliques) {
-    
+
     // std::cout << crown_cliques.size() << std::endl;
     for (unsigned int i = 0; i < crown_cliques.size(); i++){
         std::vector<NodeID> clique;
-        
+
         for (unsigned int j = 0; j < crown_cliques[i].size(); j++){
             int v = crown_cliques[i][j];
             NodeID old_v = new_to_old_map[v];
-            
+
             removeNode(adj_list, node_status, old_v);
             clique.push_back(old_v);
         }
         std::sort(clique.begin(), clique.end());
-        
+
         addCliqueToCover(clique_cover, node_clique, clique);
     }
 }
@@ -1028,7 +1028,7 @@ private:
 
     void generateAdjList(graph_access &G);
     void generateNewAdjList(graph_access &G);
-    unsigned int assignMaps(graph_access &G); 
+    unsigned int assignMaps(graph_access &G);
     void addKernelCliques(std::vector<std::vector<int>> &clique_set);
 
     void performIsolatedReductions(graph_access &G);
@@ -1055,7 +1055,7 @@ public:
     unsigned int kernelSize(graph_access &G);
 
     void constructKernelGraph(std::string &filename, graph_access &G);
- 
+
 };
 
 void Reducer::generateAdjList(graph_access &G){
@@ -1077,7 +1077,7 @@ void Reducer::generateAdjList(graph_access &G){
 Reducer::Reducer(graph_access &G){
 
     // std::cout << "Creating reducer... " << std::endl;
-    
+
     // reform graph
     generateAdjList(G);
     node_status.assign(G.number_of_nodes(), true);
@@ -1101,17 +1101,17 @@ unsigned int Reducer::kernelSize(graph_access &G){
 
 
 void Reducer::performIsolatedReductions(graph_access &G){
-   
+
      bool vertexReduced = true;
-    
+
      while (vertexReduced){
          vertexReduced = false;
-         
+
          forall_nodes(G, v){
              NodeID u;
-             
+
              if (!node_status[v]) {continue;}
-             
+
              if (ISOReduction::validISO(adj_list, node_status, v)){
                 vertexReduced = true;
                  Reduction *pReduction = nullptr;
@@ -1128,7 +1128,7 @@ void Reducer::performDegreeTwoReductions(graph_access &G){
 
     bool vertexReduced = true;
     while (vertexReduced){
-    vertexReduced = false; 
+    vertexReduced = false;
     forall_nodes(G, v){
     	NodeID u;
         if (!node_status[v]) {continue;}
@@ -1149,7 +1149,7 @@ void Reducer::performTwinReductions(graph_access &G){
 
     bool vertexReduced = true;
     while (vertexReduced){
-    vertexReduced = false; 
+    vertexReduced = false;
     forall_nodes(G, v){
     	NodeID u;
         if (!node_status[v]) {continue;}
@@ -1171,7 +1171,7 @@ void Reducer::performDomReductions(graph_access &G){
 
     bool vertexReduced = true;
     while (vertexReduced){
-    vertexReduced = false; 
+    vertexReduced = false;
     forall_nodes(G, v){
     	NodeID u;
         if (!node_status[v]) {continue;}
@@ -1231,7 +1231,7 @@ unsigned int Reducer::assignMaps(graph_access &G) {
     old_to_new_map.resize(G.number_of_nodes());
     new_to_old_map.clear();
     new_to_old_map.resize(G.number_of_nodes());
-    
+
     int u = 0;
     for (unsigned int i = 0; i < G.number_of_nodes(); i++){
         if (!node_status[i]){
@@ -1241,7 +1241,7 @@ unsigned int Reducer::assignMaps(graph_access &G) {
         new_to_old_map[u] = i;
         u++;
     }
-    
+
     return u;
 }
 
@@ -1252,7 +1252,7 @@ void Reducer::generateNewAdjList(graph_access &G) {
 
     new_adj_list.clear();
     new_adj_list.resize(kernel_size);
-    
+
     for (unsigned int i = 0; i < G.number_of_nodes(); i++){
         if (!node_status[i]){
             continue;
@@ -1283,18 +1283,18 @@ void Reducer::addKernelCliques(std::vector<std::vector<int>> &clique_set){
 
     for (unsigned int i = 0; i < clique_set.size(); i++){
         std::vector<NodeID> clique;
-        
+
         for (unsigned int j = 0; j < clique_set[i].size(); j++){
             int v = clique_set[i][j];
             NodeID old_v = new_to_old_map[v];
 
             // std::cout << v << ", ";
-            
+
             Reduction::removeVertex(adj_list, node_status, old_v);
             clique.push_back(old_v);
         }
         std::sort(clique.begin(), clique.end());
-        
+
         Reduction::addCliqueToCover(clique_cover, node_clique, clique);
     }
     // std::cout << std::endl;
@@ -1319,20 +1319,20 @@ void Reducer::solveKernel(graph_access &G, PartitionConfig &partition_config, ti
     // std::cout << std::endl;
 
     generateNewAdjList(G);
-    
+
     unsigned int num_nodes = 0;
     unsigned long num_edges = 0;
-    
+
     for (unsigned int i = 0; i < new_adj_list.size(); i++){
         for (unsigned int j = 0; j < new_adj_list[i].size(); j++){
            num_edges++;
         }
         num_nodes++;
     }
-    
+
     cli *cli_instance;
-    cli_instance = new cli(partition_config.seed);
-    cli_instance->start_cli(new_adj_list, num_nodes, num_edges, t.elapsed(), 60);
+    cli_instance = new cli(partition_config.seed, partition_config.mis);
+    cli_instance->start_cli(new_adj_list, num_nodes, num_edges, t.elapsed(), partition_config.solver_time_limit);
 
     if (cli_instance->clique_cover.size() != 0){
         addKernelCliques(cli_instance->clique_cover);
@@ -1358,7 +1358,7 @@ void Reducer::unwindReductions(graph_access &G) {
 }
 
 void Reducer::analyzeGraph(std::string &filename, graph_access &G, timer &t){
-    
+
     std::cout << filename << ", ";
 
     std::cout << G.number_of_nodes() << ", ";
@@ -1441,7 +1441,7 @@ void Reducer::validCover(graph_access &G) {
                 for (NodeID b : adj_list[x]){
                     std::cout << b << ", ";
                 }
-                std::cout << std::endl; 
+                std::cout << std::endl;
                 std::cout << "Error" << std::endl;
                 return;
             }
@@ -1452,7 +1452,7 @@ void Reducer::validCover(graph_access &G) {
 }
 
 void Reducer::constructKernelGraph(std::string &filename, graph_access &G) {
- 
+
     bool nodes_remaining = false;
     for (unsigned int i = 0; i < G.number_of_nodes(); i++){
         if (node_status[i]) {
@@ -1469,10 +1469,10 @@ void Reducer::constructKernelGraph(std::string &filename, graph_access &G) {
     // std::cout << std::endl;
 
     generateNewAdjList(G);
-    
+
     unsigned int num_nodes = 0;
     unsigned long num_edges = 0;
-    
+
     for (unsigned int i = 0; i < new_adj_list.size(); i++){
         for (unsigned int j = 0; j < new_adj_list[i].size(); j++){
            num_edges++;
@@ -1499,7 +1499,7 @@ void Reducer::constructKernelGraph(std::string &filename, graph_access &G) {
 	}
     }
     file.close();
-  
+
 }
 
 int main(int argn, char **argv) {
@@ -1543,9 +1543,12 @@ int main(int argn, char **argv) {
     scratch2.assign(G.number_of_nodes(), false);
 
     Reducer R(G);
-    R.performReductions(G);
-    R.analyzeGraph(graph_filename, G, s);
-    std::cout << std::endl;
+
+    if (partition_config.run_type == "reduction"){
+      R.performReductions(G);
+      R.analyzeGraph(graph_filename, G, s);
+      std::cout << std::endl;
+    }
     //R.constructKernelGraph(graph_filename, G);
     R.solveKernel(G, partition_config, s);
     R.unwindReductions(G);

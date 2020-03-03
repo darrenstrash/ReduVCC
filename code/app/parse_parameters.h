@@ -1,5 +1,5 @@
 /******************************************************************************
- * parse_parameters.h 
+ * parse_parameters.h
  * *
  * Source of KaHIP -- Karlsruhe High Quality Partitioning.
  * Christian Schulz <christian.schulz.phone@gmail.com>
@@ -13,14 +13,18 @@
 #include <sstream>
 #include "configuration.h"
 
-int parse_parameters(int argn, char **argv, 
-                     PartitionConfig & partition_config, 
-                     std::string & graph_filename, 
-                     bool & is_graph_weighted, 
-                     bool & suppress_program_output, 
+int parse_parameters(int argn, char **argv,
+                     PartitionConfig & partition_config,
+                     std::string & graph_filename,
+                     bool & is_graph_weighted,
+                     bool & suppress_program_output,
                      bool & recursive) {
 
         const char *progname = argv[0];
+
+        struct arg_int *user_mis                             = arg_int0(NULL, "mis", NULL, "MIS for Chalupa.");
+        struct arg_int *user_solver_time_limit               = arg_int0(NULL, "solver_time_limit", NULL, "Time Limit for Chalupa.");
+        struct arg_str *user_run_type                        = arg_str0(NULL, "run_type", NULL, "Chalupa only or reductions then Chalupa.");
 
         // Setup argtable parameters.
         struct arg_lit *help                                 = arg_lit0(NULL, "help","Print help.");
@@ -163,55 +167,55 @@ int parse_parameters(int argn, char **argv,
 
         // Define argtable.
         void* argtable[] = {
-                help, filename, user_seed,
+                help, filename, user_seed, user_mis, user_solver_time_limit, user_run_type,
 #ifdef MODE_DEVEL
-                k, graph_weighted, imbalance, edge_rating_tiebreaking, 
-                matching_type, edge_rating, rate_first_level_inner_outer, first_level_random_matching, 
+                k, graph_weighted, imbalance, edge_rating_tiebreaking,
+                matching_type, edge_rating, rate_first_level_inner_outer, first_level_random_matching,
                 aggressive_random_levels, gpa_grow_internal, match_islands, stop_rule, num_vert_stop_factor,
-                initial_partition, initial_partitioning_repetitions, disable_refined_bubbling, 
+                initial_partition, initial_partitioning_repetitions, disable_refined_bubbling,
                 bubbling_iterations, initial_partition_optimize, bipartition_post_fm_limit, bipartition_post_ml_limit, bipartition_tries,
                 bipartition_algorithm,
                 permutation_quality, permutation_during_refinement, enforce_balance,
-                refinement_scheduling_algorithm, bank_account_factor, refinement_type, 
-                fm_search_limit, flow_region_factor, most_balanced_flows,toposort_iterations, 
-                kway_rounds, kway_search_stop_rule, kway_fm_limits, kway_adaptive_limits_alpha, 
+                refinement_scheduling_algorithm, bank_account_factor, refinement_type,
+                fm_search_limit, flow_region_factor, most_balanced_flows,toposort_iterations,
+                kway_rounds, kway_search_stop_rule, kway_fm_limits, kway_adaptive_limits_alpha,
                 enable_corner_refinement, disable_qgraph_refinement,local_multitry_fm_alpha, local_multitry_rounds,
-                global_cycle_iterations, use_wcycles, wcycle_no_new_initial_partitioning, use_fullmultigrid, use_vcycle,level_split, 
-                enable_convergence, compute_vertex_separator, suppress_output, 
-                input_partition, preconfiguration, only_first_level, disable_max_vertex_weight_constraint, 
-                recursive_bipartitioning, use_bucket_queues, time_limit, unsuccessful_reps, local_partitioning_repetitions, 
-                mh_pool_size, mh_plain_repetitions, mh_disable_nc_combine, mh_disable_cross_combine, mh_enable_tournament_selection,       
-                mh_disable_combine, mh_enable_quickstart, mh_disable_diversify_islands, mh_flip_coin, mh_initial_population_fraction, 
+                global_cycle_iterations, use_wcycles, wcycle_no_new_initial_partitioning, use_fullmultigrid, use_vcycle,level_split,
+                enable_convergence, compute_vertex_separator, suppress_output,
+                input_partition, preconfiguration, only_first_level, disable_max_vertex_weight_constraint,
+                recursive_bipartitioning, use_bucket_queues, time_limit, unsuccessful_reps, local_partitioning_repetitions,
+                mh_pool_size, mh_plain_repetitions, mh_disable_nc_combine, mh_disable_cross_combine, mh_enable_tournament_selection,
+                mh_disable_combine, mh_enable_quickstart, mh_disable_diversify_islands, mh_flip_coin, mh_initial_population_fraction,
 		mh_print_log,mh_sequential_mode, mh_optimize_communication_volume, mh_enable_tabu_search,
                 mh_disable_diversify, mh_diversify_best, mh_cross_combine_original_k, disable_balance_singletons, initial_partition_optimize_fm_limits,
                 initial_partition_optimize_multitry_fm_alpha, initial_partition_optimize_multitry_rounds,
-                enable_omp, 
+                enable_omp,
                 amg_iterations,
-                kaba_neg_cycle_algorithm, kabaE_internal_bal, kaba_internal_no_aug_steps_aug, 
-                kaba_packing_iterations, kaba_flip_packings, kaba_lsearch_p, kaffpa_perfectly_balanced_refinement, 
+                kaba_neg_cycle_algorithm, kabaE_internal_bal, kaba_internal_no_aug_steps_aug,
+                kaba_packing_iterations, kaba_flip_packings, kaba_lsearch_p, kaffpa_perfectly_balanced_refinement,
                 kaba_unsucc_iterations, kaba_disable_zero_weight_cycles,
                 maxT, maxIter, minipreps, mh_penalty_for_unconnected, mh_enable_kabapE,
 #elif defined MODE_KAFFPA
-                k, imbalance,  
-                preconfiguration, 
-                time_limit, 
-                enforce_balance, 
+                k, imbalance,
+                preconfiguration,
+                time_limit,
+                enforce_balance,
 		balance_edges,
                 enable_mapping,
-                hierarchy_parameter_string, 
+                hierarchy_parameter_string,
                 distance_parameter_string,
                 online_distances,
-                filename_output, 
+                filename_output,
 #elif defined MODE_EVALUATOR
-                k,   
-                preconfiguration, 
+                k,
+                preconfiguration,
                 input_partition,
 #elif defined MODE_NODESEP
                 //k,
-                imbalance,  
-                preconfiguration, 
-                filename_output, 
-                //time_limit, 
+                imbalance,
+                preconfiguration,
+                filename_output,
+                //time_limit,
                 //edge_rating,
                 //max_flow_improv_steps,
                 //max_initial_ns_tries,
@@ -232,28 +236,28 @@ int parse_parameters(int argn, char **argv,
                 //sep_edge_rating_during_ip,
                 //sep_faster_ns,
 #elif defined MODE_PARTITIONTOVERTEXSEPARATOR
-                k, input_partition, 
-                filename_output, 
+                k, input_partition,
+                filename_output,
 #elif defined MODE_IMPROVEVERTEXSEPARATOR
-                input_partition, 
-                filename_output, 
+                input_partition,
+                filename_output,
 #elif defined MODE_KAFFPAE
-                k, imbalance, 
-                preconfiguration,  
-                time_limit,  
-                mh_enable_quickstart, 
-		mh_print_log, mh_optimize_communication_volume, 
+                k, imbalance,
+                preconfiguration,
+                time_limit,
+                mh_enable_quickstart,
+		mh_print_log, mh_optimize_communication_volume,
                 mh_enable_tabu_search,
-                maxT, maxIter,  
+                maxT, maxIter,
                 mh_enable_kabapE,
-                kabaE_internal_bal,  
+                kabaE_internal_bal,
 		balance_edges,
                 input_partition,
-                filename_output, 
+                filename_output,
 #elif defined MODE_LABELPROPAGATION
                 cluster_upperbound,
                 label_propagation_iterations,
-                filename_output, 
+                filename_output,
 #endif
                 end
         };
@@ -274,7 +278,7 @@ int parse_parameters(int argn, char **argv,
                 arg_print_errors(stderr, end, progname);
                 printf("Try '%s --help' for more information.\n",progname);
                 arg_freetable(argtable, sizeof(argtable) / sizeof(argtable[0]));
-                return 1; 
+                return 1;
         }
 
         if (k->count > 0) {
@@ -357,14 +361,14 @@ int parse_parameters(int argn, char **argv,
 
         if(hierarchy_parameter_string->count) {
                 std::istringstream f(hierarchy_parameter_string->sval[0]);
-                std::string s;    
+                std::string s;
                 partition_config.group_sizes.clear();
                 while (getline(f, s, ':')) {
                         partition_config.group_sizes.push_back(stoi(s));
-                }       
+                }
 
                 PartitionID old_k = partition_config.k;
-                partition_config.k = 1; // recompute k 
+                partition_config.k = 1; // recompute k
                 for( unsigned int i = 0; i < partition_config.group_sizes.size(); i++) {
                         partition_config.k *= partition_config.group_sizes[i];
                 }
@@ -377,11 +381,11 @@ int parse_parameters(int argn, char **argv,
 
         if(distance_parameter_string->count) {
                 std::istringstream f(distance_parameter_string->sval[0]);
-                std::string s;    
+                std::string s;
                 partition_config.distances.clear();
                 while (getline(f, s, ':')) {
                         partition_config.distances.push_back(stoi(s));
-                }       
+                }
         }
 
         if(online_distances->count > 0) {
@@ -419,7 +423,7 @@ int parse_parameters(int argn, char **argv,
 	if(balance_edges->count > 0) {
 		partition_config.balance_edges = true;
 	}
-        
+
         if(mh_optimize_communication_volume->count > 0) {
                 partition_config.mh_optimize_communication_volume = true;
         }
@@ -673,37 +677,37 @@ int parse_parameters(int argn, char **argv,
         }
 
         if(use_wcycles->count > 0) {
-                partition_config.use_wcycles = true; 
+                partition_config.use_wcycles = true;
         }
 
         if(enable_convergence->count > 0) {
-                partition_config.no_change_convergence = true; 
+                partition_config.no_change_convergence = true;
         }
 
         if(use_fullmultigrid->count > 0) {
-                partition_config.use_fullmultigrid = true; 
+                partition_config.use_fullmultigrid = true;
         }
 
         if(use_vcycle->count > 0) {
-                partition_config.use_fullmultigrid = false; 
-                partition_config.use_wcycles       = false; 
+                partition_config.use_fullmultigrid = false;
+                partition_config.use_wcycles       = false;
         }
 
 
         if(toposort_iterations->count > 0) {
-                partition_config.toposort_iterations = toposort_iterations->ival[0]; 
+                partition_config.toposort_iterations = toposort_iterations->ival[0];
         }
 
         if(bipartition_tries->count > 0) {
-                partition_config.bipartition_tries = bipartition_tries->ival[0]; 
+                partition_config.bipartition_tries = bipartition_tries->ival[0];
         }
 
         if(bipartition_post_fm_limit->count > 0) {
-                partition_config.bipartition_post_fm_limits = bipartition_post_fm_limit->ival[0]; 
+                partition_config.bipartition_post_fm_limits = bipartition_post_fm_limit->ival[0];
         }
 
         if(bipartition_post_ml_limit->count > 0) {
-                partition_config.bipartition_post_ml_limits = bipartition_post_ml_limit->ival[0]; 
+                partition_config.bipartition_post_ml_limits = bipartition_post_ml_limit->ival[0];
         }
 
         if(disable_max_vertex_weight_constraint->count > 0) {
@@ -711,23 +715,23 @@ int parse_parameters(int argn, char **argv,
         }
 
         if(num_vert_stop_factor->count > 0) {
-                partition_config.num_vert_stop_factor = num_vert_stop_factor->ival[0]; 
+                partition_config.num_vert_stop_factor = num_vert_stop_factor->ival[0];
         }
 
         if(local_multitry_rounds->count > 0) {
-                partition_config.local_multitry_rounds = local_multitry_rounds->ival[0]; 
+                partition_config.local_multitry_rounds = local_multitry_rounds->ival[0];
         }
 
         if(local_multitry_fm_alpha->count > 0) {
-                partition_config.local_multitry_fm_alpha = local_multitry_fm_alpha->ival[0]; 
+                partition_config.local_multitry_fm_alpha = local_multitry_fm_alpha->ival[0];
         }
 
         if(wcycle_no_new_initial_partitioning->count > 0) {
-                partition_config.no_new_initial_partitioning = true; 
+                partition_config.no_new_initial_partitioning = true;
         }
 
         if(graph_weighted->count > 0) {
-                is_graph_weighted = true;                
+                is_graph_weighted = true;
         }
 
         if(disable_refined_bubbling->count > 0) {
@@ -780,6 +784,18 @@ int parse_parameters(int argn, char **argv,
 
         if (user_seed->count > 0) {
                 partition_config.seed = user_seed->ival[0];
+        }
+
+        if (user_mis->count > 0) {
+                partition_config.mis = user_mis->ival[0];
+        }
+
+        if (user_solver_time_limit->count > 0) {
+                partition_config.solver_time_limit = user_solver_time_limit->ival[0];
+        }
+
+        if (user_run_type->count > 0){
+            partition_config.run_type = user_run_type->sval[0];
         }
 
         if (fm_search_limit->count > 0) {
@@ -1012,7 +1028,7 @@ int parse_parameters(int argn, char **argv,
                 }
         }
 
-        if (initial_partition->count > 0) { 
+        if (initial_partition->count > 0) {
                 if (strcmp("recursive", initial_partition->sval[0]) == 0) {
                         partition_config.initial_partitioning_type = INITIAL_PARTITIONING_RECPARTITION;
                 } else {
