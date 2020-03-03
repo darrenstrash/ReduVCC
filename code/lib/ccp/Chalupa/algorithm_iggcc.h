@@ -71,7 +71,7 @@ private:
 public:
     algorithm_iggcc();
     ~algorithm_iggcc();
-    bool iggcc_ccp(graph G, refer *result, refer *indset_size, refer *initial_indset, refer initial_indset_size, double t_elapsed);
+    bool iggcc_ccp(graph G, refer *result, refer *indset_size, refer *initial_indset, refer initial_indset_size, double t_elapsed, int t_limit, int mis);
     bool gcc_ccp(graph G, refer *result, long *permutation);
     unsigned long long get_iterations();    
 };

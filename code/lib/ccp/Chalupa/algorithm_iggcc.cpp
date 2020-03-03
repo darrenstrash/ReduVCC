@@ -86,7 +86,7 @@ long algorithm_iggcc::greedy_indset(graph G, long permutation_indset[])
     return indset_size;
 }
 
-bool algorithm_iggcc::iggcc_ccp(graph G, refer *result, refer *indset_size, refer *initial_indset, refer initial_indset_size, double t_elapsed)
+bool algorithm_iggcc::iggcc_ccp(graph G, refer *result, refer *indset_size, refer *initial_indset, refer initial_indset_size, double t_elapsed, int t_limit, int mis)
 {
     
     timer timer_s;
@@ -180,7 +180,7 @@ bool algorithm_iggcc::iggcc_ccp(graph G, refer *result, refer *indset_size, refe
     printf("%f\t%ld\t%ld\n", timer_s.elapsed() + t_elapsed, colors_count, fitness_indset);
 //    while (timer_s.elapsed() + t_elapsed < 3600 && fitness_indset < colors_count)
 //    while (timer_s.elapsed() + t_elapsed < 3600 && 19 < colors_count)
-    while (timer_s.elapsed() + t_elapsed < 60)
+    while (timer_s.elapsed() + t_elapsed < t_limit && mis < colors_count)
     {
         colors_count_old = colors_count;
 

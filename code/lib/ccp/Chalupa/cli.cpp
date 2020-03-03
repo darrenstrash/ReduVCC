@@ -1,9 +1,10 @@
 #include "cli.h"
 #include <vector>
 
-cli::cli(int s)
+cli::cli(int s, int m)
 {
     seed = s;
+    mis = m;
     
     result_for_permutation = new refer[MAX_VERTICES];
     histogram              = new refer[MAX_VERTICES];
@@ -308,7 +309,7 @@ int cli::choose_algorithm(timer &t)
 
         //do
         {
-            is_optimal = iggcc_ccp->iggcc_ccp(G,result,&indset_size,initial_indset,initial_indset_size, t.elapsed() + t_elapsed);
+            is_optimal = iggcc_ccp->iggcc_ccp(G,result,&indset_size,initial_indset,initial_indset_size, t.elapsed() + t_elapsed, t_limit, mis);
         }
         //while (! is_optimal && timer.elapsed() < 18000000);
 
