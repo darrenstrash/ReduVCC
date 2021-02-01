@@ -1,0 +1,3 @@
+[submodule "code/lib/quick-cliques"]
+	path = code/lib/quick-cliques
+	url = https://github.com/darrenstrash/quick-cliques.git
