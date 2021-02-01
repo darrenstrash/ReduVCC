@@ -95,7 +95,15 @@ libkaffpa_files = [   'lib/data_structure/graph_hierarchy.cpp',
                       'lib/ccp/Chalupa/problem.cpp',
                       'lib/ccp/Chalupa/random_generator.cpp',
                       'lib/ccp/Chalupa/statistics.cpp',
-                      'lib/ccp/Chalupa/vertex_label_function_refer.cpp'
+                      'lib/ccp/Chalupa/vertex_label_function_refer.cpp',
+		      'lib/redu_vcc/reducer.cpp',
+		      'lib/redu_vcc/redu_vcc.cpp',
+		      'lib/redu_vcc/iso_reduction.cpp',
+		      'lib/redu_vcc/d2_reduction.cpp',
+		      'lib/redu_vcc/twin_reduction.cpp',
+		      'lib/redu_vcc/dom_reduction.cpp',
+		      'lib/redu_vcc/crown_reduction.cpp',
+		      'lib/redu_vcc/reduction.cpp',
                       ]
 
 libkaffpa_parallel_async  = ['lib/parallel_mh/parallel_mh_async.cpp',
