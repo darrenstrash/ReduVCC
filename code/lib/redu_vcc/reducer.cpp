@@ -173,3 +173,166 @@ void reducer::analyzeGraph(std::string &filename, graph_access &G, timer &t){
     reduVCC.validateCover(G);
 
 }
+
+
+
+void reducer::branch( std::vector<std::vector<NodeID>> &clique_cover,
+                      std::vector<std::vector<NodeID>> &curr_cover,
+                      NodeID curr_node
+                    ) {
+
+  // chalupa's code on small graphs to test
+  // hpc on "medium" -- 50-100
+  // http://networkrepository.com/
+
+
+  // try implementing reductions with this 
+
+
+  NodeID next_node = curr_node;
+
+  while (!reduVCC.node_status[next_node]) {
+    if (next_node >= reduVCC.node_status.size()) {
+      if (curr_cover.size() < clique_cover.size() || clique_cover.size() == 0) {
+        clique_cover = curr_cover;
+      }
+      return;
+    }
+    next_node++;
+  }
+
+  std::vector<std::vector<NodeID>> curr_cliques = enumerate(next_node);
+
+  for (std::vector<NodeID> &clique : curr_cliques) {
+    curr_cover.push_back(clique);
+    for (NodeID x : clique) { reduVCC.node_status[x] = false;}
+    branch(clique_cover, curr_cover, next_node);
+    curr_cover.pop_back();
+    for (NodeID x : clique) { reduVCC.node_status[x] = true;}
+  }
+}
+
+void reducer::branch_and_bound() {
+
+  std::vector<std::vector<NodeID>> minimal_cover;
+  std::vector<std::vector<NodeID>> current_cover;
+
+  branch(minimal_cover, current_cover, 0);
+
+  for (std::vector<NodeID> &clique : minimal_cover) { reduVCC.printVectorSet(clique); }
+
+}
+
+
+std::vector<std::vector<NodeID>> reducer::enumerate(NodeID v) {
+
+  std::vector<std::vector<NodeID>> &adj_list = reduVCC.adj_list;
+  std::vector<bool> &node_status = reduVCC.node_status;
+
+  std::vector<NodeID> N_v {v};
+  for (NodeID u : adj_list[v]) {
+    if (node_status[u]) { N_v.push_back(u); }
+  }
+  std::sort(N_v.begin(), N_v.end());
+
+  std::vector<std::vector<NodeID>> enum_cliques;
+  std::vector<NodeID> curr_clique = {v};
+
+  enumerator(N_v, 0, curr_clique, enum_cliques);
+
+  return enum_cliques;
+}
+
+void reducer::enumerator(
+                         std::vector<NodeID> &N_v,
+                         unsigned int curr_i,
+                         std::vector<NodeID> curr_clique,
+                         std::vector<std::vector<NodeID>> &enum_cliques) {
+
+  // changes:
+  // test with the other code on small graph
+  // report only maximal
+  // curr_clique as ref
+
+  // to do:
+  // instead of enumerate all cliques -- 1 at a time; function -- as soon as you find a maximal you call
+  // impliment pivoting -- avoid redundant recursive calls,
+
+  std::vector<std::vector<NodeID>> &adj_list = reduVCC.adj_list;
+  std::vector<bool> &node_status = reduVCC.node_status;
+  std::vector<bool> &scratch1 = reduVCC.scratch1;
+
+  // reduVCC.printVectorSet(curr_clique);
+
+  enum_cliques.push_back(curr_clique);
+  NodeID curr_node = N_v[curr_i];
+
+  for (NodeID x : adj_list[curr_node]) {
+    if (node_status[x]) { scratch1[x] = true;}
+  }
+  std::vector<unsigned int> next_i;
+
+  for (unsigned int i = curr_i + 1; i < N_v.size(); i++) {
+    NodeID n = N_v[i];
+    if (!node_status[n]) { continue; }
+    if (scratch1[n]) { next_i.push_back(i); }
+  }
+
+  reduVCC.clearScratch(scratch1); // fix this so it takes the set that is marked
+
+  for (unsigned int i : next_i) { // maximal clique if cannot add another vertex
+    NodeID n = N_v[i];
+    std::vector<NodeID> new_clique = curr_clique; // changes this so it doesn't duplicate
+    new_clique.push_back(n);
+    enumerator(N_v, i, new_clique, enum_cliques);
+  }
+}
+
+
+
+// ENUMERATION CODE FOR UNDELETED VERTICIES
+
+// void reducer::enumerate(NodeID v) {
+//
+//   std::vector<NodeID> N_v = reduVCC.adj_list[v];
+//   N_v.push_back(v);
+//   std::sort(N_v.begin(), N_v.end());
+//   std::vector<std::vector<NodeID>> enum_cliques;
+//
+//   std::vector<NodeID> curr_clique = {v};
+//
+//   enumerator(N_v, 0, curr_clique, enum_cliques);
+// }
+//
+// void reducer::enumerator(
+//                          std::vector<NodeID> &N_v,
+//                          unsigned int curr_i,
+//                          std::vector<NodeID> curr_clique,
+//                          std::vector<std::vector<NodeID>> &enum_cliques) {
+//
+//   std::vector<std::vector<NodeID>> &adj_list = reduVCC.adj_list;
+//   std::vector<bool> &scratch1 = reduVCC.scratch1;
+//
+//   reduVCC.printVectorSet(curr_clique);
+//
+//     enum_cliques.push_back(curr_clique);
+//     NodeID curr_node = N_v[curr_i];
+//
+//     for (NodeID x : adj_list[curr_node]) { scratch1[x] = true;}
+//     std::vector<unsigned int> next_i;
+//
+//     for (unsigned int i = curr_i + 1; i < N_v.size(); i++) {
+//       NodeID n = N_v[i];
+//       if (scratch1[n]) { next_i.push_back(i); }
+//     }
+//
+//     reduVCC.clearScratch(scratch1);
+//
+//     for (unsigned int i : next_i) {
+//       NodeID n = N_v[i];
+//       std::vector<NodeID> new_clique = curr_clique;
+//       new_clique.push_back(n);
+//       enumerator(N_v, i, new_clique, enum_cliques);
+//     }
+//
+//   }

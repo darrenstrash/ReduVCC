@@ -7,6 +7,13 @@
  #ifndef REDUCER
  #define REDUCER
 
+// #include "quick-cliques/Tools.h"
+// #include "quick-cliques/TomitaAlgorithm.h"
+// #include "quick-cliques/AdjacencyListAlgorithm.h"
+// #include "quick-cliques/HybridAlgorithm.h"
+// #include "quick-cliques/DegeneracyAlgorithm.h"
+// #include "quick-cliques/CliqueTools.h"
+
 
 #include "partition/partition_config.h"
 #include "ccp/Chalupa/cli.h"
@@ -41,6 +48,17 @@ class reducer {
     void bruteTWIN(graph_access &G);
     void bruteDOM(graph_access &G);
     void bruteCROWN(graph_access &G);
+
+    std::vector<std::vector<NodeID>> enumerate(NodeID v);
+    void enumerator(std::vector<NodeID> &N_v,
+                    unsigned int curr_i,
+                    std::vector<NodeID> curr_clique,
+                    std::vector<std::vector<NodeID>> &enum_cliques);
+
+  void branch_and_bound();
+  void branch( std::vector<std::vector<NodeID>> &clique_cover,
+                        std::vector<std::vector<NodeID>> &curr_cover,
+                        NodeID curr_node);
 
 };
 

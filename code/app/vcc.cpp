@@ -73,16 +73,19 @@ int main(int argn, char **argv) {
     timer s;
 
      reducer R(G);
-     R.bruteISO(G);
-     R.bruteD2(G);
-     R.bruteTWIN(G);
-     R.bruteDOM(G);
-     R.bruteCROWN(G);
-     R.analyzeGraph(graph_filename, G, s);
-     R.solveKernel(G, partition_config, s);
-     R.unwindReductions(G);
+     // std::vector<std::vector<NodeID>> cliques = R.enumerate(0);
+     R.branch_and_bound();
 
-     R.analyzeGraph(graph_filename, G, s);
+     // R.bruteISO(G);
+     // R.bruteD2(G);
+     // R.bruteTWIN(G);
+     // R.bruteDOM(G);
+     // R.bruteCROWN(G);
+     // R.analyzeGraph(graph_filename, G, s);
+     // R.solveKernel(G, partition_config, s);
+     // R.unwindReductions(G);
+     //
+     // R.analyzeGraph(graph_filename, G, s);
 
    //  std::cout << "here" << std::endl;
    //
