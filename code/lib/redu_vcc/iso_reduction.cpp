@@ -16,9 +16,12 @@ bool iso_reduction::validNeighbor(redu_vcc &reduVCC, NodeID &v, NodeID &u){
         NodeID x = adj_list[v][i];
         NodeID y = adj_list[u][j];
 
-        if (x == u) {i++; continue;}
-
         if (j == adj_list[u].size()){return false;}
+
+        if (!reduVCC.node_status[x]) { i++; continue; }
+        if (!reduVCC.node_status[y]) { j++; continue; }
+
+        if (x == u) {i++; continue;}
 
         if (x == y){i++; j++;}
         else if (x > y) {j++;}
@@ -32,6 +35,8 @@ bool iso_reduction::validISO(redu_vcc &reduVCC, NodeID &v){
     // checks if v is an isolated vertex
 
     for (NodeID u : reduVCC.adj_list[v]) {
+        if (!reduVCC.node_status[u]) { continue; }
+
         bool valid_neighbor = iso_reduction::validNeighbor(reduVCC, v, u);
         if (!valid_neighbor) { return false; }
     }
@@ -45,11 +50,23 @@ void iso_reduction::reduce(graph_access &G, redu_vcc &reduVCC, NodeID &node_v, N
 
   // reduVCC.printNeighborhood(v);
 
-  std::vector<NodeID> clique;
   clique.push_back(v);
-  for (NodeID u : reduVCC.adj_list[v]) {clique.push_back(u);};
+  for (NodeID u : reduVCC.adj_list[v]) {
+    if (!reduVCC.node_status[u]) { continue; };
+    clique.push_back(u);
+  };
 
   reduVCC.addClique(clique);
   reduVCC.removeVertexSet(clique);
 
+}
+
+void iso_reduction::unreduce(graph_access &G, redu_vcc &reduVCC) {
+  
+  reduVCC.pop_clique(clique);
+  reduVCC.addVertexSet(clique);
+}
+
+void iso_reduction::unfold(graph_access &G, redu_vcc &reduVCC) {
+    // iso cliques do not need to be unfolded, G' is not impacted
 }

@@ -60,8 +60,10 @@ bool reduction::uncrossedSets(redu_vcc &reduVCC, NodeID &a, NodeID &b) {
   for (NodeID x : adj_list[a]) {scratch2[x] = false;}
 
   for (NodeID x : adj_list[a]){
+      if (!reduVCC.node_status[x]) { continue; }
       if (!scratch1[x]) {continue;}
       for (NodeID y : adj_list[x]) {
+          if (!reduVCC.node_status[y]) { continue; }
           if (scratch2[y]) {
             reduVCC.clearScratch(scratch1);
             reduVCC.clearScratch(scratch2);

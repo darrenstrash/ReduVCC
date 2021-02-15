@@ -33,6 +33,7 @@ void redu_vcc::build(graph_access &G) {
   generateAdjList(G);
   // assign status of nodes
   node_status.assign(G.number_of_nodes(), true);
+  fold_node.assign(G.number_of_nodes(), false);
   remaining_nodes = G.number_of_nodes();
 
   // allocate for graph cover
@@ -44,6 +45,25 @@ void redu_vcc::build(graph_access &G) {
   // printAdjList();
 }
 
+void redu_vcc::build_cover(graph_access &G){
+
+  // clears clique_cover
+  clique_cover.clear();
+  clique_cover.assign(next_cliqueID, {});
+
+  forall_nodes(G, v) {
+    if (fold_node[v]) { continue; } // if node in fold, skip
+    if (node_status[v]) { continue; } // if node still in graph, skip
+
+    unsigned int cliqueID = node_clique[v];
+    clique_cover[cliqueID].push_back(v);
+  } endfor
+
+  solve_node_clique = node_clique;
+  next_solvecliqueID = next_cliqueID;
+  // since we are preparing to solve, set solve node_clique and next_cliqueID
+}
+
 bool redu_vcc::cliqueInG(graph_access &G, std::vector<NodeID> &clique) {
 
   for (unsigned int i = 0; i < clique.size() -1; i++) {
@@ -52,7 +72,6 @@ bool redu_vcc::cliqueInG(graph_access &G, std::vector<NodeID> &clique) {
     forall_out_edges(G, e, v){
         NodeID u = G.getEdgeTarget(e);
 
-        // std::cout << u << ", " << clique[j] << std::endl;
         if (j >= clique.size()) { break; }
         else if (u == clique[j]) {
           j++;
@@ -126,6 +145,8 @@ void redu_vcc::buildKernel(graph_access &G) {
     std::vector<int> adj;
     for (unsigned int j = 0; j < adj_list[i].size(); j++){
         NodeID u  = adj_list[i][j];
+        if (!node_status[u]) { continue; }
+
         int new_u = old_to_new_map[u];
         adj.push_back(new_u);
         kernel_edges++;
@@ -144,44 +165,121 @@ void redu_vcc::addKernelCliques(std::vector<std::vector<int>> &clique_set){
           int v = clique_set[i][j];
           NodeID old_v = new_to_old_map[v];
 
-          removeVertex(old_v);
+          solve_node_clique[old_v] = false;
+          clique.push_back(old_v);
+      }
+      std::sort(clique.begin(), clique.end());
+
+      addCliqueToCover(clique);
+  }
+}
+
+void redu_vcc::addCrownCliques(std::vector<std::vector<NodeID>> &crown_cliques, std::vector<std::vector<int>> &clique_set) {
+
+  for (unsigned int i = 0; i < clique_set.size(); i++){
+      std::vector<NodeID> clique;
+
+      for (unsigned int j = 0; j < clique_set[i].size(); j++){
+          int v = clique_set[i][j];
+          NodeID old_v = new_to_old_map[v];
+
+          solve_node_clique[old_v] = false;
           clique.push_back(old_v);
       }
       std::sort(clique.begin(), clique.end());
 
       addClique(clique);
+      removeVertexSet(clique);
+
+      crown_cliques.push_back(clique);
   }
+
+}
+
+unsigned int redu_vcc::adj_size(NodeID v) {
+
+  unsigned int size = 0;
+  for (NodeID u: adj_list[v]) {
+    if (node_status[u]) { size++; }
+  }
+
+  return size;
+}
+
+std::vector<NodeID> redu_vcc::curr_adj_list(NodeID v) {
+
+  std::vector<NodeID> curr_adj_list;
+
+  for (NodeID u : adj_list[v]){
+    if (node_status[u]) { curr_adj_list.push_back(u); }
+  }
+
+  return curr_adj_list;
 }
 
 
 void redu_vcc::removeVertex(NodeID v) {
-  // removes vertex from adjacency list
+  // removes vertex
 
   node_status[v] = false;
-  for (NodeID u : adj_list[v]){
-      for (unsigned int i = 0; i < adj_list[u].size(); i++){
-          NodeID z = adj_list[u][i];
-          if (z == v){
-              adj_list[u].erase(adj_list[u].begin() + i);
-              continue;
-          }
-      }
-  }
-  adj_list[v].erase(adj_list[v].begin(), adj_list[v].end());
-
   remaining_nodes--;
 }
 
+void redu_vcc::addVertex(NodeID v) {
+  // adds vertex
+
+  node_status[v] = true;
+  remaining_nodes++;
+}
+
+// void redu_vcc::addClique(std::vector<NodeID> &clique) {
+//
+//   std::sort(clique.begin(), clique.end());
+//   clique_cover.push_back(clique);
+//   unsigned int cliqueID = clique_cover.size() - 1;
+//
+//   for (NodeID u : clique){
+//       node_clique[u] = cliqueID;
+//   }
+//
+// }
+
 void redu_vcc::addClique(std::vector<NodeID> &clique) {
 
-  std::sort(clique.begin(), clique.end());
-  clique_cover.push_back(clique);
-  unsigned int cliqueID = clique_cover.size() - 1;
-
-  for (NodeID u : clique){
-      node_clique[u] = cliqueID;
+  for (NodeID u : clique) {
+    node_clique[u] = next_cliqueID;
   }
 
+  next_cliqueID++;
+}
+
+void redu_vcc::addCliqueToCover(std::vector<NodeID> &clique) {
+  // adds clique so solve node structure
+
+  for (NodeID u : clique) {
+    solve_node_clique[u] = next_solvecliqueID;
+  }
+  clique_cover.push_back(clique);
+  next_solvecliqueID++;
+  std::cout << next_solvecliqueID << std::endl;
+}
+
+
+
+// std::vector<NodeID> redu_vcc::pop_clique() {
+//
+//   std::vector<NodeID> clique = clique_cover.back();
+//   clique_cover.pop_back();
+//   return clique;
+// }
+
+void redu_vcc::pop_clique(std::vector<NodeID> &clique) {
+
+  for (NodeID u : clique) {
+    node_clique[u] = node_clique.size();
+  }
+
+  next_cliqueID--;
 }
 
 unsigned int redu_vcc::getCliqueID(NodeID &v) {
@@ -213,6 +311,10 @@ void redu_vcc::removeVertexSet(std::vector<NodeID> &S) {
   for (NodeID v : S) { removeVertex(v); };
 }
 
+void redu_vcc::addVertexSet(std::vector<NodeID> &S) {
+  for (NodeID v : S) { addVertex(v); };
+}
+
 void redu_vcc::clearScratch(std::vector<bool> &scratch) {
 
   std::fill(scratch.begin(), scratch.end(), false);
@@ -223,7 +325,9 @@ void redu_vcc::printAdjList() {
   for (unsigned int i = 0; i < node_status.size(); i++) {
     if (!node_status[i]) { continue; }
     std::cout << "N(" << i << "): [";
+
     for (NodeID u : adj_list[i]) {
+      if (!node_status[u]) { continue; }
       std::cout << u << ", ";
     }
     std::cout << "]" << std::endl;
@@ -239,6 +343,7 @@ void redu_vcc::printAdjList(NodeID v) {
 
   std::cout << "N(" << v << "): [";
   for (NodeID u : adj_list[v]) {
+    if (!node_status[u]) { continue; }
     std::cout << u << ", ";
   }
   std::cout << "]" << std::endl;

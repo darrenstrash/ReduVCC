@@ -2,26 +2,42 @@
 #include "reducer.h"
 
 
-reducer::reducer(graph_access &G) {
+void reducer::init(graph_access &G) {
 
   reduVCC.build(G);
 }
 
-void reducer::unwindReductions(graph_access &G) {
-
-    while (reduction_stack.size() > 0){
-        reduction *pReduction = reduction_stack.back();
-        reduction_stack.pop_back();
-
-        pReduction->unreduce(G, reduVCC);
-
-        delete pReduction;
-    }
+void reducer::buildCover(graph_access &G) {
+  reduVCC.build_cover(G);
 }
 
-void reducer::bruteISO(graph_access &G) {
+void reducer::unwindReductions(graph_access &G) {
+
+    for (unsigned int i = reduction_stack.size(); i > 0; i--) {
+
+        reduction_stack[i-1]->unfold(G, reduVCC);
+
+    }
+
+    // std::cout << reduVCC.next_cliqueID << std::endl;
+}
+
+void reducer::undoReductions(graph_access &G, unsigned int num) {
+
+  for (unsigned int i = 0; i < num; i++) {
+      reduction *pReduction = reduction_stack.back();
+      reduction_stack.pop_back();
+
+      pReduction->unreduce(G, reduVCC);
+
+      delete pReduction;
+  }
+}
+
+unsigned int reducer::bruteISO(graph_access &G) {
 
   bool vertexReduced = true;
+  unsigned int reduced = 0;
 
   while (vertexReduced){
       vertexReduced = false;
@@ -32,7 +48,7 @@ void reducer::bruteISO(graph_access &G) {
           if (!reduVCC.node_status[v]) { continue;}
 
           if (iso_reduction::validISO(reduVCC, v)){
-
+              reduced++;
               vertexReduced = true;
               reduction *pReduction = nullptr;
               pReduction = new iso_reduction();
@@ -42,11 +58,13 @@ void reducer::bruteISO(graph_access &G) {
       } endfor
 
  }
+ return reduced;
 }
 
-void reducer::bruteD2(graph_access &G) {
+unsigned int reducer::bruteD2(graph_access &G) {
 
   bool vertexReduced = true;
+  unsigned int reduced = 0;
 
   while (vertexReduced){
       vertexReduced = false;
@@ -57,7 +75,7 @@ void reducer::bruteD2(graph_access &G) {
           if (!reduVCC.node_status[v]) { continue;}
 
           if (d2_reduction::validD2(reduVCC, v)){
-
+              reduced++;
               vertexReduced = true;
               reduction *pReduction = nullptr;
               pReduction = new d2_reduction();
@@ -68,6 +86,8 @@ void reducer::bruteD2(graph_access &G) {
       } endfor
 
  }
+
+ return reduced;
 }
 
 void reducer::bruteTWIN(graph_access &G) {

@@ -28,16 +28,24 @@ class reducer {
   public:
     redu_vcc reduVCC;
 
-    reducer(graph_access &G);
+    reducer() {};
     virtual ~reducer() {};
+
+    void init(graph_access &G);
 
     void analyzeGraph(std::string &filename, graph_access &G, timer &t);
 
+    // map node_clique to clique_cover
+    void buildCover(graph_access &G);
+    // solve remaining_nodes with Chalupa Solver
     void solveKernel(graph_access &G, PartitionConfig &partition_config, timer &t);
+    // construct C from C'
     void unwindReductions(graph_access &G);
+    // undo num reductions, constructing G from G'
+    void undoReductions(graph_access &G, unsigned int num);
 
-    void bruteISO(graph_access &G);
-    void bruteD2(graph_access &G);
+    unsigned int bruteISO(graph_access &G);
+    unsigned int bruteD2(graph_access &G);
     void bruteTWIN(graph_access &G);
     void bruteDOM(graph_access &G);
     void bruteCROWN(graph_access &G);

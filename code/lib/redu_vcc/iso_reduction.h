@@ -16,12 +16,14 @@ class iso_reduction: public reduction {
 
   public:
     NodeID v;
+    std::vector <NodeID> clique;
 
     static bool validISO(redu_vcc &reduVCC, NodeID &v);
     static bool validNeighbor(redu_vcc &reduVCC, NodeID &v, NodeID &u);
 
     void reduce(graph_access &G, redu_vcc &reduVCC, NodeID &node_v, NodeID &node_u );
-    void unreduce(graph_access &G, redu_vcc &reduVCC) {};
+    void unfold(graph_access &G, redu_vcc &reduVCC);
+    void unreduce(graph_access &G, redu_vcc &reduVCC);
 
 };
 

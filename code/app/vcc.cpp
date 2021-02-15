@@ -36,6 +36,7 @@
 #include <time.h>
 
 #include "redu_vcc/reducer.h"
+#include "branch_and_reduce/b_and_r.h"
 
 int main(int argn, char **argv) {
 
@@ -72,36 +73,28 @@ int main(int argn, char **argv) {
 
     timer s;
 
-     reducer R(G);
-     R.bruteISO(G);
-     R.bruteD2(G);
-     R.bruteTWIN(G);
-     R.bruteDOM(G);
-     R.bruteCROWN(G);
-     R.analyzeGraph(graph_filename, G, s);
-     R.solveKernel(G, partition_config, s);
-     R.unwindReductions(G);
+    branch_and_reduce B(G);
 
-     R.analyzeGraph(graph_filename, G, s);
+    // B.enumerate(0);
+    B.brute(G);
+    B.analyzeGraph(graph_filename, G, s);
 
-   //  std::cout << "here" << std::endl;
-   //
-   //  timer s;
-   //
-   //  scratch1.assign(G.number_of_nodes(), false);
-   //  scratch2.assign(G.number_of_nodes(), false);
-   //
-   //  Reducer R(G);
-   //
-   //  if (partition_config.run_type == "reduction"){
-   //    R.performReductions(G);
-   //    R.analyzeGraph(graph_filename, G, s);
-   //    std::cout << std::endl;
-   //  }
-   //
-   // R.solveKernel(G, partition_config, s);
-   // R.unwindReductions(G);
-   // R.analyzeGraph(graph_filename, G, s);
-   // R.validCover(G);
+     // reducer R;
+     // R.init(G);
+     // unsigned int i = R.bruteISO(G);
+     // // std::cout << i << std::endl;
+     // unsigned int j = R.bruteD2(G);
+     // // // // std::cout << j << std::endl;
+     // // // // // // R.bruteTWIN(G);
+     // // // // // // R.bruteDOM(G);
+     // // // // // // R.bruteCROWN(G);
+     // // R.analyzeGraph(graph_filename, G, s);
+     // R.buildCover(G);
+     // R.solveKernel(G, partition_config, s);
+     // R.unwindReductions(G);
+     // R.analyzeGraph(graph_filename, G, s);
+     // R.undoReductions(G, i +j);
+     // // // // //
+     // R.analyzeGraph(graph_filename, G, s);
 
 }

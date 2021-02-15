@@ -104,6 +104,7 @@ libkaffpa_files = [   'lib/data_structure/graph_hierarchy.cpp',
 		      'lib/redu_vcc/dom_reduction.cpp',
 		      'lib/redu_vcc/crown_reduction.cpp',
 		      'lib/redu_vcc/reduction.cpp',
+		      'lib/branch_and_reduce/b_and_r.cpp',
                       ]
 
 libkaffpa_parallel_async  = ['lib/parallel_mh/parallel_mh_async.cpp',

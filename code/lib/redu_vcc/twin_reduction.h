@@ -45,6 +45,7 @@ class twin_reduction: public reduction {
 
     void reduce(graph_access &G, redu_vcc &reduVCC, NodeID &node_v, NodeID &node_u );
     void unreduce(graph_access &G, redu_vcc &reduVCC);
+    void unfold(graph_access &G, redu_vcc &reduVCC) {};
 
 };
 
