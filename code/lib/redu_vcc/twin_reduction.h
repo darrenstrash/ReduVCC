@@ -21,9 +21,11 @@ class twin_reduction: public reduction {
     std::vector<NodeID> N_w; // neighborhood of w before fold, excluding v
     std::vector<NodeID> N_x; // neighborhood of x before fold, excluding v
 
+    std::vector<NodeID> disjoint; // vertices in N_w and N_x not in N_y
+
     bool remove_type;
 
-    bool removeType (std::vector<std::vector<NodeID>> &adj_list);
+    bool removeType (redu_vcc &reduce);
     void removeTWIN (redu_vcc &reduVCC);
     void foldTWIN(redu_vcc &reduVCC);
 
@@ -39,13 +41,13 @@ class twin_reduction: public reduction {
 
 
     static bool validTWIN(redu_vcc &reduVCC, NodeID &v, NodeID &u);
-    static void assignNodes(std::vector<std::vector<NodeID>> &adj_list, NodeID &v, NodeID &w, NodeID &x, NodeID &y);
-    static bool twinFound( std::vector<std::vector<NodeID>> &adj_list,  NodeID &v, NodeID &u, NodeID &w, NodeID &x, NodeID &y);
+    static void assignNodes(redu_vcc &reduVCC, NodeID &v, NodeID &w, NodeID &x, NodeID &y);
+    static bool twinFound( redu_vcc &reduVCC,  NodeID &v, NodeID &u, NodeID &w, NodeID &x, NodeID &y);
     static bool validNeighbors(redu_vcc &reduVCC, NodeID &v, NodeID &u, NodeID &w, NodeID &x, NodeID &y);
 
     void reduce(graph_access &G, redu_vcc &reduVCC, NodeID &node_v, NodeID &node_u );
     void unreduce(graph_access &G, redu_vcc &reduVCC);
-    void unfold(graph_access &G, redu_vcc &reduVCC) {};
+    void unfold(graph_access &G, redu_vcc &reduVCC);
 
 };
 

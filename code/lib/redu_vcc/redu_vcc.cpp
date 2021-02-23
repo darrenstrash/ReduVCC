@@ -105,7 +105,10 @@ void redu_vcc::validateCover(graph_access &G) {
 
     // std::cout << std::endl;
 
-    if (!cliqueInG(G, clique)) { std::cout << "Invalid clique" << std::endl; return; }
+    if (!cliqueInG(G, clique)) {
+      printVectorSet(clique);
+      std::cout << "Invalid clique" << std::endl;
+      return; }
     //
     // std::cout << std::endl;
   }
@@ -182,12 +185,13 @@ void redu_vcc::addCrownCliques(std::vector<std::vector<NodeID>> &crown_cliques, 
       for (unsigned int j = 0; j < clique_set[i].size(); j++){
           int v = clique_set[i][j];
           NodeID old_v = new_to_old_map[v];
-
-          solve_node_clique[old_v] = false;
+          // std::cout << old_v << std::endl;
+          // solve_node_clique[old_v] = false;
           clique.push_back(old_v);
       }
       std::sort(clique.begin(), clique.end());
 
+      // printVectorSet(clique);
       addClique(clique);
       removeVertexSet(clique);
 
@@ -261,7 +265,7 @@ void redu_vcc::addCliqueToCover(std::vector<NodeID> &clique) {
   }
   clique_cover.push_back(clique);
   next_solvecliqueID++;
-  std::cout << next_solvecliqueID << std::endl;
+  // std::cout << next_solvecliqueID << std::endl;
 }
 
 
@@ -300,7 +304,7 @@ void redu_vcc::replaceClique(unsigned int cliqueID, std::vector<NodeID> new_cliq
   std::sort(new_clique.begin(), new_clique.end());
 
   for (NodeID a : new_clique) {
-    node_clique[a] = cliqueID;
+    solve_node_clique[a] = cliqueID;
   }
   clique_cover[cliqueID] = new_clique;
 }

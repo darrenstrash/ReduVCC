@@ -11,6 +11,7 @@ bool reduction::isSubset(redu_vcc &reduVCC, std::vector<NodeID> &A, std::vector<
 
   for (NodeID v : B) {scratch1[v] = true;}
   for (NodeID v : A) {
+      if (!reduVCC.node_status[v]) continue;
       if (!scratch1[v]) {
           reduVCC.clearScratch(scratch1);
           return false;
@@ -20,25 +21,26 @@ bool reduction::isSubset(redu_vcc &reduVCC, std::vector<NodeID> &A, std::vector<
   return true;
 }
 
-void reduction::merge_neighborhoods(redu_vcc &reduVCC, NodeID &a, NodeID &b) {
+void reduction::merge_neighborhoods(redu_vcc &reduVCC, std::vector<NodeID> &disjoint,
+                                    std::vector<NodeID> &N_b, NodeID &a, NodeID &b) {
   // merge N[b] into N[a]
+  // also marks nodes merged into N_a, not in original N_a
+  // constructs N_b
 
   std::vector<std::vector<NodeID>> &adj_list = reduVCC.adj_list;
 
-  for (NodeID p : adj_list[a]){
-      reduVCC.scratch1[p] = true;
-  }
+  for (NodeID p : adj_list[a]) reduVCC.scratch1[p] = true;
 
   for (NodeID p : adj_list[b]){
+      if (!reduVCC.node_status[p]) continue;
+      N_b.push_back(p);
 
-      if (p == a){
-          continue;
-      }
-      if (reduVCC.scratch1[p]){
-          continue;
-      }
+      if (p == a) continue;
+      if (reduVCC.scratch1[p]) continue;
+
       adj_list[a].push_back(p);
       adj_list[p].push_back(a);
+      disjoint.push_back(p);
 
       std::sort(adj_list[p].begin(), adj_list[p].end());
   }

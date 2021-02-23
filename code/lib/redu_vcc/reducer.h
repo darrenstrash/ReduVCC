@@ -44,11 +44,11 @@ class reducer {
     // undo num reductions, constructing G from G'
     void undoReductions(graph_access &G, unsigned int num);
 
-    unsigned int bruteISO(graph_access &G);
-    unsigned int bruteD2(graph_access &G);
-    void bruteTWIN(graph_access &G);
-    void bruteDOM(graph_access &G);
-    void bruteCROWN(graph_access &G);
+    std::vector<unsigned int> bruteISO(graph_access &G);
+    std::vector<unsigned int> bruteD2(graph_access &G);
+    std::vector<unsigned int> bruteTWIN(graph_access &G);
+    std::vector<unsigned int> bruteDOM(graph_access &G);
+    std::vector<unsigned int> bruteCROWN(graph_access &G);
 
 };
 

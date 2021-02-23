@@ -34,10 +34,12 @@ void reducer::undoReductions(graph_access &G, unsigned int num) {
   }
 }
 
-unsigned int reducer::bruteISO(graph_access &G) {
+std::vector<unsigned int> reducer::bruteISO(graph_access &G) {
 
   bool vertexReduced = true;
   unsigned int reduced = 0;
+  unsigned int num_cliques = 0;
+  unsigned int num_folded_cliques = 0;
 
   while (vertexReduced){
       vertexReduced = false;
@@ -54,17 +56,22 @@ unsigned int reducer::bruteISO(graph_access &G) {
               pReduction = new iso_reduction();
               pReduction->reduce(G, reduVCC, v, u);
               reduction_stack.push_back(pReduction);
+
+              num_cliques += pReduction->num_cliques;
+              num_folded_cliques += pReduction->num_folded_cliques;
          }
       } endfor
 
  }
- return reduced;
+ return {reduced, num_cliques, num_folded_cliques};
 }
 
-unsigned int reducer::bruteD2(graph_access &G) {
+std::vector<unsigned int> reducer::bruteD2(graph_access &G) {
 
   bool vertexReduced = true;
   unsigned int reduced = 0;
+  unsigned int num_cliques = 0;
+  unsigned int num_folded_cliques = 0;
 
   while (vertexReduced){
       vertexReduced = false;
@@ -82,17 +89,23 @@ unsigned int reducer::bruteD2(graph_access &G) {
               pReduction->reduce(G, reduVCC, v, u);
               reduction_stack.push_back(pReduction);
 
+              num_cliques += pReduction->num_cliques;
+              num_folded_cliques += pReduction->num_folded_cliques;
+
          }
       } endfor
 
  }
 
- return reduced;
+ return {reduced, num_cliques, num_folded_cliques};
 }
 
-void reducer::bruteTWIN(graph_access &G) {
+std::vector<unsigned int> reducer::bruteTWIN(graph_access &G) {
 
   bool vertexReduced = true;
+  unsigned int reduced = 0;
+  unsigned int num_cliques = 0;
+  unsigned int num_folded_cliques = 0;
 
   while (vertexReduced){
       vertexReduced = false;
@@ -104,21 +117,31 @@ void reducer::bruteTWIN(graph_access &G) {
 
           if (twin_reduction::validTWIN(reduVCC, v, u)){
 
+              // std::cout << "twin" << std::endl;
               vertexReduced = true;
               reduction *pReduction = nullptr;
               pReduction = new twin_reduction();
               pReduction->reduce(G, reduVCC, v, u);
               reduction_stack.push_back(pReduction);
 
+              reduced++;
+              num_cliques += pReduction->num_cliques;
+              num_folded_cliques += pReduction->num_folded_cliques;
+
          }
       } endfor
 
  }
+
+ return {reduced, num_cliques, num_folded_cliques};
 }
 
-void reducer::bruteDOM(graph_access &G) {
+std::vector<unsigned int> reducer::bruteDOM(graph_access &G) {
 
   bool vertexReduced = true;
+  unsigned int reduced = 0;
+  unsigned int num_cliques = 0;
+  unsigned int num_folded_cliques = 0;
 
   while (vertexReduced){
       vertexReduced = false;
@@ -126,32 +149,68 @@ void reducer::bruteDOM(graph_access &G) {
       forall_nodes(G, v){
           NodeID u;
 
+          // if ( reduced > 12 ) return reduced;
+
+          // std::cout << "starts" << std::endl;
+
           if (!reduVCC.node_status[v]) { continue;}
 
           if (dom_reduction::validDOM(reduVCC, v, u)){
 
-              std::cout<< "valid dom" << std::endl;
-
+              // std::cout<< "valid dom" << std::endl;
+              reduced++;
               vertexReduced = true;
               reduction *pReduction = nullptr;
               pReduction = new dom_reduction();
               pReduction->reduce(G, reduVCC, v, u);
               reduction_stack.push_back(pReduction);
 
+              num_cliques += pReduction->num_cliques;
+              num_folded_cliques += pReduction->num_folded_cliques;
+
          }
+         // std::cout << "ends" << std::endl;
       } endfor
 
+      // std::cout << "whle agin" << std::endl;
+
  }
+
+ // std::cout << "returns" << std::endl;
+ return {reduced, num_cliques, num_folded_cliques};
 }
 
-void reducer::bruteCROWN(graph_access &G) {
+std::vector<unsigned int> reducer::bruteCROWN(graph_access &G) {
+
+  unsigned int reduced = 0;
+  unsigned int num_cliques = 0;
+  unsigned int num_folded_cliques = 0;
 
   NodeID v; NodeID u;
+
+  unsigned int curr_cliqueID = reduVCC.next_cliqueID;
 
   reduction *pReduction = nullptr;
   pReduction = new crown_reduction();
   pReduction->reduce(G, reduVCC, v, u);
-  reduction_stack.push_back(pReduction);
+  // reduction_stack.push_back(pReduction);
+
+  if (pReduction->num_cliques > 0) {
+    reduction_stack.push_back(pReduction);
+    reduced++;
+    num_cliques+= pReduction-> num_cliques;
+  }
+  else { delete pReduction; }
+
+  return {reduced, num_cliques, num_folded_cliques};
+  // unsigned int num_crown = reduVCC.next_cliqueID - curr_cliqueID;
+  // if (num_crown > 0) {
+  //   reduction_stack.push_back(pReduction);
+  //   reduced++;
+  //   num_crown += num
+  // } else { delete pReduction; }
+  // std::cout << num_crown << std::endl;
+  // return num_crown;
 }
 
 void reducer::solveKernel(graph_access &G, PartitionConfig &partition_config, timer &t) {

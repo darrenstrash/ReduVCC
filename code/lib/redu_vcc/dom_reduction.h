@@ -19,11 +19,11 @@ class dom_reduction: public reduction {
     NodeID u;
 
     static bool validDOM(redu_vcc &reduVCC, NodeID &v, NodeID &u);
-    static bool nodeDominates(std::vector<std::vector<NodeID>> &adj_list, NodeID &v, NodeID &a);
+    static bool nodeDominates(redu_vcc &reduVCC, NodeID &v, NodeID &a);
 
     void reduce(graph_access &G, redu_vcc &reduVCC, NodeID &node_v, NodeID &node_u );
     void unreduce(graph_access &G, redu_vcc &reduVCC);
-    void unfold(graph_access &G, redu_vcc &reduVCC) {};
+    void unfold(graph_access &G, redu_vcc &reduVCC);
 
 };
 

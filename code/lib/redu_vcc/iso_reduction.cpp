@@ -47,6 +47,7 @@ bool iso_reduction::validISO(redu_vcc &reduVCC, NodeID &v){
 void iso_reduction::reduce(graph_access &G, redu_vcc &reduVCC, NodeID &node_v, NodeID &node_u ){
 
   v = node_v;
+  num_cliques++;
 
   // reduVCC.printNeighborhood(v);
 
@@ -62,7 +63,7 @@ void iso_reduction::reduce(graph_access &G, redu_vcc &reduVCC, NodeID &node_v, N
 }
 
 void iso_reduction::unreduce(graph_access &G, redu_vcc &reduVCC) {
-  
+
   reduVCC.pop_clique(clique);
   reduVCC.addVertexSet(clique);
 }

@@ -14,8 +14,11 @@
 
 class reduction {
   public:
-    reduction() {};
+    reduction() { num_cliques = 0; num_folded_cliques = 0;};
     virtual ~reduction() {};
+
+    unsigned int num_cliques;
+    unsigned int num_folded_cliques;
 
     // reduces the graph --> produce G'
     virtual void reduce(graph_access &G, redu_vcc &reduVCC, NodeID &node_v, NodeID &node_u ) = 0;
@@ -24,8 +27,9 @@ class reduction {
     // undoes reduction --> produces G from G'
     virtual void unreduce(graph_access &G, redu_vcc &reduVCC) = 0;
 
-    bool isSubset(redu_vcc &reduVCC, std::vector<NodeID> &A, std::vector<NodeID> &B);
-    void merge_neighborhoods(redu_vcc &reduVCC, NodeID &a, NodeID &b);
+    static bool isSubset(redu_vcc &reduVCC, std::vector<NodeID> &A, std::vector<NodeID> &B);
+    void merge_neighborhoods(redu_vcc &reduVCC, std::vector<NodeID> &disjoint,
+                                        std::vector<NodeID> &N_b, NodeID &a, NodeID &b);
 
     static bool uncrossedSets(redu_vcc &reduVCC, NodeID &a, NodeID &b);
 

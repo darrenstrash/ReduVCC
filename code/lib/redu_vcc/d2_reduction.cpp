@@ -74,20 +74,21 @@ void d2_reduction::foldD2(redu_vcc &reduVCC) {
 void d2_reduction::reduce( graph_access &G, redu_vcc &reduVCC, NodeID &node_v, NodeID &node_u ){
 
   v = node_v;
+  num_folded_cliques++;
   // std::vector<std::vector<NodeID>> &adj_list = reduVCC.adj_list;
-  reduVCC.printNeighborhood(v);
+  // reduVCC.printNeighborhood(v);
 
   d2_reduction::assignNodes(reduVCC, v, u, w);
-  std::cout << u << ", " << w << std::endl;
-  std::cout << reduVCC.node_status[w] << std::endl;
+  // std::cout << u << ", " << w << std::endl;
+  // std::cout << reduVCC.node_status[w] << std::endl;
 
   reduVCC.removeVertex(v);
   reduVCC.fold_node[v] = true;
 
   // N_u = reduVCC.curr_adj_list(u);
   foldD2(reduVCC);
-  reduVCC.printAdjList(w);
-  std::cout << std::endl;
+  // reduVCC.printAdjList(w);
+  // std::cout << std::endl;
 
 }
 
