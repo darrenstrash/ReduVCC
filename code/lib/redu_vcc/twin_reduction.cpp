@@ -16,20 +16,20 @@ std::vector<NodeID> N_v = reduVCC.curr_adj_list(v);
   NodeID c = N_v[2];
 
   std::vector<NodeID> neighbors {a, b, c};
+  std::vector<unsigned int> neighbor_sizes {reduVCC.adj_size(a), reduVCC.adj_size(b), reduVCC.adj_size(c)};
+  std::vector<unsigned int> neighbor_indices { 0, 1, 2 };
 
-  std::sort(neighbors.begin(), neighbors.end(),
-    [reduVCC](NodeID n1, NodeID n2) {
-        // std::vector<NodeID> adj1 = adj_list[n1];
-        // std::vector<NodeID> adj2 = adj_list[n2];
-        // return adj1.size() < adj2.size();
-        unsigned int s1 = reduVCC.adj_size(n1);
-        unsigned int s2 = reduVCC.adj_size(n2);
+  std::sort(neighbor_indices.begin(), neighbor_indices.end(),
+    [neighbor_sizes](unsigned int i, unsigned int j) {
+
+        unsigned int s1 = neighbor_sizes[i];
+        unsigned int s2 = neighbor_sizes[j];
         return s1 < s2;
     });
 
-    w = neighbors[0];
-    x = neighbors[1];
-    y = neighbors[2];
+    w = neighbors[neighbor_indices[0]];
+    x = neighbors[neighbor_indices[1]];
+    y = neighbors[neighbor_indices[2]];
 
 }
 
@@ -96,6 +96,8 @@ bool twin_reduction::validTWIN(redu_vcc &reduVCC, NodeID &v, NodeID &u){
     NodeID x;
     NodeID y;
     twin_reduction::assignNodes(reduVCC, v, w, x, y);
+
+    // return false;
 
     return twin_reduction::twinFound(reduVCC, v, u, w, x, y) && twin_reduction::validNeighbors(reduVCC, v, u, w, x, y);
 }

@@ -69,28 +69,31 @@ int main(int argn, char **argv) {
 
     timer t;
     graph_io::readGraphWeighted(G, graph_filename);
-     std::cout << "io time: " << t.elapsed()  << std::endl;
 
-    timer s;
 
     branch_and_reduce B(G);
-
-    // std::cout << partition_config.mis_file << std::endl;
     B.getMIS(partition_config.mis_file);
+    std::cout << "io time: " << t.elapsed()  << std::endl;
 
+    timer s;
     // B.enumerate(0);
     B.brute(G);
+    // unsigned int i = 0;
+    // B.exhaustive_reductions(G, i, i);
     B.analyzeGraph(graph_filename, G, s);
 
      // reducer R;
      // R.init(G);
-     // // unsigned int i = R.bruteISO(G);
-     // // std::cout << i << std::endl;
-     // // unsigned int j = R.bruteD2(G);
-     // // // // std::cout << j << std::endl;
-     // // unsigned int k = R.bruteTWIN(G);
-     // unsigned int l = R.bruteDOM(G);
-     // // // // // // R.bruteCROWN(G);
+     // std::vector<unsigned int> iso_stats = R.bruteISO(G);
+     // R.analyzeGraph(graph_filename, G, s);
+     // std::vector<unsigned int> d2_stats = R.bruteD2(G);
+     // R.analyzeGraph(graph_filename, G, s);
+     // std::vector<unsigned int> twin_stats = R.bruteTWIN(G);
+     // R.analyzeGraph(graph_filename, G, s);
+     // std::vector<unsigned int> dom_stats = R.bruteDOM(G);
+     // R.analyzeGraph(graph_filename, G, s);
+     // std::vector<unsigned int> crown_stats = R.bruteCROWN(G);
+     // R.analyzeGraph(graph_filename, G, s);
      // R.analyzeGraph(graph_filename, G, s);
      // R.buildCover(G);
      // R.solveKernel(G, partition_config, s);
