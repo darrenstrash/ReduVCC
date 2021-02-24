@@ -42,6 +42,8 @@ void redu_vcc::build(graph_access &G) {
   scratch1.assign(G.number_of_nodes(), false);
   scratch2.assign(G.number_of_nodes(), false);
 
+  next_cliqueID = 0;
+
   // printAdjList();
 }
 
