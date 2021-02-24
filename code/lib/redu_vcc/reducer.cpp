@@ -2,9 +2,12 @@
 #include "reducer.h"
 
 
-void reducer::init(graph_access &G) {
+reducer::reducer(graph_access &G) {
+  reduVCC = redu_vcc(G);
 
-  reduVCC.build(G);
+  // for_adjList(reduVCC, 0, u) {
+  //   std::cout << u << std::endl;
+  // } endfor
 }
 
 void reducer::buildCover(graph_access &G) {

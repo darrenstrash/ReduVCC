@@ -10,6 +10,9 @@
 
 #include "data_structure/graph_access.h"
 
+
+#define for_adjList(reduVCC, v, n) { for (NodeID n : reduVCC.adj_list[v]) { if (!reduVCC.node_status[n]) continue;
+
 class redu_vcc {
   private:
     // subgraph mapping
@@ -45,9 +48,9 @@ class redu_vcc {
     std::vector<bool> scratch2;
 
     redu_vcc() {};
+    redu_vcc(graph_access &G);
     virtual ~redu_vcc() {};
 
-    void build(graph_access &G);
     void build_cover(graph_access &G);
     void validateCover(graph_access &G);
 
@@ -74,7 +77,7 @@ class redu_vcc {
     std::vector<NodeID> getClique(NodeID &v);
     void replaceClique(unsigned int cliqueID, std::vector<NodeID> new_clique);
 
-    void clearScratch(std::vector<bool> &scratch);
+    // void clearScratch(std::vector<bool> &scratch);
 
     void printAdjList();
     void printAdjList(NodeID v);

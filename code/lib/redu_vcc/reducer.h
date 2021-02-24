@@ -29,9 +29,8 @@ class reducer {
     redu_vcc reduVCC;
 
     reducer() {};
+    reducer(graph_access &G);
     virtual ~reducer() {};
-
-    void init(graph_access &G);
 
     void analyzeGraph(std::string &filename, graph_access &G, timer &t);
 

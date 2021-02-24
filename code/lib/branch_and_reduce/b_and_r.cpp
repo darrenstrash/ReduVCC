@@ -5,12 +5,13 @@
 
 branch_and_reduce::branch_and_reduce(graph_access &G) {
 
-  R.init(G);
+  R = reducer(G);
   visited_nodes.assign(G.number_of_nodes(), false);
 
 }
 
 void branch_and_reduce::getMIS(std::string file) {
+  /* Generates node_mis mapping of minimum independent set from file */
 
   std::string line;
 
@@ -23,24 +24,28 @@ void branch_and_reduce::getMIS(std::string file) {
   }
 
   for (bool n : node_mis) if (n) { mis++; };
-  // std::cout << mis << std::endl;
 }
 
 std::vector<std::vector<NodeID>> branch_and_reduce::enumerate(NodeID v) {
+    /* Enumerates set of minimal cliques */
 
+    redu_vcc &reduVCC = R.reduVCC;
+
+    // initialize set of minimal cliques
     std::vector<std::vector<NodeID>> minimal_cliques;
 
+    // initial set of nodes to consider
     std::vector<NodeID> consider_nodes;
-    for (NodeID x : R.reduVCC.adj_list[v]) {
-      if (!R.reduVCC.node_status[x]) { continue; }
+    for (NodeID x : reduVCC.adj_list[v]) {
+      if (!reduVCC.node_status[x]) { continue; }
       consider_nodes.push_back(x);
     }
+
+    // initial excluded notes and clique
     std::vector<NodeID> excluded_nodes {};
     std::vector<NodeID> curr_clique {v};
 
-    // std::cout << consider_nodes.size() << std::endl;
-
-    pivot_enumerator(R.reduVCC, minimal_cliques, consider_nodes, curr_clique, excluded_nodes);
+    pivot_enumerator(reduVCC, minimal_cliques, consider_nodes, curr_clique, excluded_nodes);
 
     // for (std::vector<NodeID> clique : minimal_cliques) R.reduVCC.printVectorSet(clique);
     return minimal_cliques;

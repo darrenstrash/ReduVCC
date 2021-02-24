@@ -65,7 +65,7 @@ void d2_reduction::foldD2(redu_vcc &reduVCC) {
     }
     std::sort(adj_list[w].begin(), adj_list[w].end());
 
-    reduVCC.clearScratch(scratch1);
+    for (NodeID x : adj_list[w]) {scratch1[x] = false;}
     reduVCC.removeVertex(u);
     reduVCC.fold_node[u] = true;
 
@@ -118,7 +118,7 @@ void d2_reduction::unfold(graph_access &G, redu_vcc &reduVCC) {
           x = w; y = u;
       }
   }
-  reduVCC.clearScratch(scratch1);
+  for (NodeID a : N_u) {scratch1[a] = false;}
 
 
   for (unsigned int i = 0; i < fold_clique.size(); i++){

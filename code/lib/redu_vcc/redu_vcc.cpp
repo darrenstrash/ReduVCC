@@ -27,7 +27,7 @@ void redu_vcc::generateAdjList(graph_access &G) {
   } endfor
 }
 
-void redu_vcc::build(graph_access &G) {
+redu_vcc::redu_vcc(graph_access &G) {
 
   // produce adjacency list
   generateAdjList(G);
@@ -39,15 +39,16 @@ void redu_vcc::build(graph_access &G) {
   // allocate for graph cover
   node_clique.resize(G.number_of_nodes());
 
+  // allocate two scratch vectors
   scratch1.assign(G.number_of_nodes(), false);
   scratch2.assign(G.number_of_nodes(), false);
 
+  // assign first cliqueID to 0
   next_cliqueID = 0;
-
-  // printAdjList();
 }
 
 void redu_vcc::build_cover(graph_access &G){
+  /* Constructs clique cover from node_clique mapping. */
 
   // clears clique_cover
   clique_cover.clear();
@@ -61,12 +62,13 @@ void redu_vcc::build_cover(graph_access &G){
     clique_cover[cliqueID].push_back(v);
   } endfor
 
+  // prepare to solve, by setting solve node_clique mapping and next cliqueID
   solve_node_clique = node_clique;
   next_solvecliqueID = next_cliqueID;
-  // since we are preparing to solve, set solve node_clique and next_cliqueID
 }
 
 bool redu_vcc::cliqueInG(graph_access &G, std::vector<NodeID> &clique) {
+  /* Tests if clique is valid in G */
 
   for (unsigned int i = 0; i < clique.size() -1; i++) {
     NodeID v = clique[i];
@@ -321,10 +323,10 @@ void redu_vcc::addVertexSet(std::vector<NodeID> &S) {
   for (NodeID v : S) { addVertex(v); };
 }
 
-void redu_vcc::clearScratch(std::vector<bool> &scratch) {
-
-  std::fill(scratch.begin(), scratch.end(), false);
-}
+// void redu_vcc::clearScratch(std::vector<bool> &scratch) {
+//
+//   std::fill(scratch.begin(), scratch.end(), false);
+// }
 
 void redu_vcc::printAdjList() {
 

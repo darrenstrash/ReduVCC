@@ -13,11 +13,11 @@ bool reduction::isSubset(redu_vcc &reduVCC, std::vector<NodeID> &A, std::vector<
   for (NodeID v : A) {
       if (!reduVCC.node_status[v]) continue;
       if (!scratch1[v]) {
-          reduVCC.clearScratch(scratch1);
+          for (NodeID v : B) {scratch1[v] = false;}
           return false;
       }
   }
-  reduVCC.clearScratch(scratch1);
+  for (NodeID v : B) {scratch1[v] = false;}
   return true;
 }
 
@@ -45,7 +45,7 @@ void reduction::merge_neighborhoods(redu_vcc &reduVCC, std::vector<NodeID> &disj
       std::sort(adj_list[p].begin(), adj_list[p].end());
   }
   std::sort(adj_list[a].begin(), adj_list[a].end());
-  reduVCC.clearScratch(reduVCC.scratch1);
+  for (NodeID p : adj_list[a]) reduVCC.scratch1[p] = false;
 }
 
 bool reduction::uncrossedSets(redu_vcc &reduVCC, NodeID &a, NodeID &b) {
@@ -67,15 +67,17 @@ bool reduction::uncrossedSets(redu_vcc &reduVCC, NodeID &a, NodeID &b) {
       for (NodeID y : adj_list[x]) {
           if (!reduVCC.node_status[y]) { continue; }
           if (scratch2[y]) {
-            reduVCC.clearScratch(scratch1);
-            reduVCC.clearScratch(scratch2);
+            // reduVCC.clearScratch(scratch1);
+            // reduVCC.clearScratch(scratch2);
+            for (NodeID x : adj_list[a]) scratch1[x] = false;
+            for (NodeID x : adj_list[b]) scratch2[x] = false;
             return false;
           }
       }
   }
 
-  reduVCC.clearScratch(scratch1);
-  reduVCC.clearScratch(scratch2);
+  for (NodeID x : adj_list[a]) scratch1[x] = false;
+  for (NodeID x : adj_list[b]) scratch2[x] = false;
   return true;
 
 }
