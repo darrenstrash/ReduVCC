@@ -94,7 +94,6 @@ void redu_vcc::validateCover(graph_access &G) {
   std::vector<bool> temp_status;
   temp_status.assign(G.number_of_nodes(), true);
 
-  std::cout << clique_cover.size() << std::endl;
   for (std::vector<NodeID> clique : clique_cover ) {
     if (clique.size() == 0) { std::cout << "Null clique" << std::endl; return; }
 
