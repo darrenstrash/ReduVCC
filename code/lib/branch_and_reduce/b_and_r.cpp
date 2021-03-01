@@ -468,7 +468,7 @@ void branch_and_reduce::bounding_branch( graph_access &G, unsigned int num_folde
   // increment next_node to find next node in the graph
   // check to see if we have made it through all nodes
   // if so, check to see if the cover is smaller, replace to min_cover
-
+  std::cout << reduVCC.remaining_nodes << std::endl;
   if (reduVCC.remaining_nodes == 0) {
     unsigned int curr_cover_size = reduVCC.next_cliqueID;
     curr_cover_size += num_folded_cliques;
@@ -609,7 +609,7 @@ void branch_and_reduce::upper_bound_prune(graph_access &G, PartitionConfig &part
 
   redu_vcc &reduVCC = R.reduVCC;
   R.solveKernel(G, partition_config, s);
-  small_deg_branch(G, 0, mis, 0);
+  bounding_branch(G, 0, mis, 0);
 }
 
 
