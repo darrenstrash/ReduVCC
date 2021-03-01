@@ -24,13 +24,14 @@ class reducer {
   private:
     std::vector<reduction*> reduction_stack;
 
-
   public:
     redu_vcc reduVCC;
 
     reducer() {};
     reducer(graph_access &G);
     virtual ~reducer() {};
+
+    unsigned int chalupa_mis;
 
     void analyzeGraph(std::string &filename, graph_access &G, timer &t);
 

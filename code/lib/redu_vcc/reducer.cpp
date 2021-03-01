@@ -221,6 +221,8 @@ void reducer::solveKernel(graph_access &G, PartitionConfig &partition_config, ti
   unsigned int num_nodes = reduVCC.remaining_nodes;
   if (num_nodes == 0) { return; }
 
+  if (partition_config.solver_time_limit == 0) return;
+
   reduVCC.buildKernel(G);
   std::vector<std::vector<int>> &kernel_adj_list = reduVCC.kernel_adj_list;
   unsigned long &num_edges = reduVCC.kernel_edges;
@@ -230,7 +232,10 @@ void reducer::solveKernel(graph_access &G, PartitionConfig &partition_config, ti
   cli_instance->start_cli(kernel_adj_list, num_nodes, num_edges, t.elapsed(), partition_config.solver_time_limit);
 
   if (cli_instance->clique_cover.size() != 0){
+    std:: cout << cli_instance->clique_cover.size() << std::endl;
       reduVCC.addKernelCliques(cli_instance->clique_cover);
+      chalupa_mis = (unsigned int) cli_instance->final_indset_size;
+      std::cout << chalupa_mis << ", " << reduVCC.clique_cover.size() << std::endl;
   }
   else {
       std::cout << "Chalupa's algorithm unable to solve in given time." << std::endl;

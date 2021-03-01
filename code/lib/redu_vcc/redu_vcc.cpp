@@ -38,6 +38,7 @@ redu_vcc::redu_vcc(graph_access &G) {
 
   // allocate for graph cover
   node_clique.resize(G.number_of_nodes());
+  solve_node_clique.resize(G.number_of_nodes());
 
   // allocate two scratch vectors
   scratch1.assign(G.number_of_nodes(), false);
@@ -45,6 +46,7 @@ redu_vcc::redu_vcc(graph_access &G) {
 
   // assign first cliqueID to 0
   next_cliqueID = 0;
+  next_solvecliqueID = 0;
 }
 
 void redu_vcc::build_cover(graph_access &G){

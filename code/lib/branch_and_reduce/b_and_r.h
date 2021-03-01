@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <functional>
 
+#include "timer.h"
 #include "data_structure/graph_access.h"
 #include "redu_vcc/reducer.h"
 
@@ -28,6 +29,7 @@ private:
     branch_and_reduce(graph_access &G);
     virtual ~branch_and_reduce() {};
 
+    void solveKernel(graph_access &G, PartitionConfig partition_config, timer &t);
     void getMIS(std::string file);
 
     unsigned int remainingMIS(redu_vcc &reduVCC);
@@ -44,10 +46,12 @@ private:
     void brute( graph_access &G);
     void prune(graph_access &G);
     void min_degree_prune(graph_access &G);
+    void upper_bound_prune(graph_access &G, PartitionConfig &partition_config, timer &s);
 
     void branch( graph_access &G, unsigned int num_folded_cliques, unsigned int curr_mis, NodeID curr_node);
     void prune_branch( graph_access &G, unsigned int num_folded_cliques, unsigned int curr_mis, NodeID curr_node);
     void small_deg_branch( graph_access &G, unsigned int num_folded_cliques, unsigned int curr_mis, NodeID curr_node);
+    void bounding_branch( graph_access &G, unsigned int num_folded_cliques, unsigned int curr_mis, NodeID curr_node);
 
     void analyzeGraph(std::string &filename, graph_access &G, timer &t);
 };

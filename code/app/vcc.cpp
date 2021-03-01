@@ -81,10 +81,18 @@ int main(int argn, char **argv) {
       B.brute(G);
     }
     else if (partition_config.run_type == "prune") {
+      // B.getMIS(partition_config.mis_file);
       B.prune(G);
     }
     else if (partition_config.run_type == "small_degree") {
+      // B.getMIS(partition_config.mis_file);
       B.min_degree_prune(G);
+    }
+    else if (partition_config.run_type == "upper_bound") {
+      // B.solveKernel(G, partition_config, s);
+      // B.brute(G);
+
+      B.upper_bound_prune(G, partition_config, s);
     }
     else { return; }
     // unsigned int i = 0;

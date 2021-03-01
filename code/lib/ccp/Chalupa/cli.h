@@ -52,15 +52,16 @@ private:
     problem_ccp *prob;
     double approx;
     long discrep;
-    
+
     int seed;
     int mis;
     double t_elapsed;
     double t_limit;
-    
+
 public:
     std::vector<std::vector<int>> clique_cover;
-    
+    long final_indset_size;
+
     cli(int s, int m);
     ~cli();
     int start_cli(std::vector<std::vector<int>> adj_list, unsigned int num_v, unsigned long num_e, double elapsed, double limit);

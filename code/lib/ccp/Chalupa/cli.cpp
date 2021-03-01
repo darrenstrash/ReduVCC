@@ -337,6 +337,7 @@ int cli::choose_algorithm(timer &t)
 //        timer.restart();
 
     }
+    final_indset_size = indset_size;
 //    FILE *f = fopen("solution.txt", "w");
     for (i=1;i<=ccp->count_labels(G,result);i++)
     {
