@@ -1,10 +1,11 @@
 #include "cli.h"
 #include <vector>
 
-cli::cli(int s, int m)
+cli::cli(int s, int m, bool prod_cover)
 {
     seed = s;
     mis = m;
+    produce_cover = prod_cover;
     
     result_for_permutation = new refer[MAX_VERTICES];
     histogram              = new refer[MAX_VERTICES];
@@ -338,23 +339,27 @@ int cli::choose_algorithm(timer &t)
 
     }
     final_indset_size = indset_size;
+    clique_cover_size = ccp->count_labels(G,result);
 //    FILE *f = fopen("solution.txt", "w");
-    for (i=1;i<=ccp->count_labels(G,result);i++)
-    {
-        std::vector<int> clique;
-        for (j=0;j<G->n;j++)
+    
+    if (produce_cover) {
+        for (i=1;i<=ccp->count_labels(G,result);i++)
         {
-            if (i == result[j])
+            std::vector<int> clique;
+            for (j=0;j<G->n;j++)
             {
-//                fprintf(f,"%u ",j+1);
-//                fprintf(f,"%u ", j);
-                clique.push_back(j);
+                if (i == result[j])
+                {
+    //                fprintf(f,"%u ",j+1);
+    //                fprintf(f,"%u ", j);
+                    clique.push_back(j);
+                }
             }
+    //        fprintf(f,"\n");
+            clique_cover.push_back(clique);
         }
-//        fprintf(f,"\n");
-        clique_cover.push_back(clique);
-    }
 //    fclose(f);
+    }
 
     avg_time /= MAX_ALGORITHM;
     avg_iter /= MAX_ALGORITHM;

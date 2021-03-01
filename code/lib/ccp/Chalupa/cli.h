@@ -55,14 +55,16 @@ private:
 
     int seed;
     int mis;
+    bool produce_cover;
     double t_elapsed;
     double t_limit;
 
 public:
     std::vector<std::vector<int>> clique_cover;
+    long clique_cover_size;
     long final_indset_size;
 
-    cli(int s, int m);
+    cli(int s, int m, bool prod_cover);
     ~cli();
     int start_cli(std::vector<std::vector<int>> adj_list, unsigned int num_v, unsigned long num_e, double elapsed, double limit);
 };
