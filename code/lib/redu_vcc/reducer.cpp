@@ -228,12 +228,13 @@ void reducer::solveKernel(graph_access &G, PartitionConfig &partition_config, ti
   unsigned long &num_edges = reduVCC.kernel_edges;
 
   cli *cli_instance;
-  cli_instance = new cli(partition_config.seed, partition_config.mis);
+  cli_instance = new cli(partition_config.seed, partition_config.mis, partition_config.run_type != "upper_bound");
   cli_instance->start_cli(kernel_adj_list, num_nodes, num_edges, t.elapsed(), partition_config.solver_time_limit);
 
   if (cli_instance->clique_cover.size() != 0){
-    std:: cout << cli_instance->clique_cover.size() << std::endl;
-      reduVCC.addKernelCliques(cli_instance->clique_cover);
+    // std:: cout << cli_instance->clique_cover.size() << std::endl;
+      if (partition_config.run_type != "upper_bound") reduVCC.addKernelCliques(cli_instance->clique_cover);
+      chalupa_upper_bound = cli_instance->clique_cover.size();
       chalupa_mis = (unsigned int) cli_instance->final_indset_size;
       std::cout << chalupa_mis << ", " << reduVCC.clique_cover.size() << std::endl;
   }

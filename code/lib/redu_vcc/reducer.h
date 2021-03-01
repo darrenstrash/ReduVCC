@@ -32,6 +32,7 @@ class reducer {
     virtual ~reducer() {};
 
     unsigned int chalupa_mis;
+    unsigned int chalupa_upper_bound;
 
     void analyzeGraph(std::string &filename, graph_access &G, timer &t);
 
