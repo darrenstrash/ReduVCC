@@ -472,7 +472,7 @@ void branch_and_reduce::bounding_branch( graph_access &G, unsigned int num_folde
   if (reduVCC.remaining_nodes == 0) {
     unsigned int curr_cover_size = reduVCC.next_cliqueID;
     curr_cover_size += num_folded_cliques;
-    if (curr_cover_size < reduVCC.clique_cover.size() || (reduVCC.clique_cover.size() == 0 && curr_cover_size < R.chalupa_upper_bound)) {
+    if (curr_cover_size < reduVCC.clique_cover.size() || (reduVCC.clique_cover.size() == 0 && curr_cover_size <= R.chalupa_upper_bound)) {
 
       std::cout << "smaller cover: " << curr_cover_size << ", " << reduVCC.clique_cover.size() << std::endl;
       R.buildCover(G);
