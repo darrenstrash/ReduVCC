@@ -26,26 +26,28 @@ class reducer {
 
 
   public:
+    redu_vcc reduVCC;
+
     reducer() {};
     reducer(graph_access &G);
     virtual ~reducer() {};
 
-    unsigned int num_reductions;
-    unsigned int num_cliques;
-    unsigned int num_fold_cliques;
+    void analyzeGraph(std::string &filename, graph_access &G, timer &t);
 
+    // map node_clique to clique_cover
+    void buildCover(graph_access &G);
+    // solve remaining_nodes with Chalupa Solver
+    void solveKernel(graph_access &G, PartitionConfig &partition_config, timer &t);
     // construct C from C'
-    void unwindReductions(graph_access &G, redu_vcc &reduVCC);
+    void unwindReductions(graph_access &G);
     // undo num reductions, constructing G from G'
-    void undoReductions(graph_access &G, redu_vcc &reduVCC);
+    void undoReductions(graph_access &G, unsigned int num);
 
-    void bruteISO(graph_access &G, redu_vcc &reduVCC);
-    void bruteD2(graph_access &G, redu_vcc &reduVCC);
-    void bruteTWIN(graph_access &G, redu_vcc &reduVCC);
-    void bruteDOM(graph_access &G, redu_vcc &reduVCC);
-    void bruteCROWN(graph_access &G, redu_vcc &reduVCC);
-
-    void exhaustive_reductions(graph_access &G, redu_vcc &reduVCC);
+    std::vector<unsigned int> bruteISO(graph_access &G);
+    std::vector<unsigned int> bruteD2(graph_access &G);
+    std::vector<unsigned int> bruteTWIN(graph_access &G);
+    std::vector<unsigned int> bruteDOM(graph_access &G);
+    std::vector<unsigned int> bruteCROWN(graph_access &G);
 
 };
 

@@ -68,7 +68,6 @@ void d2_reduction::foldD2(redu_vcc &reduVCC) {
     for (NodeID x : adj_list[w]) {scratch1[x] = false;}
     reduVCC.removeVertex(u);
     reduVCC.fold_node[u] = true;
-
 }
 
 void d2_reduction::reduce( graph_access &G, redu_vcc &reduVCC, NodeID &node_v, NodeID &node_u ){
@@ -140,17 +139,15 @@ void d2_reduction::unfold(graph_access &G, redu_vcc &reduVCC) {
 
 void d2_reduction::unreduce(graph_access &G, redu_vcc &reduVCC){
 
-    for (NodeID a : disjoint) { reduVCC.scratch1[a] = true; }
-
-    for (unsigned int i = 0; i < reduVCC.adj_list[w].size(); i++) {
-      NodeID x = reduVCC.adj_list[w][i];
-      if (reduVCC.scratch1[x]) {
-        reduVCC.adj_list[w].erase(reduVCC.adj_list[w].begin() + i);
+    for (NodeID a : disjoint) {
+      for (unsigned int i = 0; i < reduVCC.adj_list[w].size(); i++) {
+        if (reduVCC.adj_list[w][i] == a) {
+          reduVCC.adj_list[w].erase(reduVCC.adj_list[w].begin() + i);
+        }
       }
-      for (unsigned int j = 0; j < reduVCC.adj_list[x].size(); j++) {
-        NodeID y = reduVCC.adj_list[x][j];
-        if (y == x) {
-          reduVCC.adj_list[x].erase(reduVCC.adj_list[x].begin() + j);
+      for (unsigned int i = 0; i < reduVCC.adj_list[a].size(); i++) {
+        if (reduVCC.adj_list[a][i] == w) {
+          reduVCC.adj_list[a].erase(reduVCC.adj_list[a].begin() + i);
         }
       }
     }

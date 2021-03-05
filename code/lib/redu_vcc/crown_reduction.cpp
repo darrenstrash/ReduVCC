@@ -19,6 +19,7 @@ void crown_reduction::reduce( graph_access &G, redu_vcc &reduVCC, NodeID &node_v
     reduVCC.addCrownCliques( crown_cliques, b_and_r.crown_cliques);
     unsigned int num_crown = reduVCC.next_cliqueID - curr_cliqueID;
     num_cliques += num_crown;
+
   }
 
   // std::cout << "here" << std::endl;

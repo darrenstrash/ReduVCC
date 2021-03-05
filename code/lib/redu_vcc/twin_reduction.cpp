@@ -250,17 +250,15 @@ void twin_reduction::unreduce(graph_access &G, redu_vcc &reduVCC){
     }
 
 
-    for (NodeID a : disjoint) { reduVCC.scratch1[a] = true; }
-
-    for (unsigned int i = 0; i < reduVCC.adj_list[y].size(); i++) {
-      NodeID p = reduVCC.adj_list[y][i];
-      if (reduVCC.scratch1[p]) {
-        reduVCC.adj_list[y].erase(reduVCC.adj_list[y].begin() + i);
+    for (NodeID a : disjoint) {
+      for (unsigned int i = 0; i < reduVCC.adj_list[y].size(); i++) {
+        if (reduVCC.adj_list[y][i] == a) {
+          reduVCC.adj_list[y].erase(reduVCC.adj_list[y].begin() + i);
+        }
       }
-      for (unsigned int j = 0; j < reduVCC.adj_list[p].size(); j++) {
-        NodeID q = reduVCC.adj_list[p][j];
-        if (y == p) {
-          reduVCC.adj_list[p].erase(reduVCC.adj_list[p].begin() + j);
+      for (unsigned int i = 0; i < reduVCC.adj_list[a].size(); i++) {
+        if (reduVCC.adj_list[a][i] == y) {
+          reduVCC.adj_list[a].erase(reduVCC.adj_list[a].begin() + i);
         }
       }
     }

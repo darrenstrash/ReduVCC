@@ -5,7 +5,7 @@
 
 branch_and_reduce::branch_and_reduce(graph_access &G) {
 
-  R = reducer(G);
+  reduVCC = redu_vcc(G);
   visited_nodes.assign(G.number_of_nodes(), false);
 
 }
@@ -29,8 +29,6 @@ void branch_and_reduce::getMIS(std::string file) {
 std::vector<std::vector<NodeID>> branch_and_reduce::enumerate(NodeID v) {
     /* Enumerates set of minimal cliques */
 
-    redu_vcc &reduVCC = R.reduVCC;
-
     // initialize set of minimal cliques
     std::vector<std::vector<NodeID>> minimal_cliques;
 
@@ -45,13 +43,13 @@ std::vector<std::vector<NodeID>> branch_and_reduce::enumerate(NodeID v) {
     std::vector<NodeID> excluded_nodes {};
     std::vector<NodeID> curr_clique {v};
 
-    pivot_enumerator(reduVCC, minimal_cliques, consider_nodes, curr_clique, excluded_nodes);
+    pivot_enumerator( minimal_cliques, consider_nodes, curr_clique, excluded_nodes);
 
     // for (std::vector<NodeID> clique : minimal_cliques) R.reduVCC.printVectorSet(clique);
     return minimal_cliques;
 }
 
-void branch_and_reduce::pivot_enumerator(redu_vcc &reduVCC, std::vector<std::vector<NodeID>> &minimal_cliques,
+void branch_and_reduce::pivot_enumerator(std::vector<std::vector<NodeID>> &minimal_cliques,
                                    std::vector<NodeID> &consider_nodes, std::vector<NodeID> &curr_clique, std::vector<NodeID> &excluded_nodes) {
 
 
@@ -119,7 +117,7 @@ void branch_and_reduce::pivot_enumerator(redu_vcc &reduVCC, std::vector<std::vec
     curr_clique.push_back(x);
 
 
-    pivot_enumerator(reduVCC, minimal_cliques, new_consider, curr_clique, new_excluded);
+    pivot_enumerator(minimal_cliques, new_consider, curr_clique, new_excluded);
 
     curr_clique.pop_back();
     pivot_consider.erase(pivot_consider.begin());
@@ -129,7 +127,7 @@ void branch_and_reduce::pivot_enumerator(redu_vcc &reduVCC, std::vector<std::vec
 
 }
 
-void branch_and_reduce::enumerator(redu_vcc &reduVCC, std::vector<std::vector<NodeID>> &minimal_cliques,
+void branch_and_reduce::enumerator(std::vector<std::vector<NodeID>> &minimal_cliques,
                                    std::vector<NodeID> &consider_nodes, std::vector<NodeID> &curr_clique, std::vector<NodeID> &excluded_nodes) {
 
 
@@ -165,7 +163,7 @@ void branch_and_reduce::enumerator(redu_vcc &reduVCC, std::vector<std::vector<No
     curr_clique.push_back(x);
 
 
-    enumerator(reduVCC, minimal_cliques, new_consider, curr_clique, new_excluded);
+    enumerator(minimal_cliques, new_consider, curr_clique, new_excluded);
 
     curr_clique.pop_back();
     consider_nodes.erase(consider_nodes.begin());
@@ -175,7 +173,7 @@ void branch_and_reduce::enumerator(redu_vcc &reduVCC, std::vector<std::vector<No
 
 }
 
-unsigned int branch_and_reduce::remainingMIS(redu_vcc &reduVCC) {
+unsigned int branch_and_reduce::remainingMIS() {
 
   unsigned int kernelMIS = 0;
 
@@ -196,62 +194,222 @@ unsigned int branch_and_reduce::overlapMIS(std::vector<NodeID> &clique) {
   return overlap;
 }
 
-unsigned int branch_and_reduce::exhaustive_reductions(graph_access &G, unsigned int &num_folded_cliques, unsigned int &curr_mis) {
+
+// void branch_and_reduce::branch( graph_access &G, unsigned int num_fold_cliques, unsigned int curr_mis, NodeID curr_node
+//                     ) {
+//
+//   reducer R(G);
+//   R.exhaustive_reductions(G, reduVCC);
+//
+//   num_fold_cliques += R.num_fold_cliques;
+//
+//   NodeID next_node = curr_node;
+//   // std::cout << next_node << std::endl;
+//
+//   // increment next_node to find next node in the graph
+//   // check to see if we have made it through all nodes
+//   // if so, check to see if the cover is smaller, replace to min_cover
+//   while (!reduVCC.node_status[next_node]) {
+//     if (next_node >= reduVCC.node_status.size()) {
+//
+//       unsigned int curr_cover_size = reduVCC.next_cliqueID;
+//       curr_cover_size += num_fold_cliques;
+//       if (curr_cover_size < reduVCC.clique_cover.size() || reduVCC.clique_cover.size() == 0) {
+//
+//         std::cout << "smaller cover: " << curr_cover_size << ", " << reduVCC.clique_cover.size() << std::endl;
+//         reduVCC.build_cover(G);
+//         R.unwindReductions(G, reduVCC);
+//       }
+//
+//       R.undoReductions(G, reduVCC);
+//       return;
+//     }
+//     next_node++;
+//   }
+//
+//   //enumerate all cliques
+//   // std::cout << "enumerate" << std::endl;
+//   std::vector<std::vector<NodeID>> curr_cliques = enumerate(next_node);
+//   // std::cout << "complete enumerate" << std::endl;
+//
+//   // branch on each clique
+//   for (std::vector<NodeID> &clique : curr_cliques) {
+//     // add new clique and remove from G
+//
+//     unsigned int overlap = overlapMIS(clique);
+//     // std::cout << "get overlap" << std::endl;
+//
+//     reduVCC.addClique(clique);
+//     reduVCC.removeVertexSet(clique);
+//     curr_mis -= overlap;
+//     // std::cout << "branch" << std::endl;
+//
+//     branch(G, num_fold_cliques, curr_mis, next_node);
+//
+//     // pop branched on clique
+//     reduVCC.pop_clique(clique);
+//     reduVCC.addVertexSet(clique);
+//
+//     curr_mis += overlap;
+//   }
+//   // undo number of reductions from reduce
+//   R.undoReductions(G, reduVCC);
+// }
 
 
-  unsigned int all_reduced = 0;
-  bool new_reduced = true;
+// void branch_and_reduce::prune_branch( graph_access &G, unsigned int num_folded_cliques, unsigned int curr_mis, NodeID curr_node
+//                     ) {
+//
+//   reducer R(G);
+//   R.exhaustive_reductions(G, reduVCC);
+//   reducer_stack.push_back(R);
+//
+//   num_folded_cliques += R.num_fold_cliques;
+//   curr_mis -= R.num_cliques;
+//
+//   NodeID next_node = curr_node;
+//
+//   // increment next_node to find next node in the graph
+//   // check to see if we have made it through all nodes
+//   // if so, check to see if the cover is smaller, replace to min_cover
+//
+//
+//   if (reduVCC.remaining_nodes == 0) {
+//     unsigned int curr_cover_size = reduVCC.next_cliqueID;
+//     curr_cover_size += num_folded_cliques;
+//     if (curr_cover_size < reduVCC.clique_cover.size() || reduVCC.clique_cover.size() == 0) {
+//
+//       std::cout << "smaller cover: " << curr_cover_size << ", " << reduVCC.clique_cover.size() << std::endl;
+//       reduVCC.build_cover(G);
+//       // R.unwindReductions(G, reduVCC);
+//
+//
+//       for (unsigned int i = reducer_stack.size(); i > 0; i--) {
+//           reducer_stack[i-1].unwindReductions(G, reduVCC);
+//       }
+//
+//     }
+//
+//     R.undoReductions(G, reduVCC);
+//     reducer_stack.pop_back();
+//     return;
+//   }
+//
+//   while (!reduVCC.node_status[next_node]) {
+//     std::cout << next_node << std::endl;
+//     next_node++;
+//   }
+//
+//
+//   // while (!reduVCC.node_status[next_node]) {
+//   //   if (next_node >= reduVCC.node_status.size()) {
+//   //
+//   //     unsigned int curr_cover_size = reduVCC.next_cliqueID;
+//   //     curr_cover_size += num_folded_cliques;
+//   //     if (curr_cover_size < reduVCC.clique_cover.size() || reduVCC.clique_cover.size() == 0) {
+//   //
+//   //       std::cout << "smaller cover: " << curr_cover_size << ", " << reduVCC.clique_cover.size() << std::endl;
+//   //       reduVCC.build_cover(G);
+//   //       for (unsigned int i = reducer_stack.size(); i > 0; i--) {
+//   //           reducer_stack[i-1].unwindReductions(G, reduVCC);
+//   //       }
+//   //     }
+//   //
+//   //     R.undoReductions(G, reduVCC);
+//   //     reducer_stack.pop_back();
+//   //     return;
+//   //   }
+//   //   next_node++;
+//   // }
+//
+//
+//   // prune
+//   unsigned int curr_cover_size = reduVCC.next_cliqueID;
+//   curr_cover_size += num_folded_cliques;
+//
+//
+//   // how to prune:
+//   // if in a reduction -- remove 1 mis for each clique added
+//   // for a branch clique -- remove # independed verticies within the clique
+//
+//   unsigned int estimated_cover_size = curr_cover_size + curr_mis;
+//   std::cout << "est cover: " << estimated_cover_size << ", "<<  reduVCC.clique_cover.size() << std::endl;
+//
+//   if (estimated_cover_size >= reduVCC.clique_cover.size() && reduVCC.clique_cover.size() != 0) {
+//     // std::cout << "prune" << std::endl;
+//     R.undoReductions(G, reduVCC);
+//     reducer_stack.pop_back();
+//     return;
+//   }
+//   //enumerate all cliques
+//   // std::cout << "enumerate" << std::endl;
+//   std::vector<std::vector<NodeID>> curr_cliques = enumerate(next_node);
+//   // std::cout << "complete enumerate" << std::endl;
+//
+//   // branch on each clique
+//   for (std::vector<NodeID> &clique : curr_cliques) {
+//     // add new clique and remove from G
+//
+//     unsigned int overlap = overlapMIS(clique);
+//
+//     reduVCC.addClique(clique);
+//     reduVCC.removeVertexSet(clique);
+//     curr_mis -= overlap;
+//     // std::cout << "branch" << std::endl;
+//
+//     branch(G, num_folded_cliques, curr_mis, next_node);
+//
+//     // pop branched on clique
+//     reduVCC.pop_clique(clique);
+//     reduVCC.addVertexSet(clique);
+//
+//     curr_mis += overlap;
+//   }
+//   // undo number of reductions from reduce
+//   R.undoReductions(G, reduVCC);
+//   reducer_stack.pop_back();
+// }
 
-  while (new_reduced) {
-    new_reduced = false;
+void branch_and_reduce::branch( graph_access &G, unsigned int num_folded_cliques) {
 
-    std::vector<unsigned int> iso_stats = R.bruteISO(G);
-    std::vector<unsigned int> d2_stats = R.bruteD2(G);
-    std::vector<unsigned int> twin_stats = R.bruteTWIN(G);
-    std::vector<unsigned int> dom_stats = R.bruteDOM(G);
-    std::vector<unsigned int> crown_stats = R.bruteCROWN(G);
 
-    unsigned int reduced = iso_stats[0] + d2_stats[0] + twin_stats[0] + dom_stats[0] + crown_stats[0];
-    if (reduced) new_reduced = true;
+  reducer R(G);
+  R.exhaustive_reductions(G, reduVCC);
+  reducer_stack.push_back(R);
 
-    all_reduced += reduced;
-
-    num_folded_cliques += (d2_stats[2] + twin_stats[2]);
-    curr_mis -= (iso_stats[1] + d2_stats[1] + twin_stats[1] + dom_stats[1] + crown_stats[1] + num_folded_cliques);
-  }
-
-  return all_reduced;
-}
-
-void branch_and_reduce::branch( graph_access &G, unsigned int num_folded_cliques, unsigned int curr_mis, NodeID curr_node
-                    ) {
-
-  redu_vcc &reduVCC = R.reduVCC;
-
-  unsigned int reduced = exhaustive_reductions(G, num_folded_cliques, curr_mis);
-
-  NodeID next_node = curr_node;
+  num_folded_cliques += R.num_fold_cliques;
 
   // increment next_node to find next node in the graph
   // check to see if we have made it through all nodes
   // if so, check to see if the cover is smaller, replace to min_cover
-  while (!reduVCC.node_status[next_node]) {
-    if (next_node >= reduVCC.node_status.size()) {
 
-      unsigned int curr_cover_size = reduVCC.next_cliqueID;
-      curr_cover_size += num_folded_cliques;
-      if (curr_cover_size < reduVCC.clique_cover.size() || reduVCC.clique_cover.size() == 0) {
+  if (reduVCC.remaining_nodes == 0) {
+    unsigned int curr_cover_size = reduVCC.next_cliqueID;
+    curr_cover_size += num_folded_cliques;
+    if (curr_cover_size < reduVCC.clique_cover.size() || reduVCC.clique_cover.size() == 0) {
 
-        // std::cout << "smaller cover: " << curr_cover_size << ", " << reduVCC.clique_cover.size() << std::endl;
-        R.buildCover(G);
-        R.unwindReductions(G);
+      std::cout << "smaller cover: " << curr_cover_size << ", " << reduVCC.clique_cover.size() << std::endl;
+      reduVCC.build_cover(G);
+      // R.unwindReductions(G, reduVCC);
+
+
+      for (unsigned int i = reducer_stack.size(); i > 0; i--) {
+          reducer_stack[i-1].unwindReductions(G, reduVCC);
       }
 
-      R.undoReductions(G, reduced);
-      return;
     }
+
+    R.undoReductions(G, reduVCC);
+    reducer_stack.pop_back();
+    return;
+  }
+
+  NodeID next_node = 0;
+
+  while (!reduVCC.node_status[next_node]) {
     next_node++;
   }
+
 
   //enumerate all cliques
   // std::cout << "enumerate" << std::endl;
@@ -262,53 +420,61 @@ void branch_and_reduce::branch( graph_access &G, unsigned int num_folded_cliques
   for (std::vector<NodeID> &clique : curr_cliques) {
     // add new clique and remove from G
 
-    unsigned int overlap = overlapMIS(clique);
-
     reduVCC.addClique(clique);
     reduVCC.removeVertexSet(clique);
-    curr_mis -= overlap;
     // std::cout << "branch" << std::endl;
 
-    branch(G, num_folded_cliques, curr_mis, next_node);
+    branch(G, num_folded_cliques);
 
     // pop branched on clique
     reduVCC.pop_clique(clique);
     reduVCC.addVertexSet(clique);
 
-    curr_mis += overlap;
   }
   // undo number of reductions from reduce
-  R.undoReductions(G, reduced);
+  R.undoReductions(G, reduVCC);
+  reducer_stack.pop_back();
 }
 
-
-void branch_and_reduce::prune_branch( graph_access &G, unsigned int num_folded_cliques, unsigned int curr_mis, NodeID curr_node
+void branch_and_reduce::prune_branch( graph_access &G, unsigned int num_folded_cliques, unsigned int curr_mis
                     ) {
 
-  redu_vcc &reduVCC = R.reduVCC;
 
-  unsigned int reduced = exhaustive_reductions(G, num_folded_cliques, curr_mis);
+  reducer R(G);
+  R.exhaustive_reductions(G, reduVCC);
+  reducer_stack.push_back(R);
 
-  NodeID next_node = curr_node;
+  num_folded_cliques += R.num_fold_cliques;
+  curr_mis -= R.num_cliques;
 
   // increment next_node to find next node in the graph
   // check to see if we have made it through all nodes
   // if so, check to see if the cover is smaller, replace to min_cover
-  while (!reduVCC.node_status[next_node]) {
-    if (next_node >= reduVCC.node_status.size()) {
 
-      unsigned int curr_cover_size = reduVCC.next_cliqueID;
-      curr_cover_size += num_folded_cliques;
-      if (curr_cover_size < reduVCC.clique_cover.size() || reduVCC.clique_cover.size() == 0) {
+  if (reduVCC.remaining_nodes == 0) {
+    unsigned int curr_cover_size = reduVCC.next_cliqueID;
+    curr_cover_size += num_folded_cliques;
+    if (curr_cover_size < reduVCC.clique_cover.size() || reduVCC.clique_cover.size() == 0) {
 
-        // std::cout << "smaller cover: " << curr_cover_size << ", " << reduVCC.clique_cover.size() << std::endl;
-        R.buildCover(G);
-        R.unwindReductions(G);
+      std::cout << "smaller cover: " << curr_cover_size << ", " << reduVCC.clique_cover.size() << std::endl;
+      reduVCC.build_cover(G);
+      // R.unwindReductions(G, reduVCC);
+
+
+      for (unsigned int i = reducer_stack.size(); i > 0; i--) {
+          reducer_stack[i-1].unwindReductions(G, reduVCC);
       }
 
-      R.undoReductions(G, reduced);
-      return;
     }
+
+    R.undoReductions(G, reduVCC);
+    reducer_stack.pop_back();
+    return;
+  }
+
+  NodeID next_node = 0;
+
+  while (!reduVCC.node_status[next_node]) {
     next_node++;
   }
 
@@ -323,11 +489,12 @@ void branch_and_reduce::prune_branch( graph_access &G, unsigned int num_folded_c
   // for a branch clique -- remove # independed verticies within the clique
 
   unsigned int estimated_cover_size = curr_cover_size + curr_mis;
-  // std::cout << "est cover: " << estimated_cover_size << std::endl;
+  std::cout << "est cover: " << estimated_cover_size << ", " << reduVCC.clique_cover.size() << std::endl;
 
   if (estimated_cover_size >= reduVCC.clique_cover.size() && reduVCC.clique_cover.size() != 0) {
-    // std::cout << "prune" << std::endl;
-    R.undoReductions(G, reduced);
+    std::cout << "prune" << std::endl;
+    R.undoReductions(G, reduVCC);
+    reducer_stack.pop_back();
     return;
   }
   //enumerate all cliques
@@ -346,7 +513,7 @@ void branch_and_reduce::prune_branch( graph_access &G, unsigned int num_folded_c
     curr_mis -= overlap;
     // std::cout << "branch" << std::endl;
 
-    branch(G, num_folded_cliques, curr_mis, next_node);
+    prune_branch(G, num_folded_cliques, curr_mis);
 
     // pop branched on clique
     reduVCC.pop_clique(clique);
@@ -355,18 +522,20 @@ void branch_and_reduce::prune_branch( graph_access &G, unsigned int num_folded_c
     curr_mis += overlap;
   }
   // undo number of reductions from reduce
-  R.undoReductions(G, reduced);
+  R.undoReductions(G, reduVCC);
+  reducer_stack.pop_back();
 }
 
-void branch_and_reduce::small_deg_branch( graph_access &G, unsigned int num_folded_cliques, unsigned int curr_mis, NodeID curr_node
+void branch_and_reduce::small_deg_branch( graph_access &G, unsigned int num_folded_cliques, unsigned int curr_mis
                     ) {
 
-  redu_vcc &reduVCC = R.reduVCC;
 
-  unsigned int reduced = exhaustive_reductions(G, num_folded_cliques, curr_mis);
-  // int reduced = 0;
+  reducer R(G);
+  R.exhaustive_reductions(G, reduVCC);
+  reducer_stack.push_back(R);
 
-  NodeID next_node = curr_node;
+  num_folded_cliques += R.num_fold_cliques;
+  curr_mis -= R.num_cliques;
 
   // increment next_node to find next node in the graph
   // check to see if we have made it through all nodes
@@ -377,16 +546,24 @@ void branch_and_reduce::small_deg_branch( graph_access &G, unsigned int num_fold
     curr_cover_size += num_folded_cliques;
     if (curr_cover_size < reduVCC.clique_cover.size() || reduVCC.clique_cover.size() == 0) {
 
-      // std::cout << "smaller cover: " << curr_cover_size << ", " << reduVCC.clique_cover.size() << std::endl;
-      R.buildCover(G);
-      R.unwindReductions(G);
+      std::cout << "smaller cover: " << curr_cover_size << ", " << reduVCC.clique_cover.size() << std::endl;
+      reduVCC.build_cover(G);
+      // R.unwindReductions(G, reduVCC);
+
+
+      for (unsigned int i = reducer_stack.size(); i > 0; i--) {
+          reducer_stack[i-1].unwindReductions(G, reduVCC);
+      }
+
     }
 
-    R.undoReductions(G, reduced);
+    R.undoReductions(G, reduVCC);
+    reducer_stack.pop_back();
     return;
   }
 
   unsigned int min_degree = 2;
+  NodeID next_node = 0;
 
   // while (!reduVCC.node_status[next_node]) {
   //   next_node++;
@@ -395,7 +572,7 @@ void branch_and_reduce::small_deg_branch( graph_access &G, unsigned int num_fold
   while (true) {
     if (next_node >= reduVCC.node_status.size()) {
       min_degree++;
-      next_node = curr_node;
+      next_node = 0;
       continue;
     }
     if (!reduVCC.node_status[next_node]) {
@@ -417,11 +594,12 @@ void branch_and_reduce::small_deg_branch( graph_access &G, unsigned int num_fold
   // for a branch clique -- remove # independed verticies within the clique
 
   unsigned int estimated_cover_size = curr_cover_size + curr_mis;
-  // std::cout << "est cover: " << estimated_cover_size << std::endl;
+  std::cout << "est cover: " << estimated_cover_size << ", " << reduVCC.clique_cover.size() << std::endl;
 
   if (estimated_cover_size >= reduVCC.clique_cover.size() && reduVCC.clique_cover.size() != 0) {
-    // std::cout << "prune" << std::endl;
-    R.undoReductions(G, reduced);
+    std::cout << "prune" << std::endl;
+    R.undoReductions(G, reduVCC);
+    reducer_stack.pop_back();
     return;
   }
   //enumerate all cliques
@@ -440,7 +618,7 @@ void branch_and_reduce::small_deg_branch( graph_access &G, unsigned int num_fold
     curr_mis -= overlap;
     // std::cout << "branch" << std::endl;
 
-    small_deg_branch(G, num_folded_cliques, curr_mis, next_node);
+    small_deg_branch(G, num_folded_cliques, curr_mis);
 
     // pop branched on clique
     reduVCC.pop_clique(clique);
@@ -449,36 +627,37 @@ void branch_and_reduce::small_deg_branch( graph_access &G, unsigned int num_fold
     curr_mis += overlap;
   }
   // undo number of reductions from reduce
-  R.undoReductions(G, reduced);
+  R.undoReductions(G, reduVCC);
+  reducer_stack.pop_back();
 }
-
-
-// experiments to do:
-// no prune
-// prune
-// min degree prune
-
-void branch_and_reduce::brute(graph_access &G) {
-
-  redu_vcc &reduVCC = R.reduVCC;
-
-  branch(G, 0, mis, 0);
-}
-
-void branch_and_reduce::prune(graph_access &G) {
-
-  redu_vcc &reduVCC = R.reduVCC;
-
-  prune_branch(G, 0, mis, 0);
-}
-
-void branch_and_reduce::min_degree_prune(graph_access &G) {
-
-  redu_vcc &reduVCC = R.reduVCC;
-
-  small_deg_branch(G, 0, mis, 0);
-}
-
-void branch_and_reduce::analyzeGraph(std::string &filename, graph_access &G, timer &t) {
-  R.analyzeGraph(filename, G, t);
-}
+//
+//
+// // experiments to do:
+// // no prune
+// // prune
+// // min degree prune
+//
+// void branch_and_reduce::brute(graph_access &G) {
+//
+//   redu_vcc &reduVCC = R.reduVCC;
+//
+//   branch(G, 0, mis, 0);
+// }
+//
+// void branch_and_reduce::prune(graph_access &G) {
+//
+//   redu_vcc &reduVCC = R.reduVCC;
+//
+//   prune_branch(G, 0, mis, 0);
+// }
+//
+// void branch_and_reduce::min_degree_prune(graph_access &G) {
+//
+//   redu_vcc &reduVCC = R.reduVCC;
+//
+//   small_deg_branch(G, 0, mis, 0);
+// }
+//
+// void branch_and_reduce::analyzeGraph(std::string &filename, graph_access &G, timer &t) {
+//   R.analyzeGraph(filename, G, t);
+// }
