@@ -73,23 +73,28 @@ int main(int argn, char **argv) {
 
     branch_and_reduce B(G);
     B.getMIS(partition_config.mis_file);
-    // std::cout << "io time: " << t.elapsed()  << std::endl;
+    // B.branch(G, 0);
+    // B.prune_branch(G, 0, B.mis);
+    B.small_deg_branch(G, 0, B.mis);
+    B.analyzeGraph(graph_filename, G, t);
 
-    timer s;
-    // B.enumerate(0);
-    if (partition_config.run_type == "brute"){
-      B.brute(G);
-    }
-    else if (partition_config.run_type == "prune") {
-      B.prune(G);
-    }
-    else if (partition_config.run_type == "small_degree") {
-      B.min_degree_prune(G);
-    }
-    else { return; }
-    // unsigned int i = 0;
-    // B.exhaustive_reductions(G, i, i);
-    B.analyzeGraph(graph_filename, G, s);
+    // // std::cout << "io time: " << t.elapsed()  << std::endl;
+    //
+    // timer s;
+    // // B.enumerate(0);
+    // if (partition_config.run_type == "brute"){
+    //   B.brute(G);
+    // }
+    // else if (partition_config.run_type == "prune") {
+    //   B.prune(G);
+    // }
+    // else if (partition_config.run_type == "small_degree") {
+    //   B.min_degree_prune(G);
+    // }
+    // else { return; }
+    // // unsigned int i = 0;
+    // // B.exhaustive_reductions(G, i, i);
+    // B.analyzeGraph(graph_filename, G, s);
 
      // reducer R;
      // R.init(G);
