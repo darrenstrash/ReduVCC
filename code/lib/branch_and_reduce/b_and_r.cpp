@@ -447,7 +447,7 @@ void branch_and_reduce::prune_branch( graph_access &G, unsigned int num_folded_c
   reducer_stack.push_back(R);
 
   num_folded_cliques += R.num_fold_cliques;
-  curr_mis -= R.num_cliques;
+  curr_mis -= (R.num_cliques + R.num_fold_cliques);
 
   // increment next_node to find next node in the graph
   // check to see if we have made it through all nodes
@@ -538,7 +538,7 @@ void branch_and_reduce::small_deg_branch( graph_access &G, unsigned int num_fold
 
   num_folded_cliques += R.num_fold_cliques;
   // curr_mis -= (R.num_cliques + R.num_fold_cliques);
-  curr_mis -= R.num_cliques;
+  curr_mis -= (R.num_cliques + R.num_fold_cliques);
   num_reductions += R.num_reductions;
 
   // increment next_node to find next node in the graph
