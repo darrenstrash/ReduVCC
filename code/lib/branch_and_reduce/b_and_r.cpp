@@ -8,6 +8,7 @@ branch_and_reduce::branch_and_reduce(graph_access &G) {
   reduVCC = redu_vcc(G);
   visited_nodes.assign(G.number_of_nodes(), false);
 
+  mis = 0;
 }
 
 void branch_and_reduce::getMIS(std::string file) {
