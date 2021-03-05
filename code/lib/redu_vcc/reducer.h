@@ -34,6 +34,7 @@ class reducer {
     unsigned int num_cliques;
     unsigned int num_fold_cliques;
 
+
     // construct C from C'
     void unwindReductions(graph_access &G, redu_vcc &reduVCC);
     // undo num reductions, constructing G from G'

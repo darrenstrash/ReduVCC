@@ -9,6 +9,7 @@ branch_and_reduce::branch_and_reduce(graph_access &G) {
   visited_nodes.assign(G.number_of_nodes(), false);
 
   mis = 0;
+  num_reductions = 0;
 }
 
 void branch_and_reduce::getMIS(std::string file) {
@@ -536,7 +537,9 @@ void branch_and_reduce::small_deg_branch( graph_access &G, unsigned int num_fold
   reducer_stack.push_back(R);
 
   num_folded_cliques += R.num_fold_cliques;
+  // curr_mis -= (R.num_cliques + R.num_fold_cliques);
   curr_mis -= R.num_cliques;
+  num_reductions += R.num_reductions;
 
   // increment next_node to find next node in the graph
   // check to see if we have made it through all nodes
@@ -551,10 +554,13 @@ void branch_and_reduce::small_deg_branch( graph_access &G, unsigned int num_fold
       reduVCC.build_cover(G);
       // R.unwindReductions(G, reduVCC);
 
+      // reduVCC.validateCover(G);
 
       for (unsigned int i = reducer_stack.size(); i > 0; i--) {
-          reducer_stack[i-1].unwindReductions(G, reduVCC);
+        reducer_stack[i-1].unwindReductions(G, reduVCC);
       }
+
+      reduVCC.validateCover(G);
 
     }
 

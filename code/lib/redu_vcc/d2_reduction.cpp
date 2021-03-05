@@ -143,11 +143,13 @@ void d2_reduction::unreduce(graph_access &G, redu_vcc &reduVCC){
       for (unsigned int i = 0; i < reduVCC.adj_list[w].size(); i++) {
         if (reduVCC.adj_list[w][i] == a) {
           reduVCC.adj_list[w].erase(reduVCC.adj_list[w].begin() + i);
+          break;
         }
       }
       for (unsigned int i = 0; i < reduVCC.adj_list[a].size(); i++) {
         if (reduVCC.adj_list[a][i] == w) {
           reduVCC.adj_list[a].erase(reduVCC.adj_list[a].begin() + i);
+          break;
         }
       }
     }

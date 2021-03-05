@@ -11,7 +11,7 @@ bool reduction::isSubset(redu_vcc &reduVCC, std::vector<NodeID> &A, std::vector<
 
   for (NodeID v : B) {scratch1[v] = true;}
   for (NodeID v : A) {
-      if (!reduVCC.node_status[v]) continue;
+      // if (!reduVCC.node_status[v]) continue;
       if (!scratch1[v]) {
           for (NodeID v : B) {scratch1[v] = false;}
           return false;

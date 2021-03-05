@@ -28,6 +28,7 @@ private:
     std::vector<bool> node_mis;
 
     std::vector<reducer> reducer_stack;
+    unsigned int num_reductions;
 
     branch_and_reduce(graph_access &G);
     virtual ~branch_and_reduce() {};

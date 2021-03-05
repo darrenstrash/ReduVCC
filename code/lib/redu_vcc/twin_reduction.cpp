@@ -154,11 +154,9 @@ void twin_reduction::foldTWIN(redu_vcc &reduVCC) {
   reduVCC.removeVertex(u);
   reduVCC.fold_node[u] = true;
 
-  // N_w = adj_list[w];
-  // N_x = adj_list[x];
-
   merge_neighborhoods(reduVCC, disjoint, N_x, y, x);
   merge_neighborhoods(reduVCC, disjoint, N_w, y, w);
+
 
   reduVCC.removeVertex(w);
   reduVCC.fold_node[w] = true;
@@ -220,6 +218,7 @@ void twin_reduction::unfold(graph_access &G, redu_vcc &reduVCC){
     partial_clique.push_back(a);
   }
 
+
   if (isSubset(reduVCC, partial_clique, N_w)) {
     unfoldTWIN(reduVCC, partial_clique, fold_cliqueID, w, x, y);
   }
@@ -254,11 +253,13 @@ void twin_reduction::unreduce(graph_access &G, redu_vcc &reduVCC){
       for (unsigned int i = 0; i < reduVCC.adj_list[y].size(); i++) {
         if (reduVCC.adj_list[y][i] == a) {
           reduVCC.adj_list[y].erase(reduVCC.adj_list[y].begin() + i);
+          break;
         }
       }
       for (unsigned int i = 0; i < reduVCC.adj_list[a].size(); i++) {
         if (reduVCC.adj_list[a][i] == y) {
           reduVCC.adj_list[a].erase(reduVCC.adj_list[a].begin() + i);
+          break;
         }
       }
     }
