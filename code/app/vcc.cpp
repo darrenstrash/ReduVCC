@@ -35,6 +35,7 @@
 #include "ccp/Chalupa/cli.h"
 #include <time.h>
 
+#include "redu_vcc/redu_vcc.h"
 #include "redu_vcc/reducer.h"
 #include "branch_and_reduce/b_and_r.h"
 
@@ -70,51 +71,33 @@ int main(int argn, char **argv) {
     timer t;
     graph_io::readGraphWeighted(G, graph_filename);
 
+    timer s;
 
-    branch_and_reduce B(G);
-    B.getMIS(partition_config.mis_file);
-    // B.branch(G, 0);
-    // B.prune_branch(G, 0, B.mis);
-    B.small_deg_branch(G, 0, B.mis);
-    B.analyzeGraph(graph_filename, G, t);
+    if (partition_config.run_type == "bandr") {
+      branch_and_reduce B(G, partition_config);
+      // B.getMIS(partition_config.mis_file);
+      // B.branch(G, 0);
+      // B.prune_branch(G, 0, B.mis);
+      // B.small_deg_branch(G, 0, B.mis);
+      B.lower_bound_branch(G, 0);
+      B.analyzeGraph(graph_filename, G, s);
+      return 0;
+    }
 
-    // // std::cout << "io time: " << t.elapsed()  << std::endl;
-    //
-    // timer s;
-    // // B.enumerate(0);
-    // if (partition_config.run_type == "brute"){
-    //   B.brute(G);
-    // }
-    // else if (partition_config.run_type == "prune") {
-    //   B.prune(G);
-    // }
-    // else if (partition_config.run_type == "small_degree") {
-    //   B.min_degree_prune(G);
-    // }
-    // else { return; }
-    // // unsigned int i = 0;
-    // // B.exhaustive_reductions(G, i, i);
-    // B.analyzeGraph(graph_filename, G, s);
+    redu_vcc reduVCC(G);
+    reducer R(G);
+    reduVCC.analyzeGraph(graph_filename, G, s);
+    R.exhaustive_reductions(G, reduVCC);
+    reduVCC.analyzeGraph(graph_filename, G, s);
+    reduVCC.build_cover(G);
+    reduVCC.analyzeGraph(graph_filename, G, s);
+    reduVCC.solveKernel(G, partition_config, s);
+    R.unwindReductions(G, reduVCC);
+    reduVCC.analyzeGraph(graph_filename, G, s);
 
-     // reducer R;
-     // R.init(G);
-     // std::vector<unsigned int> iso_stats = R.bruteISO(G);
-     // R.analyzeGraph(graph_filename, G, s);
-     // std::vector<unsigned int> d2_stats = R.bruteD2(G);
-     // R.analyzeGraph(graph_filename, G, s);
-     // std::vector<unsigned int> twin_stats = R.bruteTWIN(G);
-     // R.analyzeGraph(graph_filename, G, s);
-     // std::vector<unsigned int> dom_stats = R.bruteDOM(G);
-     // R.analyzeGraph(graph_filename, G, s);
-     // std::vector<unsigned int> crown_stats = R.bruteCROWN(G);
-     // R.analyzeGraph(graph_filename, G, s);
-     // R.analyzeGraph(graph_filename, G, s);
-     // R.buildCover(G);
-     // R.solveKernel(G, partition_config, s);
-     // R.unwindReductions(G);
-     // R.analyzeGraph(graph_filename, G, s);
-     // R.undoReductions(G, l);
-     // // // // // //
-     // R.analyzeGraph(graph_filename, G, s);
+    return 0;
+
+
+
 
 }

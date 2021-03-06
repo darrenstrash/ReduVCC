@@ -39,6 +39,9 @@ redu_structure::redu_structure(graph_access &G) {
   // allocate for graph cover
   node_clique.resize(G.number_of_nodes());
 
+  // initialize mis mapping to 0
+  curr_mis = 0;
+
   // allocate two scratch vectors
   scratch1.assign(G.number_of_nodes(), false);
   scratch2.assign(G.number_of_nodes(), false);
@@ -230,6 +233,8 @@ void redu_structure::removeVertex(NodeID v) {
 
   node_status[v] = false;
   remaining_nodes--;
+
+  if (!node_mis.empty() && node_mis[v]) curr_mis--;
 }
 
 void redu_structure::addVertex(NodeID v) {
@@ -237,6 +242,8 @@ void redu_structure::addVertex(NodeID v) {
 
   node_status[v] = true;
   remaining_nodes++;
+
+  if (!node_mis.empty() && node_mis[v]) curr_mis++;
 }
 
 // void redu_structure::addClique(std::vector<NodeID> &clique) {

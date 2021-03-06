@@ -44,6 +44,9 @@ class redu_structure {
     std::vector<std::vector<int>> kernel_adj_list; // subgraph adj_list
     unsigned long kernel_edges; // num subgraph edges
 
+    std::vector<bool> node_mis;
+    unsigned int curr_mis;
+
     std::vector<bool> scratch1;
     std::vector<bool> scratch2;
 

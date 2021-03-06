@@ -11,6 +11,27 @@
 
 #include "redu_vcc.h"
 
+void redu_vcc::getMIS(std::string file) {
+  /* Generates node_mis mapping of minimum independent set from file */
+
+  std::string line;
+
+  std::ifstream mis_file (file);
+  if (mis_file.is_open()) {
+    while ( getline (mis_file, line)) {
+      node_mis.push_back((int)line[0] - 48);
+    }
+    mis_file.close();
+  }
+
+  for (bool n : node_mis) if (n) { curr_mis++; };
+}
+
+redu_vcc::redu_vcc(graph_access &G, PartitionConfig &partition_config) : redu_structure(G) {
+
+  if (!partition_config.mis_file.empty()) getMIS(partition_config.mis_file);
+};
+
 
 void redu_vcc::solveKernel(graph_access &G, PartitionConfig &partition_config, timer &t) {
 

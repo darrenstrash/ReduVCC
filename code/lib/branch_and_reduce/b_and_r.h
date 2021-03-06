@@ -30,7 +30,7 @@ private:
     std::vector<reducer> reducer_stack;
     unsigned int num_reductions;
 
-    branch_and_reduce(graph_access &G);
+    branch_and_reduce(graph_access &G, PartitionConfig &partition_config);
     virtual ~branch_and_reduce() {};
 
     void getMIS(std::string file);
@@ -53,6 +53,8 @@ private:
     void branch( graph_access &G, unsigned int num_folded_cliques);
     void prune_branch( graph_access &G, unsigned int num_folded_cliques, unsigned int curr_mis);
     void small_deg_branch( graph_access &G, unsigned int num_folded_cliques, unsigned int curr_mis);
+    void lower_bound_branch( graph_access &G, unsigned int num_folded_cliques);
+
 
     void analyzeGraph(std::string &filename, graph_access &G, timer &t) {reduVCC.analyzeGraph(filename, G, t);};
 };

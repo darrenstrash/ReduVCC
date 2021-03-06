@@ -22,7 +22,10 @@ class redu_vcc : public redu_structure {
 
     redu_vcc() {};
     redu_vcc(graph_access &G) : redu_structure(G) {};
+    redu_vcc(graph_access &G, PartitionConfig &partition_config);
     virtual ~redu_vcc() {};
+
+    void getMIS(std::string file);
 
     void analyzeGraph(std::string &filename, graph_access &G, timer &t);
     void solveKernel(graph_access &G, PartitionConfig &partition_config, timer &t);
