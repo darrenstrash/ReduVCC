@@ -814,7 +814,7 @@ void branch_and_reduce::sort_enumerate_branch( graph_access &G, unsigned int num
     curr_cover_size += num_folded_cliques;
     if (curr_cover_size < reduVCC.clique_cover.size() || reduVCC.clique_cover.size() == 0) {
 
-      std::cout << "smaller cover: " << curr_cover_size << ", " << reduVCC.clique_cover.size() << std::endl;
+      // std::cout << "smaller cover: " << curr_cover_size << ", " << reduVCC.clique_cover.size() << std::endl;
       reduVCC.build_cover(G);
       // R.unwindReductions(G, reduVCC);
 
@@ -865,10 +865,10 @@ void branch_and_reduce::sort_enumerate_branch( graph_access &G, unsigned int num
   // for a branch clique -- remove # independed verticies within the clique
 
   unsigned int estimated_cover_size = curr_cover_size + reduVCC.curr_mis;
-  std::cout << "est cover: " << estimated_cover_size << ", " << reduVCC.clique_cover.size() << std::endl;
+  // std::cout << "est cover: " << estimated_cover_size << ", " << reduVCC.clique_cover.size() << std::endl;
 
   if (estimated_cover_size >= reduVCC.clique_cover.size() && reduVCC.clique_cover.size() != 0) {
-    std::cout << "prune" << std::endl;
+    // std::cout << "prune" << std::endl;
     R.undoReductions(G, reduVCC);
     reducer_stack.pop_back();
     return;
