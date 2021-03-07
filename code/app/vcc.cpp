@@ -87,11 +87,11 @@ int main(int argn, char **argv) {
 
     redu_vcc reduVCC(G);
     reducer R(G);
-    reduVCC.analyzeGraph(graph_filename, G, s);
+    // reduVCC.analyzeGraph(graph_filename, G, s);
     R.exhaustive_reductions(G, reduVCC);
-    reduVCC.analyzeGraph(graph_filename, G, s);
+    // reduVCC.analyzeGraph(graph_filename, G, s);
     reduVCC.build_cover(G);
-    reduVCC.analyzeGraph(graph_filename, G, s);
+    // reduVCC.analyzeGraph(graph_filename, G, s);
     reduVCC.solveKernel(G, partition_config, s);
     R.unwindReductions(G, reduVCC);
     reduVCC.analyzeGraph(graph_filename, G, s);
