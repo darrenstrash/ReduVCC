@@ -73,6 +73,13 @@ int main(int argn, char **argv) {
 
     timer s;
 
+    // redu_vcc reduVCC(G);
+    // reducer R(G);
+    // R.exhaustive_reductions(G, reduVCC);
+    // reduVCC.analyzeGraph(graph_filename, G, s);
+    // reduVCC.writeKernel(G, graph_filename);
+
+
     if (partition_config.run_type == "bandr") {
       branch_and_reduce B(G, partition_config);
       // B.getMIS(partition_config.mis_file);

@@ -864,6 +864,7 @@ void branch_and_reduce::sort_enumerate_branch( graph_access &G, unsigned int num
   // if in a reduction -- remove 1 mis for each clique added
   // for a branch clique -- remove # independed verticies within the clique
 
+  std::cout << reduVCC.curr_mis << std::endl;
   unsigned int estimated_cover_size = curr_cover_size + reduVCC.curr_mis;
   // std::cout << "est cover: " << estimated_cover_size << ", " << reduVCC.clique_cover.size() << std::endl;
 
