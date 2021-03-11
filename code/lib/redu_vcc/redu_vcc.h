@@ -29,6 +29,7 @@ class redu_vcc : public redu_structure {
 
     void analyzeGraph(std::string &filename, graph_access &G, timer &t);
     void solveKernel(graph_access &G, PartitionConfig &partition_config, timer &t);
+    void writeKernel(graph_access &G, std::string &filename);
 
 
 };
