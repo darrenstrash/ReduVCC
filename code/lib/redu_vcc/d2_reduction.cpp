@@ -89,6 +89,17 @@ void d2_reduction::reduce( graph_access &G, redu_vcc &reduVCC, NodeID &node_v, N
   // reduVCC.printAdjList(w);
   // std::cout << std::endl;
 
+
+  // if (reduVCC.node_mis[w]) {
+  //   for (NodeID a : reduVCC.adj_list[w]) {
+  //     if (!reduVCC.node_status[a]) continue;
+  //     if (reduVCC.node_mis[a]) {
+  //       std::cout << "invalid kernem mis" << std::endl;
+  //       break;
+  //     }
+  //   }
+  // }
+
 }
 
 void d2_reduction::unfold(graph_access &G, redu_vcc &reduVCC) {

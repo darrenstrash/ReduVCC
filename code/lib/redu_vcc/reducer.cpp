@@ -191,10 +191,16 @@ void reducer::exhaustive_reductions(graph_access &G, redu_vcc &reduVCC){
     // std::cout << curr_reductions << std::endl;
     new_reduced = false;
     bruteISO(G, reduVCC);
+    // std::cout << "finish iso" << std::endl;
     bruteD2(G, reduVCC);
+    // std::cout << "finish d2" << std::endl;
     bruteTWIN(G, reduVCC);
+    // std::cout << "finish twin" << std::endl;
     bruteDOM(G, reduVCC);
+    // std::cout << "finish dom" << std::endl;
     bruteCROWN(G, reduVCC);
+    // std::cout << "finish crown" << std::endl;
+
 
     if (num_reductions > curr_reductions) {
       curr_reductions = num_reductions;

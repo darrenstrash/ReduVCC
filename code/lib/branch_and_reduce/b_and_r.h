@@ -57,7 +57,9 @@ private:
     void prune_branch( graph_access &G, unsigned int num_folded_cliques, unsigned int curr_mis);
     void small_deg_branch( graph_access &G, unsigned int num_folded_cliques, unsigned int curr_mis);
     void lower_bound_branch( graph_access &G, unsigned int num_folded_cliques);
-    void sort_enumerate_branch( graph_access &G, unsigned int num_folded_cliques);
+    void sort_enumerate_branch( graph_access &G, unsigned int num_folded_cliques, PartitionConfig &partition_config, timer &t);
+    // void sort_enumerate_branch( graph_access &G, unsigned int num_folded_cliques);
+
 
 
 

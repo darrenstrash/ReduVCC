@@ -44,7 +44,9 @@ void redu_vcc::solveKernel(graph_access &G, PartitionConfig &partition_config, t
 
   cli *cli_instance;
   cli_instance = new cli(partition_config.seed, partition_config.mis);
-  cli_instance->start_cli(kernel_adj_list, remaining_nodes, kernel_edges, t.elapsed(), partition_config.solver_time_limit);
+  // cli_instance->start_cli(kernel_adj_list, remaining_nodes, kernel_edges, t.elapsed(), partition_config.solver_time_limit);
+  cli_instance->start_cli(kernel_adj_list, remaining_nodes, kernel_edges, t.elapsed(), t.elapsed() + 30);
+
 
   if (cli_instance->clique_cover.size() != 0){
       addKernelCliques(cli_instance->clique_cover);

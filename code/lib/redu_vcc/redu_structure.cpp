@@ -68,6 +68,10 @@ void redu_structure::build_cover(graph_access &G){
   // prepare to solve, by setting solve node_clique mapping and next cliqueID
   solve_node_clique = node_clique;
   next_solvecliqueID = next_cliqueID;
+
+  for (std::vector<NodeID> &clique : clique_cover) {
+    if (clique.size() == 0) std::cout << "null build clique" << std::endl;
+  }
 }
 
 bool redu_structure::cliqueInG(graph_access &G, std::vector<NodeID> &clique) {
@@ -170,6 +174,8 @@ void redu_structure::addKernelCliques(std::vector<std::vector<int>> &clique_set)
   for (unsigned int i = 0; i < clique_set.size(); i++){
       std::vector<NodeID> clique;
 
+      if (clique_set[i].size() == 0) std::cout << "null clique from kernel" << std::endl;
+
       for (unsigned int j = 0; j < clique_set[i].size(); j++){
           int v = clique_set[i][j];
           NodeID old_v = new_to_old_map[v];
@@ -234,7 +240,14 @@ void redu_structure::removeVertex(NodeID v) {
   node_status[v] = false;
   remaining_nodes--;
 
-  if (!node_mis.empty() && node_mis[v]) curr_mis--;
+  if (!node_mis.empty() && node_mis[v]) {
+    curr_mis--;
+    unsigned int act_mis = 0;
+    for (unsigned int i = 0; i < node_mis.size(); i++) {
+      if (node_status[i] && node_mis[i]) act_mis++;
+    }
+    if (act_mis != curr_mis) std::cout << "mis error" << std::endl;
+  }
 }
 
 void redu_structure::addVertex(NodeID v) {
