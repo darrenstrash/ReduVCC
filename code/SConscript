@@ -83,7 +83,18 @@ libkaffpa_files = [   'lib/data_structure/graph_hierarchy.cpp',
                       'extern/argtable3-3.0.3/argtable3.c',
                       'lib/mis/kernel/branch_and_reduce_algorithm.cpp',
                       'lib/mis/kernel/modified.cpp',
-                      'lib/ccp/Chalupa/algorithm_brelaz_ccp.cpp',
+                      'lib/mis/ils/ils.cpp',
+		      'lib/data_structure/mis_permutation.cpp',
+		      'lib/data_structure/candidate_list.cpp',
+		      'lib/data_structure/operation_log.cpp',
+		      'lib/mis/initial_mis/greedy_mis.cpp',
+		      'lib/mis/initial_mis/initial_mis.cpp',
+		      'lib/mis/evolutionary/population_mis.cpp',
+		      'lib/mis/initial_mis/random_mis.cpp',
+		      'lib/mis/initial_mis/greedy_vertex.cpp',
+		      'lib/data_structure/priority_queues/bucket_array.cpp', 
+		      'lib/mis/ils/local_search.cpp',
+		      'lib/ccp/Chalupa/algorithm_brelaz_ccp.cpp',
                       'lib/ccp/Chalupa/algorithm_greedyindset.cpp',
                       'lib/ccp/Chalupa/algorithm_iggcc.cpp',
                       'lib/ccp/Chalupa/algorithm.cpp',
@@ -127,8 +138,8 @@ libmapping                = ['lib/mapping/local_search_mapping.cpp',
 
 libspac_files = ['lib/spac/spac.cpp']
 
-env['CXX'] = 'g++-9'
-env['CC'] = 'gcc-9'
+env['CXX'] = 'g++'
+env['CC'] = 'gcc'
 
 if env['program'] == 'vcc':
         env.Append(CXXFLAGS = '-DMODE_KAFFPA')

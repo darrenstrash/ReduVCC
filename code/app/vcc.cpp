@@ -39,6 +39,9 @@
 #include "redu_vcc/reducer.h"
 #include "branch_and_reduce/b_and_r.h"
 
+#include "mis/ils/ils.h"
+#include "mis/mis_config.h"
+
 int main(int argn, char **argv) {
 
     PartitionConfig partition_config;
@@ -73,6 +76,15 @@ int main(int argn, char **argv) {
 
     timer s;
 
+    MISConfig config;
+    config.console_log = true;
+    config.time_limit = 60;
+    config.force_cand = 10;
+    ils new_ils;
+    new_ils.perform_ils(config, G, 10);	
+   return 0;
+
+	
     if (partition_config.run_type == "bandr") {
       branch_and_reduce B(G, partition_config);
       // B.getMIS(partition_config.mis_file);
