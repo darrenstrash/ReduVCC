@@ -87,7 +87,7 @@ int main(int argn, char **argv) {
       // B.prune_branch(G, 0, B.mis);
       // B.small_deg_branch(G, 0, B.mis);
       // B.lower_bound_branch(G, 0);
-      B.sort_enumerate_branch(G, 0);
+      B.sort_enumerate_branch(G, 0, partition_config, s);
       B.analyzeGraph(graph_filename, G, s);
       return 0;
     }

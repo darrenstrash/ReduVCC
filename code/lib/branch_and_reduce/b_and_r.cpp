@@ -794,8 +794,9 @@ std::vector<std::vector<NodeID>> branch_and_reduce::sorted_enumerate(NodeID x) {
     return sorted_cliques;
 }
 
-void branch_and_reduce::sort_enumerate_branch( graph_access &G, unsigned int num_folded_cliques) {
+void branch_and_reduce::sort_enumerate_branch( graph_access &G, unsigned int num_folded_cliques, PartitionConfig &partition_config, timer &t) {
 
+  if (t.elapsed() >= partition_config.solver_time_limit) { return; }
 
   reducer R(G);
   R.exhaustive_reductions(G, reduVCC);
@@ -890,7 +891,7 @@ void branch_and_reduce::sort_enumerate_branch( graph_access &G, unsigned int num
     // curr_mis -= overlap;
     // std::cout << "branch" << std::endl;
 
-    sort_enumerate_branch(G, num_folded_cliques);
+    sort_enumerate_branch(G, num_folded_cliques, partition_config, t);
 
     // pop branched on clique
     reduVCC.pop_clique(clique);
