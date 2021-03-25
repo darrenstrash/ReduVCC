@@ -24,6 +24,8 @@ class twin_reduction: public reduction {
     std::vector<NodeID> disjoint; // vertices in N_w and N_x not in N_y
 
     bool remove_type;
+    std::vector<NodeID> clique1;
+    std::vector<NodeID> clique2;
 
     bool removeType (redu_vcc &reduce);
     void removeTWIN (redu_vcc &reduVCC);
