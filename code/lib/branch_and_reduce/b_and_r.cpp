@@ -501,7 +501,7 @@ void branch_and_reduce::sort_enum_bandr( graph_access &G, unsigned int num_folde
 
         // branch
         branch_count++;
-        chalupa_status_bandr(G, num_folded_cliques);
+        chalupa_status_bandr(G, num_folded_cliques, partition_config, t);
 
         // pop branched on clique
         reduVCC.pop_clique(clique);
@@ -578,7 +578,7 @@ void branch_and_reduce::sort_enum_bandr( graph_access &G, unsigned int num_folde
 
         // branch
         branch_count++;
-        generate_mis_bandr(G, num_folded_cliques);
+        generate_mis_bandr(G, num_folded_cliques, partition_config, t);
 
         // pop branched on clique
         reduVCC.pop_clique(clique);
