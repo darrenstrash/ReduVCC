@@ -23,6 +23,8 @@ private:
 
   std::vector<bool> visited_nodes;
 
+  NodeID min_deg_node(redu_vcc &reduVCC);
+
   public:
 
     redu_vcc reduVCC;
@@ -41,7 +43,6 @@ private:
     void branch( graph_access &G, unsigned int num_folded_cliques);
     void prune_branch( graph_access &G, unsigned int num_folded_cliques);
     void small_deg_branch( graph_access &G, unsigned int num_folded_cliques);
-    void lower_bound_branch( graph_access &G, unsigned int num_folded_cliques);
     void sort_enumerate_branch( graph_access &G, unsigned int num_folded_cliques);
 
     void analyzeGraph(std::string &filename, graph_access &G, timer &t) {reduVCC.analyzeGraph(filename, G, t);};
