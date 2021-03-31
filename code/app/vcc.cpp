@@ -83,7 +83,7 @@ int main(int argn, char **argv) {
     //reduVCC.analyzeGraph(graph_filename, G, s);
 
     //graph_access G_p;
-    //graph_io::readGraphKernel(G_p, reduVCC);	
+    //graph_io::readGraphKernel(G_p, reduVCC);
 
     //std::cout << "finished" << std::endl;
 
@@ -92,32 +92,36 @@ int main(int argn, char **argv) {
     //config.time_limit = 60;
     //config.force_cand = 10;
     //ils new_ils;
-    //new_ils.perform_ils(config, G_p, 10);	
+    //new_ils.perform_ils(config, G_p, 10);
     //return 0;
 
-	
-    if (partition_config.run_type == "bandr") {
-      branch_and_reduce B(G, partition_config);
-      // B.getMIS(partition_config.mis_file);
-      // B.branch(G, 0);
-      // B.prune_branch(G, 0, B.mis);
-      // B.small_deg_branch(G, 0, B.mis);
-      // B.lower_bound_branch(G, 0);
-      B.sort_enumerate_branch(G, 0);
-      B.analyzeGraph(graph_filename, G, s);
+    if (partition_config.run_type == "reductions_chalupa") {
+      redu_vcc reduVCC(G);
+      reducer R(G);
+      // reduVCC.analyzeGraph(graph_filename, G, s);
+      R.exhaustive_reductions(G, reduVCC);
+      // reduVCC.analyzeGraph(graph_filename, G, s);
+      reduVCC.build_cover(G);
+      // reduVCC.analyzeGraph(graph_filename, G, s);
+      reduVCC.solveKernel(G, partition_config, s);
+      R.unwindReductions(G, reduVCC);
+      reduVCC.analyzeGraph(graph_filename, G, s);
+
       return 0;
     }
 
-    redu_vcc reduVCC(G);
-    reducer R(G);
-    // reduVCC.analyzeGraph(graph_filename, G, s);
-    R.exhaustive_reductions(G, reduVCC);
-    // reduVCC.analyzeGraph(graph_filename, G, s);
-    reduVCC.build_cover(G);
-    // reduVCC.analyzeGraph(graph_filename, G, s);
-    reduVCC.solveKernel(G, partition_config, s);
-    R.unwindReductions(G, reduVCC);
-    reduVCC.analyzeGraph(graph_filename, G, s);
+    branch_and_reduce B(G, partition_config);
+    if (partition_config.run_type == "brute") B.brute_bandr(G, 0);
+    else if (partition_config.run_type == "prune") B.prune_bandr(G, 0);
+    else if (partition_config.run_type == "small_degree") B.small_degree_bandr(G, 0);
+    else if (partition_config.run_type == "sort_enum") B.sort_enum_bandr(G, 0);
+    else if (partition_config.run_type == "chalupa_status") B.chalupa_status_bandr(G, 0);
+    else if (partition_config.run_type == "generate_mis") B.generate_mis_bandr(G, 0);
+	  else {
+      std::cout << "Error: required run-type" << std::endl;
+    }
+    B.analyzeGraph(graph_filename, G, s);
+    std::cout << "branches: " << b.branch_count << std::endl;
 
     return 0;
 
