@@ -377,7 +377,7 @@ std::vector<std::vector<NodeID>> branch_and_reduce::sorted_enumerate(NodeID x) {
 
 void branch_and_reduce::sort_enum_bandr( graph_access &G, unsigned int num_folded_cliques, PartitionConfig &partition_config, timer &t) {
 
-  if (t.elapsed() > partition_config.time_limit) return;
+  if (t.elapsed() > partition_config.solver_time_limit) return;
 
   // perform exhaustive reductions
   reducer R(G);
@@ -445,7 +445,7 @@ void branch_and_reduce::sort_enum_bandr( graph_access &G, unsigned int num_folde
 
   void branch_and_reduce::chalupa_status_bandr( graph_access &G, unsigned int num_folded_cliques, PartitionConfig &partition_config, timer &t) {
 
-    if (t.elapsed() > partition_config.time_limit) return;
+    if (t.elapsed() > partition_config.solver_time_limit) return;
 
     // perform exhaustive reductions
     reducer R(G);
@@ -518,7 +518,7 @@ void branch_and_reduce::sort_enum_bandr( graph_access &G, unsigned int num_folde
 
   void branch_and_reduce::generate_mis_bandr( graph_access &G, unsigned int num_folded_cliques, PartitionConfig &partition_config, timer &t) {
 
-      if (t.elapsed() > partition_config.time_limit) return;
+      if (t.elapsed() > partition_config.solver_time_limit) return;
 
       // perform exhaustive reductions
       reducer R(G);
