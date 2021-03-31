@@ -11,7 +11,6 @@ branch_and_reduce::branch_and_reduce(graph_access &G, PartitionConfig &partition
   reduVCC = redu_vcc(G, partition_config);
   visited_nodes.assign(G.number_of_nodes(), false);
 
-  mis = 0;
   num_reductions = 0;
 }
 
@@ -362,7 +361,7 @@ void branch_and_reduce::small_deg_branch( graph_access &G, unsigned int num_fold
     // curr_mis -= overlap;
     // std::cout << "branch" << std::endl;
 
-    small_deg_branch(G, num_folded_cliques, curr_mis);
+    small_deg_branch(G, num_folded_cliques);
 
     // pop branched on clique
     reduVCC.pop_clique(clique);
@@ -463,8 +462,6 @@ void branch_and_reduce::lower_bound_branch( graph_access &G, unsigned int num_fo
   // branch on each clique
   for (std::vector<NodeID> &clique : curr_cliques) {
     // add new clique and remove from G
-
-    unsigned int overlap = overlapMIS(clique);
 
     reduVCC.addClique(clique);
     reduVCC.removeVertexSet(clique);
@@ -632,7 +629,6 @@ void branch_and_reduce::sort_enumerate_branch( graph_access &G, unsigned int num
   for (std::vector<NodeID> &clique : curr_cliques) {
     // add new clique and remove from G
 
-    unsigned int overlap = overlapMIS(clique);
 
     reduVCC.addClique(clique);
     reduVCC.removeVertexSet(clique);
