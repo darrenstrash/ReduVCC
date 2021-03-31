@@ -73,39 +73,27 @@ int main(int argn, char **argv) {
 
     timer s;
 
-    // redu_vcc reduVCC(G);
-    // reducer R(G);
-    // R.exhaustive_reductions(G, reduVCC);
-    // reduVCC.analyzeGraph(graph_filename, G, s);
-    // reduVCC.writeKernel(G, graph_filename);
+    if (partition_config.run_type == "reductions_chalupa") {
+      redu_vcc reduVCC(G);
+      reducer R(G);
+      // reduVCC.analyzeGraph(graph_filename, G, s);
+      R.exhaustive_reductions(G, reduVCC);
+      // reduVCC.analyzeGraph(graph_filename, G, s);
+      reduVCC.build_cover(G);
+      // reduVCC.analyzeGraph(graph_filename, G, s);
+      reduVCC.solveKernel(G, partition_config, s);
+      R.unwindReductions(G, reduVCC);
+      reduVCC.analyzeGraph(graph_filename, G, s);
 
-
-    if (partition_config.run_type == "bandr") {
-      branch_and_reduce B(G, partition_config);
-      // B.getMIS(partition_config.mis_file);
-      // B.branch(G, 0);
-      // B.prune_branch(G, 0, B.mis);
-      // B.small_deg_branch(G, 0, B.mis);
-      // B.lower_bound_branch(G, 0);
-      B.sort_enumerate_branch(G, 0, partition_config, s);
-      B.analyzeGraph(graph_filename, G, s);
       return 0;
     }
 
-    redu_vcc reduVCC(G);
-    reducer R(G);
-    // reduVCC.analyzeGraph(graph_filename, G, s);
-    R.exhaustive_reductions(G, reduVCC);
-    // reduVCC.analyzeGraph(graph_filename, G, s);
-    reduVCC.build_cover(G);
-    // reduVCC.analyzeGraph(graph_filename, G, s);
-    reduVCC.solveKernel(G, partition_config, s);
-    R.unwindReductions(G, reduVCC);
-    reduVCC.analyzeGraph(graph_filename, G, s);
-
+    branch_and_reduce B(G, partition_config);
+    if (partition_config.run_type == "brute") B.brute_bandr(G, partition_config, t, 0);
+    else if (partition_config.run_type == "mis_bound") B.mis_bound_bandr(G, partition_config, t, 0);
+    else if (partition_config.run_type == "small_degree") B.small_degree_bandr(G, partition_config, t, 0);
+    else if (partition_config.run_type == "sorted_enum") B.sorted_enum_bandr(G, partition_config, t, 0);
+    B.analyzeGraph(graph_filename, G, s);
+    std::cout << "branches: " << B.branch_count << std::endl;
     return 0;
-
-
-
-
 }

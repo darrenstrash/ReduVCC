@@ -39,8 +39,6 @@ public:
   // unsigned int exhaustive_reductions(graph_access &G, unsigned int &num_folded_cliques, unsigned int &curr_mis);
 
   std::vector<std::vector<NodeID>> enumerate(NodeID v);
-  void enumerator(std::vector<std::vector<NodeID>> &minimal_cliques,
-                  std::vector<NodeID> &consider_nodes, std::vector<NodeID> &curr_clique, std::vector<NodeID> &excluded_nodes);
   void pivot_enumerator(std::vector<std::vector<NodeID>> &minimal_cliques,
                   std::vector<NodeID> &consider_nodes, std::vector<NodeID> &curr_clique, std::vector<NodeID> &excluded_nodes);
 

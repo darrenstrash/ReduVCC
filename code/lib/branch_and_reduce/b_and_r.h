@@ -17,51 +17,37 @@
 
 class branch_and_reduce {
 private:
-
   std::vector<bool> visited_nodes;
 
-  public:
+  unsigned int mis;
+  std::vector<bool> node_mis;
 
-    redu_vcc reduVCC;
+  std::vector<reducer> reducer_stack;
+  unsigned int num_reductions;
 
-    unsigned int mis;
-    std::vector<bool> node_mis;
-
-    std::vector<reducer> reducer_stack;
-    unsigned int num_reductions;
-
-    branch_and_reduce(graph_access &G, PartitionConfig &partition_config);
-    virtual ~branch_and_reduce() {};
-
-    void getMIS(std::string file);
-
-    unsigned int remainingMIS();
-    unsigned int overlapMIS(std::vector<NodeID> &clique);
-
-    // unsigned int exhaustive_reductions(graph_access &G, unsigned int &num_folded_cliques, unsigned int &curr_mis);
-
-    std::vector<std::vector<NodeID>> enumerate(NodeID v);
-    void enumerator(std::vector<std::vector<NodeID>> &minimal_cliques,
-                    std::vector<NodeID> &consider_nodes, std::vector<NodeID> &curr_clique, std::vector<NodeID> &excluded_nodes);
-    void pivot_enumerator(std::vector<std::vector<NodeID>> &minimal_cliques,
-                    std::vector<NodeID> &consider_nodes, std::vector<NodeID> &curr_clique, std::vector<NodeID> &excluded_nodes);
+  void pivot_enumerator(std::vector<std::vector<NodeID>> &minimal_cliques,
+                        std::vector<NodeID> &consider_nodes,
+                        std::vector<NodeID> &curr_clique,
+                        std::vector<NodeID> &excluded_nodes);
 
 
-    std::vector<std::vector<NodeID>> sorted_enumerate(NodeID x);
+public:
 
-    // void brute( graph_access &G);
-    // void prune(graph_access &G);
-    // void min_degree_prune(graph_access &G);
-    //
-    void branch( graph_access &G, unsigned int num_folded_cliques);
-    void prune_branch( graph_access &G, unsigned int num_folded_cliques, unsigned int curr_mis);
-    void small_deg_branch( graph_access &G, unsigned int num_folded_cliques, unsigned int curr_mis);
-    void lower_bound_branch( graph_access &G, unsigned int num_folded_cliques);
-    void sort_enumerate_branch( graph_access &G, unsigned int num_folded_cliques, PartitionConfig &partition_config, timer &t);
+  redu_vcc reduVCC;
 
+  unsigned int branch_count;
 
+  branch_and_reduce(graph_access &G, PartitionConfig &partition_config);
+  virtual ~branch_and_reduce() {};
 
-    void analyzeGraph(std::string &filename, graph_access &G, timer &t) {reduVCC.analyzeGraph(filename, G, t);};
+  std::vector<std::vector<NodeID>> enumerate(NodeID v);
+  std::vector<std::vector<NodeID>> sorted_enumerate(NodeID x);
+
+  void brute_bandr(graph_access &G, PartitionConfig &partition_config, timer &t, unsigned int num_folded_cliques);
+  void mis_bound_bandr(graph_access &G, PartitionConfig &partition_config, timer &t, unsigned int num_folded_cliques);
+  void small_degree_bandr(graph_access &G, PartitionConfig &partition_config, timer &t, unsigned int num_folded_cliques);
+  void sorted_enum_bandr(graph_access &G, PartitionConfig &partition_config, timer &t, unsigned int num_folded_cliques);
+
+  void analyzeGraph(std::string &filename, graph_access &G, timer &t) {reduVCC.analyzeGraph(filename, G, t);};
 };
-
 #endif
