@@ -44,8 +44,8 @@ private:
     void prune_bandr( graph_access &G, unsigned int num_folded_cliques);
     void small_degree_bandr( graph_access &G, unsigned int num_folded_cliques);
     void sort_enum_bandr( graph_access &G, unsigned int num_folded_cliques);
-    void chalupa_status_bandr( graph_access &G, unsigned int num_folded_cliques);
-    void generate_mis_bandr( graph_access &G, unsigned int num_folded_cliques);
+    void chalupa_status_bandr( graph_access &G, unsigned int num_folded_cliques, PartitionConfig &partition_config, timer &t);
+    void generate_mis_bandr( graph_access &G, unsigned int num_folded_cliques, PartitionConfig &partition_config, timer &t);
 
     void analyzeGraph(std::string &filename, graph_access &G, timer &t) {reduVCC.analyzeGraph(filename, G, t);};
 };

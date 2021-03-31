@@ -115,13 +115,13 @@ int main(int argn, char **argv) {
     else if (partition_config.run_type == "prune") B.prune_bandr(G, 0);
     else if (partition_config.run_type == "small_degree") B.small_degree_bandr(G, 0);
     else if (partition_config.run_type == "sort_enum") B.sort_enum_bandr(G, 0);
-    else if (partition_config.run_type == "chalupa_status") B.chalupa_status_bandr(G, 0);
-    else if (partition_config.run_type == "generate_mis") B.generate_mis_bandr(G, 0);
+    else if (partition_config.run_type == "chalupa_status") B.chalupa_status_bandr(G, 0, partition_config, s);
+    else if (partition_config.run_type == "generate_mis") B.generate_mis_bandr(G, 0, partition_config, s);
 	  else {
       std::cout << "Error: required run-type" << std::endl;
     }
     B.analyzeGraph(graph_filename, G, s);
-    std::cout << "branches: " << b.branch_count << std::endl;
+    std::cout << "branches: " << B.branch_count << std::endl;
 
     return 0;
 

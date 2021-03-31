@@ -441,7 +441,7 @@ void branch_and_reduce::sort_enum_bandr( graph_access &G, unsigned int num_folde
     R.undoReductions(G, reduVCC); reducer_stack.pop_back();
   }
 
-  void branch_and_reduce::chalupa_status_bandr( graph_access &G, unsigned int num_folded_cliques) {
+  void branch_and_reduce::chalupa_status_bandr( graph_access &G, unsigned int num_folded_cliques, PartitionConfig &partition_config, timer &t) {
 
       // perform exhaustive reductions
       reducer R(G);
@@ -512,7 +512,7 @@ void branch_and_reduce::sort_enum_bandr( graph_access &G, unsigned int num_folde
       R.undoReductions(G, reduVCC); reducer_stack.pop_back();
     }
 
-  void branch_and_reduce::generate_mis_bandr( graph_access &G, unsigned int num_folded_cliques) {
+  void branch_and_reduce::generate_mis_bandr( graph_access &G, unsigned int num_folded_cliques, PartitionConfig &partition_config, timer &t) {
 
       // perform exhaustive reductions
       reducer R(G);
