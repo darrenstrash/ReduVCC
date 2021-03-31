@@ -432,7 +432,7 @@ void branch_and_reduce::sort_enum_bandr( graph_access &G, unsigned int num_folde
 
     // branch
     branch_count++;
-    sort_enum_bandr(G, num_folded_cliques);
+    sort_enum_bandr(G, num_folded_cliques, partition_config, t);
 
     // pop branched on clique
     reduVCC.pop_clique(clique);
