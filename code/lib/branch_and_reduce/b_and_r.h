@@ -44,6 +44,7 @@ private:
     void prune_branch( graph_access &G, unsigned int num_folded_cliques);
     void small_deg_branch( graph_access &G, unsigned int num_folded_cliques);
     void sort_enumerate_branch( graph_access &G, unsigned int num_folded_cliques);
+    void generate_mis_branch( graph_access &G, unsigned int num_folded_cliques);
 
     void analyzeGraph(std::string &filename, graph_access &G, timer &t) {reduVCC.analyzeGraph(filename, G, t);};
 };
