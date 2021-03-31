@@ -35,7 +35,6 @@ redu_structure::redu_structure(graph_access &G) {
   node_status.assign(G.number_of_nodes(), true);
   fold_node.assign(G.number_of_nodes(), false);
   remaining_nodes = G.number_of_nodes();
-
   // allocate for graph cover
   node_clique.resize(G.number_of_nodes());
 

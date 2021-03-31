@@ -34,6 +34,9 @@
 
 class ils {
     public:
+
+	unsigned int solution_size;
+
         /**
          * Default Constructor.
          */

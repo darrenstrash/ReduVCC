@@ -261,7 +261,9 @@ void ils::perform_ils(MISConfig & config, graph_access & G, unsigned int iterati
         G.setPartitionIndex(node, best_solution.solution[node]);
     } endfor
 
-    std::cout << best_solution.solution_size << std::endl;
+
+    solution_size = best_solution.solution_size;
+    //std::cout << best_solution.solution_size << std::endl;
 }
 
 void ils::force(MISConfig & config, graph_access & G, NodeID v, candidate_list *force_list) {

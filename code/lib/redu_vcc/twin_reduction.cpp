@@ -135,8 +135,8 @@ bool twin_reduction::removeType (redu_vcc &reduVCC) {
 
 void twin_reduction::removeTWIN (redu_vcc &reduVCC) {
 
-  std::vector<NodeID> clique1 {v, edge_nodes[0], edge_nodes[1]};
-  std::vector<NodeID> clique2 {u, nonedge_node};
+  clique1 = {v, edge_nodes[0], edge_nodes[1]};
+  clique2 = {u, nonedge_node};
 
   reduVCC.addClique(clique1);
   reduVCC.addClique(clique2);
@@ -245,6 +245,8 @@ void twin_reduction::unreduce(graph_access &G, redu_vcc &reduVCC){
     if (remove_type) {
       reduVCC.addVertex(y);
       reduVCC.fold_node[y] = false;
+      reduVCC.pop_clique(clique1);
+      reduVCC.pop_clique(clique2);
       return;
     }
 

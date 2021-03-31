@@ -76,13 +76,24 @@ int main(int argn, char **argv) {
 
     timer s;
 
-    MISConfig config;
-    config.console_log = true;
-    config.time_limit = 60;
-    config.force_cand = 10;
-    ils new_ils;
-    new_ils.perform_ils(config, G, 10);	
-   return 0;
+
+    //redu_vcc reduVCC(G);
+    //reducer R(G);
+    //R.exhaustive_reductions(G, reduVCC);
+    //reduVCC.analyzeGraph(graph_filename, G, s);
+
+    //graph_access G_p;
+    //graph_io::readGraphKernel(G_p, reduVCC);	
+
+    //std::cout << "finished" << std::endl;
+
+    //MISConfig config;
+    //config.console_log = true;
+    //config.time_limit = 60;
+    //config.force_cand = 10;
+    //ils new_ils;
+    //new_ils.perform_ils(config, G_p, 10);	
+    //return 0;
 
 	
     if (partition_config.run_type == "bandr") {

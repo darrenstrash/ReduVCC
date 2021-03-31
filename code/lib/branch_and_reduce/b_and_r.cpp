@@ -2,6 +2,9 @@
 #include <fstream>
 
 #include "b_and_r.h"
+#include "graph_io.h"
+#include "mis/mis_config.h"
+#include "mis/ils/ils.h"
 
 branch_and_reduce::branch_and_reduce(graph_access &G, PartitionConfig &partition_config) {
 
@@ -864,11 +867,24 @@ void branch_and_reduce::sort_enumerate_branch( graph_access &G, unsigned int num
   // if in a reduction -- remove 1 mis for each clique added
   // for a branch clique -- remove # independed verticies within the clique
 
-  unsigned int estimated_cover_size = curr_cover_size + reduVCC.curr_mis;
-  // std::cout << "est cover: " << estimated_cover_size << ", " << reduVCC.clique_cover.size() << std::endl;
+  //unsigned int estimated_cover_size = curr_cover_size + reduVCC.curr_mis;
+  
+  //std::cout << "est cover: " << estimated_cover_size << ", " << reduVCC.clique_cover.size() << std::endl;
+  //std::cout << "mis: " << reduVCC.curr_mis << " kernel mis: ";
+  graph_access G_p;
+  graph_io::readGraphKernel(G_p, reduVCC); 
+  MISConfig config;
+  config.console_log = true;
+  config.time_limit = 60;
+  config.force_cand = 4;
+  ils new_ils;
+  new_ils.perform_ils(config, G_p, 10000);  
 
+  //std::cout << new_ils.solution_size << std::endl;
+  unsigned int estimated_cover_size = curr_cover_size + new_ils.solution_size;
+  //std::cout << "est cover: " << estimated_cover_size << ", " << reduVCC.clique_cover.size() << std::endl;
   if (estimated_cover_size >= reduVCC.clique_cover.size() && reduVCC.clique_cover.size() != 0) {
-    // std::cout << "prune" << std::endl;
+    //std::cout << "prune" << std::endl;
     R.undoReductions(G, reduVCC);
     reducer_stack.pop_back();
     return;
