@@ -39,6 +39,9 @@
 #include "redu_vcc/reducer.h"
 #include "branch_and_reduce/b_and_r.h"
 
+// #include "mis/ils/ils.h"
+// #include "mis/mis_config.h"
+
 int main(int argn, char **argv) {
 
     PartitionConfig partition_config;
@@ -73,6 +76,21 @@ int main(int argn, char **argv) {
 
     timer s;
 
+    // branch_and_reduce Bra(G, partition_config);
+    // std::cout << "here" << std::endl;
+    // std::vector<std::vector<NodeID>> cliques = Bra.sorted_enumerate(7, Bra.reduVCC.node_mis);
+    // std::cout << std::endl;
+    // for (std::vector<NodeID> &clique : cliques) {
+    //   std::cout << "size: " << clique.size() << " mis: ";
+    //   for (NodeID a : clique) {
+    //     if (Bra.reduVCC.node_mis[a]) {
+    //       std::cout << "1";
+    //       break;
+    //     }
+    //   }
+    //   std::cout << std::endl;
+    // }
+
     if (partition_config.run_type == "reductions_chalupa") {
       redu_vcc reduVCC(G);
       reducer R(G);
@@ -88,12 +106,45 @@ int main(int argn, char **argv) {
       return 0;
     }
 
-    branch_and_reduce B(G, partition_config);
-    if (partition_config.run_type == "brute") B.brute_bandr(G, partition_config, t, 0);
-    else if (partition_config.run_type == "mis_bound") B.mis_bound_bandr(G, partition_config, t, 0);
-    else if (partition_config.run_type == "small_degree") B.small_degree_bandr(G, partition_config, t, 0);
-    else if (partition_config.run_type == "sorted_enum") B.sorted_enum_bandr(G, partition_config, t, 0);
-    B.analyzeGraph(graph_filename, G, s);
-    std::cout << "branches: " << B.branch_count << std::endl;
+    // branch_and_reduce B(G, partition_config);
+    if (partition_config.run_type == "brute") {
+      branch_and_reduce B(G);
+      B.brute_bandr(G, 0);
+      B.analyzeGraph(graph_filename, G, s);
+      std::cout << "branches: " << B.branch_count << std::endl;
+    }
+    else if (partition_config.run_type == "reduMIS") {
+      branch_and_reduce B(G, partition_config);
+      B.reduMIS_bandr(G, 0);
+      B.analyzeGraph(graph_filename, G, s);
+      std::cout << "branches: " << B.branch_count << std::endl;
+    }
+    else if (partition_config.run_type == "small_degree") {
+      branch_and_reduce B(G, partition_config);
+      B.small_degree_bandr(G, 0);
+      B.analyzeGraph(graph_filename, G, s);
+      std::cout << "branches: " << B.branch_count << std::endl;
+    }
+    else if (partition_config.run_type == "sort_enum") {
+      branch_and_reduce B(G, partition_config);
+      B.sort_enum_bandr(G, 0, partition_config, s);
+      B.analyzeGraph(graph_filename, G, s);
+      std::cout << "branches: " << B.branch_count << std::endl;
+    }
+    else if (partition_config.run_type == "chalupa_status") {
+      branch_and_reduce B(G, partition_config);
+      B.chalupa_status_bandr(G, 0, partition_config, s);
+      B.analyzeGraph(graph_filename, G, s);
+      std::cout << "branches: " << B.branch_count << std::endl;
+    }
+    // else if (partition_config.run_type == "generate_mis") B.generate_mis_bandr(G, 0, partition_config, s);
+	  else {
+      std::cout << "Error: required run-type" << std::endl;
+    }
+
     return 0;
+
+
+
+
 }
