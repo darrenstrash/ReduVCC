@@ -259,6 +259,7 @@ void ils::perform_ils(MISConfig & config, graph_access & G, unsigned int iterati
 
     forall_nodes(G, node) {
         G.setPartitionIndex(node, best_solution.solution[node]);
+    	bool_solution.push_back((bool) best_solution.solution[node]);
     } endfor
 
 

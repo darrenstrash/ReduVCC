@@ -31,6 +31,7 @@ private:
 
     unsigned int branch_count;
 
+    branch_and_reduce(graph_access &G);
     branch_and_reduce(graph_access &G, PartitionConfig &partition_config);
     virtual ~branch_and_reduce() {};
 
@@ -38,10 +39,10 @@ private:
     void pivot_enumerator(std::vector<std::vector<NodeID>> &minimal_cliques,
                     std::vector<NodeID> &consider_nodes, std::vector<NodeID> &curr_clique, std::vector<NodeID> &excluded_nodes);
 
-    std::vector<std::vector<NodeID>> sorted_enumerate(NodeID x);
+    std::vector<std::vector<NodeID>> sorted_enumerate(NodeID x, std::vector<bool> &indset);
 
     void brute_bandr( graph_access &G, unsigned int num_folded_cliques);
-    void prune_bandr( graph_access &G, unsigned int num_folded_cliques);
+    void reduMIS_bandr( graph_access &G, unsigned int num_folded_cliques);
     void small_degree_bandr( graph_access &G, unsigned int num_folded_cliques);
     void sort_enum_bandr( graph_access &G, unsigned int num_folded_cliques, PartitionConfig &partition_config, timer &t);
     void chalupa_status_bandr( graph_access &G, unsigned int num_folded_cliques, PartitionConfig &partition_config, timer &t);

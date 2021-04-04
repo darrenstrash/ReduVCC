@@ -36,7 +36,7 @@ class ils {
     public:
 
 	unsigned int solution_size;
-
+	std::vector<bool> bool_solution;
         /**
          * Default Constructor.
          */
