@@ -341,7 +341,7 @@ void branch_and_reduce::small_degree_bandr( graph_access &G, unsigned int num_fo
 std::vector<std::vector<NodeID>> branch_and_reduce::sorted_enumerate(NodeID x, std::vector<bool> &indset) {
 
   std::vector<std::vector<NodeID>> curr_cliques = enumerate(x);
-  std::cout << "complete enumerate" << std::endl;
+  //std::cout << "complete enumerate" << std::endl;
 
   // sort enumerated cliques
   std::vector<unsigned int> curr_cliques_indices;
@@ -543,7 +543,7 @@ void branch_and_reduce::sort_enum_bandr( graph_access &G, unsigned int num_folde
          // check if we have a better solution
          if (reduVCC.clique_cover.size() == 0 || curr_cover_size < reduVCC.clique_cover.size()) {
            // build current parital cover
-           // std::cout << "smaller cover: " << curr_cover_size << ", " << reduVCC.clique_cover.size() << std::endl;
+           std::cout << "smaller cover: " << curr_cover_size << ", " << reduVCC.clique_cover.size() << std::endl;
            reduVCC.build_cover(G);
   
            // unwind reductions to get full cover
