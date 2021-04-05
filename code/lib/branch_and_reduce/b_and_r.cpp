@@ -371,7 +371,7 @@ std::vector<std::vector<NodeID>> branch_and_reduce::sorted_enumerate(NodeID x, s
         if (curr_clique_is[i] == curr_clique_is[j]) {
           return curr_clique_sizes[i] > curr_clique_sizes[j];
         }
-        return curr_clique_is[i] < curr_clique_is[j];
+        return curr_clique_is[i] > curr_clique_is[j];
     });
 
 
