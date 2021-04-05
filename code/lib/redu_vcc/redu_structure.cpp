@@ -34,7 +34,13 @@ redu_structure::redu_structure(graph_access &G) {
   // assign status of nodes
   node_status.assign(G.number_of_nodes(), true);
   fold_node.assign(G.number_of_nodes(), false);
+
   remaining_nodes = G.number_of_nodes();
+  for (unsigned int i = 0; i < remaining_nodes; i++) {
+    node_list.push_back(i);
+    node_map.push_back(i);
+  }
+
   // allocate for graph cover
   node_clique.resize(G.number_of_nodes());
 
@@ -127,12 +133,10 @@ void redu_structure::assignMaps(graph_access &G) {
   new_to_old_map.resize(G.number_of_nodes());
 
   int j = 0;
-  for (unsigned int i = 0; i < G.number_of_nodes(); i++){
-      if (!node_status[i]){
-          continue;
-      }
-      old_to_new_map[i] = j;
-      new_to_old_map[j] = i;
+  for (unsigned int i = 0; i < remaining_nodes; i++) {
+      NodeID v = node_list[i];
+      old_to_new_map[v] = j;
+      new_to_old_map[j] = v;
       j++;
   }
 }
@@ -145,24 +149,43 @@ void redu_structure::buildKernel(graph_access &G) {
   kernel_adj_list.resize(remaining_nodes);
   kernel_edges = 0;
 
-  for (unsigned int i = 0; i < G.number_of_nodes(); i++) {
-    if (!node_status[i]) { continue; }
+  for (unsigned int i = 0; i < remaining_nodes; i++) {
+    NodeID v = node_list[i];
 
     int new_v = old_to_new_map[i];
+      std::vector<int> adj;
+      for (unsigned int j = 0; j < adj_list[i].size(); j++){
+          NodeID u  = adj_list[i][j];
+          if (!node_status[u]) { continue; }
 
-    std::vector<int> adj;
-    for (unsigned int j = 0; j < adj_list[i].size(); j++){
-        NodeID u  = adj_list[i][j];
-        if (!node_status[u]) { continue; }
-
-        int new_u = old_to_new_map[u];
-        adj.push_back(new_u);
-        kernel_edges++;
+          int new_u = old_to_new_map[u];
+          adj.push_back(new_u);
+          kernel_edges++;
+      }
+      std::sort(adj.begin(), adj.end());
+      kernel_adj_list[new_v] = adj;
     }
-    std::sort(adj.begin(), adj.end());
-    kernel_adj_list[new_v] = adj;
+
   }
-}
+
+  // for (unsigned int i = 0; i < G.number_of_nodes(); i++) {
+  //   if (!node_status[i]) { continue; }
+  //
+  //   int new_v = old_to_new_map[i];
+  //
+  //   std::vector<int> adj;
+  //   for (unsigned int j = 0; j < adj_list[i].size(); j++){
+  //       NodeID u  = adj_list[i][j];
+  //       if (!node_status[u]) { continue; }
+  //
+  //       int new_u = old_to_new_map[u];
+  //       adj.push_back(new_u);
+  //       kernel_edges++;
+  //   }
+  //   std::sort(adj.begin(), adj.end());
+  //   kernel_adj_list[new_v] = adj;
+  // }
+// }
 
 void redu_structure::addKernelCliques(std::vector<std::vector<int>> &clique_set){
 
@@ -233,6 +256,13 @@ void redu_structure::removeVertex(NodeID v) {
   node_status[v] = false;
   remaining_nodes--;
 
+  unsigned int i = node_map[v];
+  NodeID u = node_list[remaining_nodes];
+  node_list[i] = u;
+  node_list[remaining_nodes] = v;
+  node_map[v] = remaining_nodes;
+  node_map[u] = i;
+
   if (!node_mis.empty() && node_mis[v]) curr_mis--;
 }
 
@@ -241,6 +271,13 @@ void redu_structure::addVertex(NodeID v) {
 
   node_status[v] = true;
   remaining_nodes++;
+
+  unsigned int i = node_map[v];
+  NodeID u = node_list[remaining_nodes - 1];
+  node_list[i] = u;
+  node_list[remaining_nodes - 1] = v;
+  node_map[v] = remaining_nodes - 1;
+  node_map[u] = i;
 
   if (!node_mis.empty() && node_mis[v]) curr_mis++;
 }

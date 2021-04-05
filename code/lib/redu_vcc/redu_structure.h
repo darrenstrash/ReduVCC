@@ -32,6 +32,9 @@ class redu_structure {
     std::vector<std::vector<NodeID>> adj_list;
     std::vector<bool> node_status;  // marks nodes status in G
     std::vector<bool> fold_node;   // marks nodes removed in a fold
+
+    std::vector<NodeID> node_list;
+    std::vector<unsigned int> node_map;
     unsigned int remaining_nodes;
 
     std::vector<std::vector<NodeID>> clique_cover;

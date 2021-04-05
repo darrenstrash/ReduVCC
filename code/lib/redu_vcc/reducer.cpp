@@ -48,7 +48,9 @@ void reducer::bruteISO(graph_access &G, redu_vcc &reduVCC) {
   while (vertexReduced){
       vertexReduced = false;
 
-      forall_nodes(G, v){
+      // forall_nodes(G, v){
+      for (unsigned int i = 0; i < reduVCC.remaining_nodes; i++) {
+          NodeID v = reduVCC.node_list[i];
           NodeID u;
 
           if (!reduVCC.node_status[v]) { continue;}
@@ -64,8 +66,8 @@ void reducer::bruteISO(graph_access &G, redu_vcc &reduVCC) {
               num_reductions++;
               num_cliques++;;
          }
-      } endfor
-
+      // } endfor
+    }
  }
 }
 
@@ -76,7 +78,9 @@ void reducer::bruteD2(graph_access &G, redu_vcc &reduVCC) {
   while (vertexReduced){
       vertexReduced = false;
 
-      forall_nodes(G, v){
+      // forall_nodes(G, v){
+      for (unsigned int i = 0; i < reduVCC.remaining_nodes; i++) {
+          NodeID v = reduVCC.node_list[i];
           NodeID u;
 
           if (!reduVCC.node_status[v]) { continue;}
@@ -93,7 +97,8 @@ void reducer::bruteD2(graph_access &G, redu_vcc &reduVCC) {
               num_fold_cliques++;
 
          }
-      } endfor
+      // } endfor
+    }
 
  }
 }
@@ -105,7 +110,9 @@ void reducer::bruteTWIN(graph_access &G, redu_vcc &reduVCC) {
   while (vertexReduced){
       vertexReduced = false;
 
-      forall_nodes(G, v){
+      // forall_nodes(G, v){
+      for (unsigned int i = 0; i < reduVCC.remaining_nodes; i++) {
+          NodeID v = reduVCC.node_list[i];
           NodeID u;
 
           if (!reduVCC.node_status[v]) { continue;}
@@ -124,7 +131,8 @@ void reducer::bruteTWIN(graph_access &G, redu_vcc &reduVCC) {
               num_fold_cliques += pReduction->num_folded_cliques;
 
          }
-      } endfor
+      // } endfor
+    }
 
  }
 }
@@ -136,7 +144,9 @@ void reducer::bruteDOM(graph_access &G, redu_vcc &reduVCC) {
   while (vertexReduced){
       vertexReduced = false;
 
-      forall_nodes(G, v){
+      // forall_nodes(G, v){
+      for (unsigned int i = 0; i < reduVCC.remaining_nodes; i++) {
+          NodeID v = reduVCC.node_list[i];
           NodeID u;
 
           if (!reduVCC.node_status[v]) { continue;}
@@ -153,7 +163,8 @@ void reducer::bruteDOM(graph_access &G, redu_vcc &reduVCC) {
               num_reductions++;
 
          }
-      } endfor
+      // } endfor
+    }
 
  }
 
