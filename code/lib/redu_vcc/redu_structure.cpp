@@ -263,6 +263,11 @@ void redu_structure::removeVertex(NodeID v) {
   node_map[v] = remaining_nodes;
   node_map[u] = i;
 
+  for (unsigned int i = 0; i < remaining_nodes; i++){
+    NodeID a = node_list[i]
+    if (!node_status[a]) std::cout << "node list error" << std::endl;
+  }
+
   if (!node_mis.empty() && node_mis[v]) curr_mis--;
 }
 
@@ -278,6 +283,11 @@ void redu_structure::addVertex(NodeID v) {
   node_list[remaining_nodes - 1] = v;
   node_map[v] = remaining_nodes - 1;
   node_map[u] = i;
+
+  for (unsigned int i = 0; i < remaining_nodes; i++){
+    NodeID a = node_list[i]
+    if (!node_status[a]) std::cout << "node list error" << std::endl;
+  }
 
   if (!node_mis.empty() && node_mis[v]) curr_mis++;
 }
