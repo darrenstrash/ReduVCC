@@ -526,18 +526,18 @@ void branch_and_reduce::sort_enum_bandr( graph_access &G, unsigned int num_folde
   }
 
    void branch_and_reduce::generate_mis_bandr( graph_access &G, unsigned int num_folded_cliques, PartitionConfig &partition_config, timer &t) {
-  
+
        if (t.elapsed() > partition_config.solver_time_limit) return;
-  
+
        // perform exhaustive reductions
        reducer R(G);
        R.exhaustive_reductions(G, reduVCC); reducer_stack.push_back(R);
        // keep track of total folded cliques to determine current clique cover size
        num_folded_cliques += R.num_fold_cliques;
-  
+
        // current size of parital clique cover
        unsigned int curr_cover_size = reduVCC.next_cliqueID + num_folded_cliques;
-  
+
        // check exit condition -- kernel is empty
        if (reduVCC.remaining_nodes == 0) {
          // check if we have a better solution
@@ -545,20 +545,20 @@ void branch_and_reduce::sort_enum_bandr( graph_access &G, unsigned int num_folde
            // build current parital cover
            std::cout << "smaller cover: " << curr_cover_size << ", " << reduVCC.clique_cover.size() << std::endl;
            reduVCC.build_cover(G);
-  
+
            // unwind reductions to get full cover
            for (unsigned int i = reducer_stack.size(); i > 0; i--) reducer_stack[i-1].unwindReductions(G, reduVCC);
          }
-  
+
          // undo branch's reductions and return
          R.undoReductions(G, reduVCC); reducer_stack.pop_back();
          return;
        }
- 
+
        NodeID next_node;
        std::vector<std::vector<NodeID>> curr_cliques;
 
-	 
+
        {
        // geneate MIS of kernel using ILS
        graph_access G_p;
@@ -569,8 +569,10 @@ void branch_and_reduce::sort_enum_bandr( graph_access &G, unsigned int num_folde
        config.force_cand = 4;
        ils new_ils;
        new_ils.perform_ils(config, G_p, 1000);
-  
-  
+
+       // if (reduVCC.curr_mis > new_ils.solution_size) std::cout << "redu: " << reduVCC.curr_mis << " kaMis: " << new_ils.solution_size << std::endl;
+
+
        // estimate cover size using partial cover size and MIS of kernel
        unsigned int estimated_cover_size = curr_cover_size + new_ils.solution_size;
        // std::cout << "est cover: " << estimated_cover_size << ", " << reduVCC.clique_cover.size() << std::endl;
@@ -580,10 +582,10 @@ void branch_and_reduce::sort_enum_bandr( graph_access &G, unsigned int num_folde
          R.undoReductions(G, reduVCC); reducer_stack.pop_back();
          return;
        }
-  
+
        // get next node in kernel with minimum degree
        next_node = min_deg_node(reduVCC);
-  
+
        // enumerate all maximal cliques of next_node sorted by size and MIS
        // std::cout << "enumerate" << std::endl;
        curr_cliques = sorted_enumerate(next_node, new_ils.bool_solution);
@@ -596,15 +598,15 @@ void branch_and_reduce::sort_enum_bandr( graph_access &G, unsigned int num_folde
          reduVCC.addClique(clique);
          reduVCC.removeVertexSet(clique);
          // std::cout << "branch" << std::endl;
-  
+
          // branch
          branch_count++;
          generate_mis_bandr(G, num_folded_cliques, partition_config, t);
-  
+
          // pop branched on clique
          reduVCC.pop_clique(clique);
          reduVCC.addVertexSet(clique);
-  
+
        }
        // undo number of reductions from reduce
        R.undoReductions(G, reduVCC); reducer_stack.pop_back();

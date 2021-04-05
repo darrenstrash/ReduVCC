@@ -137,12 +137,12 @@ int main(int argn, char **argv) {
       B.analyzeGraph(graph_filename, G, s);
       std::cout << "branches: " << B.branch_count << std::endl;
     }
-    else if (partition_config.run_type == "generate_mis") {
+    else if (partition_config.run_type == "KaMIS") {
       branch_and_reduce B(G);
       B.generate_mis_bandr(G, 0, partition_config, s);
       B.analyzeGraph(graph_filename, G, s);
       std::cout << "branches: " << B.branch_count << std::endl;
-    }	  
+    }
     else {
       std::cout << "Error: required run-type" << std::endl;
     }
