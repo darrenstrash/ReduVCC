@@ -76,6 +76,30 @@ int main(int argn, char **argv) {
 
     timer s;
 
+
+    // redu_vcc reduVCC(G);
+    // reduVCC.analyzeGraph(graph_filename, G, t);
+    // reducer R(G);
+    // vertex_queue *queue = new vertex_queue(G);
+    // queue->init(G);
+    // R.cascading_reductions(G, reduVCC, queue);
+    // // R.exhaustive_reductions(G, reduVCC);
+    // reduVCC.analyzeGraph(graph_filename, G, t);
+    // reduVCC.build_cover(G);
+    // R.unwindReductions(G, reduVCC);
+    // R.undoReductions(G, reduVCC);
+    // reduVCC.validateCover(G);
+    // reduVCC.analyzeGraph(graph_filename, G, t);
+
+    branch_and_reduce B(G, partition_config);
+    vertex_queue *queue = new vertex_queue(G);
+    // queue->init(G);
+    B.cascading_red_bandr(G, 0, queue, partition_config, s);
+    B.analyzeGraph(graph_filename, G, s);
+    std::cout << "branches: " << B.branch_count << std::endl;
+
+
+
     // branch_and_reduce Bra(G, partition_config);
     // std::cout << "here" << std::endl;
     // std::vector<std::vector<NodeID>> cliques = Bra.sorted_enumerate(7, Bra.reduVCC.node_mis);

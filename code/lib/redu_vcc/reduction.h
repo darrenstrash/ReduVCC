@@ -10,6 +10,7 @@
 
 #include <algorithm>
 #include "data_structure/graph_access.h"
+#include "vertex_queue.h"
 #include "redu_vcc.h"
 
 class reduction {
@@ -21,7 +22,10 @@ class reduction {
     unsigned int num_folded_cliques;
 
     // reduces the graph --> produce G'
-    virtual void reduce(graph_access &G, redu_vcc &reduVCC, NodeID &node_v, NodeID &node_u ) = 0;
+    virtual void reduce(graph_access &G, redu_vcc &reduVCC,
+                        NodeID &node_v, NodeID &node_u ) = 0;
+    virtual void reduce(graph_access &G, redu_vcc &reduVCC, vertex_queue *queue,
+                        NodeID &node_v, NodeID &node_u ) = 0;
     // unfolds reductions --> produce C from C', maintain G'
     virtual void unfold(graph_access &G, redu_vcc &reduVCC) = 0;
     // undoes reduction --> produces G from G'

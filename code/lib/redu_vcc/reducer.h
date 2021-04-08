@@ -47,6 +47,7 @@ class reducer {
     void bruteCROWN(graph_access &G, redu_vcc &reduVCC);
 
     void exhaustive_reductions(graph_access &G, redu_vcc &reduVCC);
+    void cascading_reductions(graph_access &G, redu_vcc &reduVCC, vertex_queue *queue);
 
 };
 

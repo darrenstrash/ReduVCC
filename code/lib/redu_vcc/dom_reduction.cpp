@@ -74,7 +74,8 @@ bool dom_reduction::validDOM(redu_vcc &reduVCC, NodeID &v, NodeID &u){
 }
 
 
-void dom_reduction::reduce(graph_access &G,  redu_vcc &reduVCC, NodeID &node_v, NodeID &node_u ){
+void dom_reduction::reduce(graph_access &G,  redu_vcc &reduVCC,
+                           NodeID &node_v, NodeID &node_u ){
 
   v = node_v;
   u = node_u;
@@ -83,6 +84,12 @@ void dom_reduction::reduce(graph_access &G,  redu_vcc &reduVCC, NodeID &node_v, 
   reduVCC.fold_node[v] = true;
 
   // std::cout << "success" << std::endl;
+}
+
+void dom_reduction::reduce(graph_access &G,  redu_vcc &reduVCC, vertex_queue *queue,
+                           NodeID &node_v, NodeID &node_u ){
+  reduce(G, reduVCC, node_v, node_u);
+  queue->adjust_queue(reduVCC, v);
 }
 
 void dom_reduction::unfold(graph_access &G, redu_vcc &reduVCC){

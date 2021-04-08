@@ -203,3 +203,37 @@ void reducer::exhaustive_reductions(graph_access &G, redu_vcc &reduVCC){
   }
 
 }
+
+void reducer::cascading_reductions(graph_access &G, redu_vcc &reduVCC, vertex_queue *queue){
+
+  while(!queue->empty()) {
+    NodeID v = queue->pop();
+    if (!reduVCC.node_status[v]) continue;
+    std::cout << queue->size() << std::endl;
+
+    NodeID u;
+
+    reduction *pReduction = nullptr;
+
+    if (iso_reduction::validISO(reduVCC, v)) {
+      pReduction = new iso_reduction();
+    }
+    else if (d2_reduction::validD2(reduVCC, v)){
+      pReduction = new d2_reduction();
+    }
+    else if (twin_reduction::validTWIN(reduVCC, v, u)){
+      pReduction = new twin_reduction();
+    }
+    else if (dom_reduction::validDOM(reduVCC, v, u)){
+      pReduction = new dom_reduction();
+    }
+    else {
+      delete pReduction;
+      continue;
+    }
+
+    pReduction->reduce(G, reduVCC, queue, v, u);
+
+    reduction_stack.push_back(pReduction);
+  }
+}
