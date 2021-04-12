@@ -30,6 +30,10 @@ private:
     redu_vcc reduVCC;
 
     unsigned int branch_count;
+    std::vector<unsigned int> iso_degree;
+    std::vector<unsigned int> dom_degree;
+    unsigned int red_tried;
+    unsigned int red_perf;
 
     branch_and_reduce(graph_access &G);
     branch_and_reduce(graph_access &G, PartitionConfig &partition_config);
@@ -41,12 +45,14 @@ private:
 
     std::vector<std::vector<NodeID>> sorted_enumerate(NodeID x, std::vector<bool> &indset);
 
-    void brute_bandr( graph_access &G, unsigned int num_folded_cliques);
-    void reduMIS_bandr( graph_access &G, unsigned int num_folded_cliques);
+    // void brute_bandr( graph_access &G, unsigned int num_folded_cliques);
+    // void reduMIS_bandr( graph_access &G, unsigned int num_folded_cliques);
     void small_degree_bandr( graph_access &G, unsigned int num_folded_cliques);
-    void sort_enum_bandr( graph_access &G, unsigned int num_folded_cliques, PartitionConfig &partition_config, timer &t);
-    void chalupa_status_bandr( graph_access &G, unsigned int num_folded_cliques, PartitionConfig &partition_config, timer &t);
-    void generate_mis_bandr( graph_access &G, unsigned int num_folded_cliques, PartitionConfig &partition_config, timer &t);
+    // void sort_enum_bandr( graph_access &G, unsigned int num_folded_cliques, PartitionConfig &partition_config, timer &t);
+    // void chalupa_status_bandr( graph_access &G, unsigned int num_folded_cliques, PartitionConfig &partition_config, timer &t);
+    void cascading_red_bandr( graph_access &G, unsigned int num_folded_cliques, vertex_queue *queue,
+                              PartitionConfig &partition_config, timer &t);
+    // void generate_mis_bandr( graph_access &G, unsigned int num_folded_cliques, PartitionConfig &partition_config, timer &t);
 
     void analyzeGraph(std::string &filename, graph_access &G, timer &t) {reduVCC.analyzeGraph(filename, G, t);};
 };

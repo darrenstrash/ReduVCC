@@ -44,10 +44,15 @@ bool iso_reduction::validISO(redu_vcc &reduVCC, NodeID &v){
 
 }
 
-void iso_reduction::reduce(graph_access &G, redu_vcc &reduVCC, NodeID &node_v, NodeID &node_u ){
+void iso_reduction::reduce(graph_access &G, redu_vcc &reduVCC,
+                           NodeID &node_v, NodeID &node_u ){
+
+  type = "iso";
 
   v = node_v;
   num_cliques++;
+
+  deg = reduVCC.adj_size(v);
 
   // reduVCC.printNeighborhood(v);
 
@@ -59,6 +64,16 @@ void iso_reduction::reduce(graph_access &G, redu_vcc &reduVCC, NodeID &node_v, N
 
   reduVCC.addClique(clique);
   reduVCC.removeVertexSet(clique);
+
+}
+
+void iso_reduction::reduce(graph_access &G, redu_vcc &reduVCC, vertex_queue *queue,
+                           NodeID &node_v, NodeID &node_u ){
+    reduce(G, reduVCC, node_v, node_u);
+    for (NodeID a : clique) {
+      if (a == v) continue;
+      queue->adjust_queue(reduVCC, a);
+    }
 
 }
 
