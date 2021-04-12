@@ -301,10 +301,10 @@ void branch_and_reduce::small_degree_bandr( graph_access &G, unsigned int num_fo
 
   // estimate cover size using partial cover size and MIS of kernel
   unsigned int estimated_cover_size = curr_cover_size + reduVCC.curr_mis;
-  std::cout << "est cover: " << estimated_cover_size << ", " << reduVCC.clique_cover.size() << std::endl;
+  // std::cout << "est cover: " << estimated_cover_size << ", " << reduVCC.clique_cover.size() << std::endl;
   // prune branch if estimated cover is larger than current best
   if (reduVCC.clique_cover.size() != 0 && estimated_cover_size >= reduVCC.clique_cover.size()) {
-    std::cout << "prune" << std::endl;
+    // std::cout << "prune" << std::endl;
     R.undoReductions(G, reduVCC); reducer_stack.pop_back();
     return;
   }
@@ -528,87 +528,92 @@ void branch_and_reduce::chalupa_status_bandr( graph_access &G, unsigned int num_
   R.undoReductions(G, reduVCC); reducer_stack.pop_back();
 }
 
-// void branch_and_reduce::cascading_red_bandr( graph_access &G, unsigned int num_folded_cliques,
-//                                              vertex_queue *queue,
-//                                              PartitionConfig &partition_config, timer &t) {
-//
-//   if (t.elapsed() > partition_config.solver_time_limit) return;
-//
-//   // perform exhaustive reductions
-//   // std::cout << "begin" << std::endl;
-//   reducer R(G);
-//   // if (queue->empty()) {
-//     R.exhaustive_reductions(G, reduVCC);
-//   // } else {
-//   //   R.cascading_reductions(G, reduVCC, queue);
-//   // }
-//   reducer_stack.push_back(R);
-//   // R.exhaustive_reductions(G, reduVCC); reducer_stack.push_back(R);
-//   // keep track of total folded cliques to determine current clique cover size
-//   num_folded_cliques += R.num_fold_cliques;
-//   delete queue;
-//
-//   // current size of parital clique cover
-//   unsigned int curr_cover_size = reduVCC.next_cliqueID + num_folded_cliques;
-//
-//   // check exit condition -- kernel is empty
-//   if (reduVCC.remaining_nodes == 0) {
-//     // check if we have a better solution
-//     if (reduVCC.clique_cover.size() == 0 || curr_cover_size < reduVCC.clique_cover.size()) {
-//       // build current parital cover
-//       std::cout << "smaller cover: " << curr_cover_size << ", " << reduVCC.clique_cover.size() << std::endl;
-//       reduVCC.build_cover(G);
-//
-//       // unwind reductions to get full cover
-//       for (unsigned int i = reducer_stack.size(); i > 0; i--) reducer_stack[i-1].unwindReductions(G, reduVCC);
-//     }
-//
-//     // undo branch's reductions and return
-//     R.undoReductions(G, reduVCC); reducer_stack.pop_back();
-//     return;
-//   }
-//
-//   // estimate cover size using partial cover size and MIS of kernel
-//   unsigned int estimated_cover_size = curr_cover_size + reduVCC.curr_mis;
-//   // std::cout << "est cover: " << estimated_cover_size << ", " << reduVCC.clique_cover.size() << std::endl;
-//   // prune branch if estimated cover is larger than current best
-//   if (reduVCC.clique_cover.size() != 0 && estimated_cover_size >= reduVCC.clique_cover.size()) {
-//     // std::cout << "prune" << std::endl;
-//     R.undoReductions(G, reduVCC); reducer_stack.pop_back();
-//     return;
-//   }
-//
-//
-//   // get next node in kernel with minimum degree
-//   NodeID next_node = min_deg_node(reduVCC);
-//
-//   // enumerate all maximal cliques of next_node sorted by size and MIS
-//   // std::cout << "enumerate" << std::endl;
-//   std::vector<std::vector<NodeID>> curr_cliques = sorted_enumerate(next_node, reduVCC.node_mis);
-//   // std::cout << "complete enumerate" << std::endl;
-//   // branch on each clique in enumerated set
-//   for (std::vector<NodeID> &clique : curr_cliques) {
-//     // add new clique and remove from G
-//     reduVCC.addClique(clique);
-//     reduVCC.removeVertexSet(clique);
-//     // std::cout << "new queue" << std::endl;
-//
-//     vertex_queue *new_queue = new vertex_queue(G);
-//     for (NodeID a : clique) new_queue->adjust_queue(reduVCC, a);
-//
-//     // std::cout << "branch" << std::endl;
-//     // branch
-//     branch_count++;
-//     cascading_red_bandr(G, num_folded_cliques, new_queue, partition_config, t);
-//
-//     // pop branched on clique
-//     reduVCC.pop_clique(clique);
-//     reduVCC.addVertexSet(clique);
-//
-//   }
-//   // undo number of reductions from reduce
-//   R.undoReductions(G, reduVCC); reducer_stack.pop_back();
-// }
+void branch_and_reduce::cascading_red_bandr( graph_access &G, unsigned int num_folded_cliques,
+                                             vertex_queue *queue,
+                                             PartitionConfig &partition_config, timer &t) {
+
+  if (t.elapsed() > partition_config.solver_time_limit) return;
+
+  // perform exhaustive reductions
+  // std::cout << "pre reductions reduMIS " << reduVCC.curr_mis << std::endl;
+  reducer R(G);
+  if (queue->empty()) {
+    R.exhaustive_reductions(G, reduVCC);
+  } else {
+    R.cascading_reductions(G, reduVCC, queue);
+  }
+  reducer_stack.push_back(R);
+  // R.exhaustive_reductions(G, reduVCC); reducer_stack.push_back(R);
+  // keep track of total folded cliques to determine current clique cover size
+  num_folded_cliques += R.num_fold_cliques;
+  delete queue;
+
+  // current size of parital clique cover
+  unsigned int curr_cover_size = reduVCC.next_cliqueID + num_folded_cliques;
+  // std::cout << "curr cover size: " << curr_cover_size << std::endl;
+  // std::cout << "post reductions reduMIS: " << reduVCC.curr_mis << std::endl;
+  // std::cout << "remaining nodes: " << reduVCC.remaining_nodes << std::endl;
+
+  // check exit condition -- kernel is empty
+  if (reduVCC.remaining_nodes == 0) {
+    // check if we have a better solution
+    if (reduVCC.clique_cover.size() == 0 || curr_cover_size < reduVCC.clique_cover.size()) {
+      // build current parital cover
+      std::cout << "smaller cover: " << curr_cover_size << ", " << reduVCC.clique_cover.size() << std::endl;
+      reduVCC.build_cover(G);
+
+      // unwind reductions to get full cover
+      for (unsigned int i = reducer_stack.size(); i > 0; i--) reducer_stack[i-1].unwindReductions(G, reduVCC);
+    }
+
+    // undo branch's reductions and return
+    R.undoReductions(G, reduVCC); reducer_stack.pop_back();
+    return;
+  }
+
+  // estimate cover size using partial cover size and MIS of kernel
+  unsigned int estimated_cover_size = curr_cover_size + reduVCC.curr_mis;
+  // std::cout << "est cover: " << estimated_cover_size << ", " << reduVCC.clique_cover.size() << std::endl;
+  // prune branch if estimated cover is larger than current best
+  if (reduVCC.clique_cover.size() != 0 && estimated_cover_size >= reduVCC.clique_cover.size()) {
+    // std::cout << "prune" << std::endl;
+    R.undoReductions(G, reduVCC); reducer_stack.pop_back();
+    return;
+  }
+
+
+  // get next node in kernel with minimum degree
+  NodeID next_node = min_deg_node(reduVCC);
+
+  // enumerate all maximal cliques of next_node sorted by size and MIS
+  // std::cout << "enumerate" << std::endl;
+  // std::vector<std::vector<NodeID>> curr_cliques = sorted_enumerate(next_node, reduVCC.node_mis);
+  std::vector<std::vector<NodeID>> curr_cliques = enumerate(next_node);
+
+  // std::cout << "complete enumerate" << std::endl;
+  // branch on each clique in enumerated set
+  for (std::vector<NodeID> &clique : curr_cliques) {
+    // add new clique and remove from G
+    reduVCC.addClique(clique);
+    reduVCC.removeVertexSet(clique);
+    // std::cout << "new queue" << std::endl;
+
+    vertex_queue *new_queue = new vertex_queue(G);
+    for (NodeID a : clique) new_queue->adjust_queue(reduVCC, a);
+
+    // std::cout << "branch" << std::endl;
+    // branch
+    branch_count++;
+    cascading_red_bandr(G, num_folded_cliques, new_queue, partition_config, t);
+
+    // pop branched on clique
+    reduVCC.pop_clique(clique);
+    reduVCC.addVertexSet(clique);
+
+  }
+  // undo number of reductions from reduce
+  R.undoReductions(G, reduVCC); reducer_stack.pop_back();
+}
 
   // void branch_and_reduce::generate_mis_bandr( graph_access &G, unsigned int num_folded_cliques, PartitionConfig &partition_config, timer &t) {
   //

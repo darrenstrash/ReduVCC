@@ -209,7 +209,7 @@ void reducer::cascading_reductions(graph_access &G, redu_vcc &reduVCC, vertex_qu
   while(!queue->empty()) {
     NodeID v = queue->pop();
     if (!reduVCC.node_status[v]) continue;
-    std::cout << queue->size() << std::endl;
+    // std::cout << queue->size() << std::endl;
 
     NodeID u;
 
@@ -233,7 +233,9 @@ void reducer::cascading_reductions(graph_access &G, redu_vcc &reduVCC, vertex_qu
     }
 
     pReduction->reduce(G, reduVCC, queue, v, u);
-
+    num_reductions++;
+    num_cliques += pReduction-> num_cliques;
+    num_fold_cliques += pReduction->num_folded_cliques;
     reduction_stack.push_back(pReduction);
   }
 }

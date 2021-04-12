@@ -91,12 +91,12 @@ int main(int argn, char **argv) {
     // reduVCC.validateCover(G);
     // reduVCC.analyzeGraph(graph_filename, G, t);
 
-    branch_and_reduce B(G, partition_config);
-    vertex_queue *queue = new vertex_queue(G);
-    // queue->init(G);
-    B.cascading_red_bandr(G, 0, queue, partition_config, s);
-    B.analyzeGraph(graph_filename, G, s);
-    std::cout << "branches: " << B.branch_count << std::endl;
+    // branch_and_reduce B(G, partition_config);
+    // vertex_queue *queue = new vertex_queue(G);
+    // // queue->init(G);
+    // B.cascading_red_bandr(G, 0, queue, partition_config, s);
+    // B.analyzeGraph(graph_filename, G, s);
+    // std::cout << "branches: " << B.branch_count << std::endl;
 
 
 
@@ -158,6 +158,14 @@ int main(int argn, char **argv) {
     else if (partition_config.run_type == "chalupa_status") {
       branch_and_reduce B(G, partition_config);
       B.chalupa_status_bandr(G, 0, partition_config, s);
+      B.analyzeGraph(graph_filename, G, s);
+      std::cout << "branches: " << B.branch_count << std::endl;
+    }
+    else if (partition_config.run_type == "cascading_reductions") {
+      branch_and_reduce B(G, partition_config);
+      vertex_queue *queue = new vertex_queue(G);
+      // queue->init(G);
+      B.cascading_red_bandr(G, 0, queue, partition_config, s);
       B.analyzeGraph(graph_filename, G, s);
       std::cout << "branches: " << B.branch_count << std::endl;
     }
