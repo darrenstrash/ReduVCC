@@ -9,6 +9,8 @@
 
 void crown_reduction::reduce( graph_access &G, redu_vcc &reduVCC, NodeID &node_v, NodeID &node_u ){
 
+  type = "crown";
+
   reduVCC.buildKernel(G);
 
   branch_and_reduce_algorithm b_and_r(reduVCC.kernel_adj_list, reduVCC.remaining_nodes);
@@ -23,6 +25,15 @@ void crown_reduction::reduce( graph_access &G, redu_vcc &reduVCC, NodeID &node_v
   }
 
   // std::cout << "here" << std::endl;
+}
+
+void crown_reduction::reduce( graph_access &G, redu_vcc &reduVCC, vertex_queue *queue,
+                           NodeID &node_v, NodeID &node_u ){
+    reduce(G, reduVCC, node_v, node_u);
+
+    for (std::vector<NodeID> clique : crown_cliques) {
+      for (NodeID a : clique) queue->adjust_queue(reduVCC, a);;
+    }
 }
 
 void crown_reduction::unreduce(graph_access &G, redu_vcc &reduVCC){

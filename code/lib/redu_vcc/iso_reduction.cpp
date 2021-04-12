@@ -47,8 +47,12 @@ bool iso_reduction::validISO(redu_vcc &reduVCC, NodeID &v){
 void iso_reduction::reduce(graph_access &G, redu_vcc &reduVCC,
                            NodeID &node_v, NodeID &node_u ){
 
+  type = "iso";
+
   v = node_v;
   num_cliques++;
+
+  deg = reduVCC.adj_size(v);
 
   // reduVCC.printNeighborhood(v);
 

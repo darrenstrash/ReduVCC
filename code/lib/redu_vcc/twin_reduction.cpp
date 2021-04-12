@@ -168,6 +168,8 @@ void twin_reduction::foldTWIN(redu_vcc &reduVCC) {
 void twin_reduction::reduce( graph_access &G, redu_vcc &reduVCC,
                              NodeID &node_v, NodeID &node_u ){
 
+  type = "twin";
+
   v = node_v;
   u = node_u;
 

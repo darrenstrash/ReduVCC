@@ -77,8 +77,12 @@ bool dom_reduction::validDOM(redu_vcc &reduVCC, NodeID &v, NodeID &u){
 void dom_reduction::reduce(graph_access &G,  redu_vcc &reduVCC,
                            NodeID &node_v, NodeID &node_u ){
 
+  type = "dom";
+
   v = node_v;
   u = node_u;
+
+  deg = reduVCC.adj_size(v);
 
   reduVCC.removeVertex(v);
   reduVCC.fold_node[v] = true;

@@ -18,6 +18,9 @@ class reduction {
     reduction() { num_cliques = 0; num_folded_cliques = 0;};
     virtual ~reduction() {};
 
+    std::string type;
+    unsigned int deg;
+
     unsigned int num_cliques;
     unsigned int num_folded_cliques;
 

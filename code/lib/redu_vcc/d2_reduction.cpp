@@ -73,6 +73,8 @@ void d2_reduction::foldD2(redu_vcc &reduVCC) {
 void d2_reduction::reduce( graph_access &G, redu_vcc &reduVCC,
                            NodeID &node_v, NodeID &node_u ){
 
+  type = "d2";
+
   v = node_v;
   num_folded_cliques++;
   // std::vector<std::vector<NodeID>> &adj_list = reduVCC.adj_list;
