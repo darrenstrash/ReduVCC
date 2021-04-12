@@ -67,7 +67,7 @@ void reducer::bruteISO(graph_access &G, redu_vcc &reduVCC, std::vector<unsigned 
 
               iso_degree[pReduction->deg]++;
          }
-         else { num_attempts++; }
+         num_attempts++;
       } endfor
 
  }
@@ -97,7 +97,7 @@ void reducer::bruteD2(graph_access &G, redu_vcc &reduVCC) {
               num_fold_cliques++;
 
          }
-         else { if (reduVCC.adj_size(v) == 2) num_attempts++; }
+         if (reduVCC.adj_size(v) == 2) num_attempts++;
       } endfor
 
  }
@@ -129,8 +129,7 @@ void reducer::bruteTWIN(graph_access &G, redu_vcc &reduVCC) {
               num_fold_cliques += pReduction->num_folded_cliques;
 
          }
-         else {
-           if (reduVCC.adj_size(v) == 3) num_attempts++; }
+         if (reduVCC.adj_size(v) == 3) num_attempts++;
       } endfor
 
  }
@@ -162,7 +161,7 @@ void reducer::bruteDOM(graph_access &G, redu_vcc &reduVCC, std::vector<unsigned 
               dom_degree[pReduction->deg]++;
 
          }
-         else { num_attempts++; }
+         num_attempts++;
       } endfor
 
  }
@@ -186,10 +185,8 @@ void reducer::bruteCROWN(graph_access &G, redu_vcc &reduVCC) {
     num_reductions++;
     num_cliques += pReduction-> num_cliques;
   }
-  else {
-    num_attempts++;
-    delete pReduction; }
-
+  else { delete pReduction; }
+  num_attempts++;
 
 }
 
@@ -230,15 +227,22 @@ void reducer::cascading_reductions(graph_access &G, redu_vcc &reduVCC, vertex_qu
       reduction *pReduction = nullptr;
 
       if (iso_reduction::validISO(reduVCC, v)) {
+        num_attempts++;
         pReduction = new iso_reduction();
       }
       else if (d2_reduction::validD2(reduVCC, v)){
+        num_attempts += 2;
         pReduction = new d2_reduction();
       }
       else if (twin_reduction::validTWIN(reduVCC, v, u)){
+        if (reduVCC.adj_size(v) == 2) num_attempts++;
+        num_attempts += 2;
         pReduction = new twin_reduction();
       }
       else if (dom_reduction::validDOM(reduVCC, v, u)){
+        if (reduVCC.adj_size(v) == 2) num_attempts++;
+        if (reduVCC.adj_size(v) == 3) num_attempts++;
+        num_attempts += 2;
         pReduction = new dom_reduction();
       }
       else {
@@ -273,10 +277,9 @@ void reducer::cascading_reductions(graph_access &G, redu_vcc &reduVCC, vertex_qu
 
       num_reductions++;
       num_cliques += pReduction-> num_cliques;
-      std::cout << "crown cliques: "<< pReduction->num_cliques << std::endl;;
+      // std::cout << "crown cliques: "<< pReduction->num_cliques << std::endl;;
     }
-    else {
-      num_attempts++;
-      delete pReduction; }
+    else { delete pReduction; }
+    num_attempts++;
     }
 }
