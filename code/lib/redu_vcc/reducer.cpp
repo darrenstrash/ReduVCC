@@ -229,6 +229,7 @@ void reducer::cascading_reductions(graph_access &G, redu_vcc &reduVCC, vertex_qu
       unsigned int adj_size = reduVCC.adj_size(v);
 
       if (iso_reduction::validISO(reduVCC, v)) {
+        iso_degree[adj_size]++;
         num_attempts++;
         pReduction = new iso_reduction();
       }
@@ -244,6 +245,7 @@ void reducer::cascading_reductions(graph_access &G, redu_vcc &reduVCC, vertex_qu
         pReduction = new twin_reduction();
       }
       else if (dom_reduction::validDOM(reduVCC, v, u)){
+        dom_degree[adj_size]++;
         if (adj_size <= 5) num_attempts++;
         if (adj_size == 2) num_attempts++;
         if (adj_size == 3) num_attempts++;
@@ -265,12 +267,12 @@ void reducer::cascading_reductions(graph_access &G, redu_vcc &reduVCC, vertex_qu
       num_fold_cliques += pReduction->num_folded_cliques;
       reduction_stack.push_back(pReduction);
 
-      if (pReduction->type.compare("iso")){
-        iso_degree[pReduction->deg]++;
-      }
-      if (pReduction->type.compare("dom")){
-        dom_degree[pReduction->deg]++;
-      }
+      // if (pReduction->type.compare("iso")){
+      //   iso_degree[pReduction->deg]++;
+      // }
+      // if (pReduction->type.compare("dom")){
+      //   dom_degree[pReduction->deg]++;
+      // }
     }
 
     NodeID v; NodeID u;
