@@ -34,6 +34,8 @@ bool iso_reduction::validNeighbor(redu_vcc &reduVCC, NodeID &v, NodeID &u){
 bool iso_reduction::validISO(redu_vcc &reduVCC, NodeID &v){
     // checks if v is an isolated vertex
 
+    if (reduVCC.adj_size(v) > 10) return false;
+
     for (NodeID u : reduVCC.adj_list[v]) {
         if (!reduVCC.node_status[u]) { continue; }
 

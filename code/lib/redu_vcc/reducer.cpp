@@ -226,29 +226,35 @@ void reducer::cascading_reductions(graph_access &G, redu_vcc &reduVCC, vertex_qu
 
       reduction *pReduction = nullptr;
 
+      unsigned int adj_size = reduVCC.adj_size(v);
+
       if (iso_reduction::validISO(reduVCC, v)) {
         num_attempts++;
         pReduction = new iso_reduction();
       }
       else if (d2_reduction::validD2(reduVCC, v)){
-        num_attempts += 2;
+        if (adj_size <= 5) num_attempts++;
+        num_attempts += 1;
         pReduction = new d2_reduction();
       }
       else if (twin_reduction::validTWIN(reduVCC, v, u)){
-        if (reduVCC.adj_size(v) == 2) num_attempts++;
-        num_attempts += 2;
+        if (adj_size <= 5) num_attempts++;
+        if (adj_size == 2) num_attempts++;
+        num_attempts++;
         pReduction = new twin_reduction();
       }
       else if (dom_reduction::validDOM(reduVCC, v, u)){
-        if (reduVCC.adj_size(v) == 2) num_attempts++;
-        if (reduVCC.adj_size(v) == 3) num_attempts++;
-        num_attempts += 2;
+        if (adj_size <= 5) num_attempts++;
+        if (adj_size == 2) num_attempts++;
+        if (adj_size == 3) num_attempts++;
+        num_attempts++;
         pReduction = new dom_reduction();
       }
       else {
-        num_attempts += 2;
-        if (reduVCC.adj_size(v) == 2) num_attempts++;
-        if (reduVCC.adj_size(v) == 3) num_attempts++;
+        num_attempts ++;
+        if (adj_size <= 5) num_attempts++;
+        if (adj_size == 2) num_attempts++;
+        if (adj_size == 3) num_attempts++;
         delete pReduction;
         continue;
       }
