@@ -47,7 +47,7 @@ private:
 
     // void brute_bandr( graph_access &G, unsigned int num_folded_cliques);
     // void reduMIS_bandr( graph_access &G, unsigned int num_folded_cliques);
-    void small_degree_bandr( graph_access &G, unsigned int num_folded_cliques);
+    void small_degree_bandr( graph_access &G, unsigned int num_folded_cliques, PartitionConfig &partition_config, timer &t);
     // void sort_enum_bandr( graph_access &G, unsigned int num_folded_cliques, PartitionConfig &partition_config, timer &t);
     // void chalupa_status_bandr( graph_access &G, unsigned int num_folded_cliques, PartitionConfig &partition_config, timer &t);
     void cascading_red_bandr( graph_access &G, unsigned int num_folded_cliques, vertex_queue *queue,

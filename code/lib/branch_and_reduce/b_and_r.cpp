@@ -279,7 +279,9 @@ NodeID branch_and_reduce::min_deg_node(redu_vcc &reduVCC) {
 
 }
 
-void branch_and_reduce::small_degree_bandr( graph_access &G, unsigned int num_folded_cliques) {
+void branch_and_reduce::small_degree_bandr( graph_access &G, unsigned int num_folded_cliques, PartitionConfig &partition_config, timer &t) {
+
+  if (t.elapsed() > partition_config.solver_time_limit) return;
 
   // perform exhaustive reductions
   reducer R(G);
@@ -336,7 +338,7 @@ void branch_and_reduce::small_degree_bandr( graph_access &G, unsigned int num_fo
 
     // branch
     branch_count++;
-    small_degree_bandr(G, num_folded_cliques);
+    small_degree_bandr(G, num_folded_cliques, partition_config, t);
 
     // pop branched on clique
     reduVCC.pop_clique(clique);

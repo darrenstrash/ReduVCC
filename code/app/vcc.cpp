@@ -145,7 +145,7 @@ int main(int argn, char **argv) {
     // }
     if (partition_config.run_type == "small_degree") {
       branch_and_reduce B(G, partition_config);
-      B.small_degree_bandr(G, 0);
+      B.small_degree_bandr(G, 0, partition_config, s);
       B.analyzeGraph(graph_filename, G, s);
       std::cout << "branches: " << B.branch_count << std::endl;
       std::cout << "iso degree dist: [";

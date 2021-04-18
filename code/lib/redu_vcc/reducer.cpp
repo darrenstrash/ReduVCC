@@ -67,7 +67,7 @@ void reducer::bruteISO(graph_access &G, redu_vcc &reduVCC, std::vector<unsigned 
 
               iso_degree[pReduction->deg]++;
          }
-         num_attempts++;
+         if (reduVCC.adj_size(v) <= 5) num_attempts++;
       } endfor
 
  }
@@ -129,7 +129,8 @@ void reducer::bruteTWIN(graph_access &G, redu_vcc &reduVCC) {
               num_fold_cliques += pReduction->num_folded_cliques;
 
          }
-         if (reduVCC.adj_size(v) == 3) num_attempts++;
+         //if (reduVCC.adj_size(v) == 3) num_attempts++;
+         num_attempts++;
       } endfor
 
  }
@@ -241,7 +242,7 @@ void reducer::cascading_reductions(graph_access &G, redu_vcc &reduVCC, vertex_qu
       else if (twin_reduction::validTWIN(reduVCC, v, u)){
         if (adj_size <= 5) num_attempts++;
         if (adj_size == 2) num_attempts++;
-        num_attempts++;
+        num_attempts+=1;
         pReduction = new twin_reduction();
       }
       else if (dom_reduction::validDOM(reduVCC, v, u)){
@@ -249,11 +250,11 @@ void reducer::cascading_reductions(graph_access &G, redu_vcc &reduVCC, vertex_qu
         if (adj_size <= 5) num_attempts++;
         if (adj_size == 2) num_attempts++;
         if (adj_size == 3) num_attempts++;
-        num_attempts++;
+        num_attempts += 1;
         pReduction = new dom_reduction();
       }
       else {
-        num_attempts ++;
+        num_attempts += 1;
         if (adj_size <= 5) num_attempts++;
         if (adj_size == 2) num_attempts++;
         if (adj_size == 3) num_attempts++;
