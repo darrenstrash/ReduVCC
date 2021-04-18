@@ -165,7 +165,10 @@ void twin_reduction::foldTWIN(redu_vcc &reduVCC) {
 
 }
 
-void twin_reduction::reduce( graph_access &G, redu_vcc &reduVCC, NodeID &node_v, NodeID &node_u ){
+void twin_reduction::reduce( graph_access &G, redu_vcc &reduVCC,
+                             NodeID &node_v, NodeID &node_u ){
+
+  type = "twin";
 
   v = node_v;
   u = node_u;
@@ -185,6 +188,20 @@ void twin_reduction::reduce( graph_access &G, redu_vcc &reduVCC, NodeID &node_v,
   foldTWIN(reduVCC);
   num_folded_cliques +=2;
 
+}
+
+void twin_reduction::reduce( graph_access &G, redu_vcc &reduVCC, vertex_queue *queue,
+                             NodeID &node_v, NodeID &node_u ){
+
+  reduce(G, reduVCC, node_v, node_u);
+  if (remove_type) {
+    queue->adjust_queue(reduVCC, w);
+    queue->adjust_queue(reduVCC, x);
+    queue->adjust_queue(reduVCC, y);
+    return;
+  }
+  queue->push(y);
+  queue->adjust_queue(reduVCC, y);
 }
 
 void twin_reduction::unfoldTWIN(redu_vcc &reduVCC,

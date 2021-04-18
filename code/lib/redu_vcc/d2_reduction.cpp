@@ -70,7 +70,10 @@ void d2_reduction::foldD2(redu_vcc &reduVCC) {
     reduVCC.fold_node[u] = true;
 }
 
-void d2_reduction::reduce( graph_access &G, redu_vcc &reduVCC, NodeID &node_v, NodeID &node_u ){
+void d2_reduction::reduce( graph_access &G, redu_vcc &reduVCC,
+                           NodeID &node_v, NodeID &node_u ){
+
+  type = "d2";
 
   v = node_v;
   num_folded_cliques++;
@@ -89,6 +92,13 @@ void d2_reduction::reduce( graph_access &G, redu_vcc &reduVCC, NodeID &node_v, N
   // reduVCC.printAdjList(w);
   // std::cout << std::endl;
 
+}
+
+void d2_reduction::reduce( graph_access &G, redu_vcc &reduVCC, vertex_queue *queue,
+                           NodeID &node_v, NodeID &node_u ){
+    reduce(G, reduVCC, node_v, node_u);
+    queue->push(w);
+    queue->adjust_queue(reduVCC, w);
 }
 
 void d2_reduction::unfold(graph_access &G, redu_vcc &reduVCC) {
