@@ -76,7 +76,7 @@ int main(int argn, char **argv) {
 
     timer s;
 
-    branch_and_reduce B(G);
+    branch_and_reduce B(G, partition_config);
     vertex_queue *queue = nullptr;
     if (partition_config.run_type == "cascading") queue = new vertex_queue(G);
     B.bandr(G, 0, queue, partition_config, s);
