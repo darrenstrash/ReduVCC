@@ -20,7 +20,12 @@ private:
 
   std::vector<reducer> reducer_stack;
 
-  void reduce(unsigned int &num_folded_cliques, vertex_queue *queue);
+  std::string redu_type;
+  std::string prune_type;
+  std::string next_node_type;
+  std::string enum_type;
+
+  void reduce(graph_access &G, reducer &R, unsigned int &num_fold_cliques, vertex_queue *queue);
   bool prune(unsigned int &curr_cover_size);
   NodeID nextNode();
   NodeID min_deg_node();
@@ -45,19 +50,19 @@ private:
 
     std::vector<std::vector<NodeID>> sorted_enumerate(NodeID x, std::vector<bool> &indset);
 
-    void bandr( graph_access &G, unsigned int num_folded_cliques, 
+    void bandr( graph_access &G, unsigned int num_fold_cliques,
                 vertex_queue *queue, PartitionConfig &partition_config, timer &t);
 
 
 
-    // void brute_bandr( graph_access &G, unsigned int num_folded_cliques);
-    // void reduMIS_bandr( graph_access &G, unsigned int num_folded_cliques);
-    // void small_degree_bandr( graph_access &G, unsigned int num_folded_cliques);
-    // void sort_enum_bandr( graph_access &G, unsigned int num_folded_cliques, PartitionConfig &partition_config, timer &t);
-    // void chalupa_status_bandr( graph_access &G, unsigned int num_folded_cliques, PartitionConfig &partition_config, timer &t);
-    // void cascading_red_bandr( graph_access &G, unsigned int num_folded_cliques, vertex_queue *queue,
+    // void brute_bandr( graph_access &G, unsigned int num_fold_cliques);
+    // void reduMIS_bandr( graph_access &G, unsigned int num_fold_cliques);
+    // void small_degree_bandr( graph_access &G, unsigned int num_fold_cliques);
+    // void sort_enum_bandr( graph_access &G, unsigned int num_fold_cliques, PartitionConfig &partition_config, timer &t);
+    // void chalupa_status_bandr( graph_access &G, unsigned int num_fold_cliques, PartitionConfig &partition_config, timer &t);
+    // void cascading_red_bandr( graph_access &G, unsigned int num_fold_cliques, vertex_queue *queue,
                               // PartitionConfig &partition_config, timer &t);
-    // void generate_mis_bandr( graph_access &G, unsigned int num_folded_cliques, PartitionConfig &partition_config, timer &t);
+    // void generate_mis_bandr( graph_access &G, unsigned int num_fold_cliques, PartitionConfig &partition_config, timer &t);
 
     void analyzeGraph(std::string &filename, graph_access &G, timer &t) {reduVCC.analyzeGraph(filename, G, t);};
 };

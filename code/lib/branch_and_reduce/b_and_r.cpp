@@ -139,9 +139,8 @@ void branch_and_reduce::pivot_enumerator(std::vector<std::vector<NodeID>> &minim
   }
 }
 
-void branch_and_reduce::reduce(unsigned int &num_folded_cliques, vertex_queue *queue) {
+void branch_and_reduce::reduce(graph_access &G, reducer &R, unsigned int &num_fold_cliques, vertex_queue *queue) {
 
-    reducer R(G);
     if (queue == nullptr || queue->empty()) {
       R.exhaustive_reductions(G, reduVCC, iso_degree, dom_degree);
       delete queue;
@@ -155,7 +154,7 @@ void branch_and_reduce::reduce(unsigned int &num_folded_cliques, vertex_queue *q
     num_attempts += R.num_attempts;
 
     // keep track of total folded cliques to determine current clique cover size
-    num_folded_cliques += R.num_fold_cliques;
+    num_fold_cliques += R.num_fold_cliques;
 
 }
 
@@ -177,7 +176,6 @@ bool branch_and_reduce::prune(unsigned int &curr_cover_size) {
     // prune branch if estimated cover is larger than current best
     if (reduVCC.clique_cover.size() != 0 && estimated_cover_size >= reduVCC.clique_cover.size()) {
       // std::cout << "prune" << std::endl;
-      R.undoReductions(G, reduVCC); reducer_stack.pop_back();
       return true;
     }
 
@@ -219,16 +217,17 @@ NodeID branch_and_reduce::nextNode(){
   }
 }
 
-void branch_and_reduce::bandr( graph_access &G, unsigned int num_folded_cliques,
+void branch_and_reduce::bandr( graph_access &G, unsigned int num_fold_cliques,
                                vertex_queue *queue,
                                PartitionConfig &partition_config, timer &t) {
 
   if (t.elapsed() > partition_config.solver_time_limit) return;
 
-  reduce(num_fold_cliques, queue, partition_config);
+  reducer R(G);
+  reduce(G, R, num_fold_cliques, queue, partition_config);
 
   // current size of parital clique cover
-  unsigned int curr_cover_size = reduVCC.next_cliqueID + num_folded_cliques;
+  unsigned int curr_cover_size = reduVCC.next_cliqueID + num_fold_cliques;
 
   // check exit condition -- kernel is empty
   if (reduVCC.remaining_nodes == 0) {
@@ -249,6 +248,7 @@ void branch_and_reduce::bandr( graph_access &G, unsigned int num_folded_cliques,
 
 
   if (prune(curr_cover_size, partition_config)) {
+    R.undoReductions(G, reduVCC); reducer_stack.pop_back();
     return;
   }
 
@@ -285,7 +285,7 @@ void branch_and_reduce::bandr( graph_access &G, unsigned int num_folded_cliques,
     // std::cout << "branch" << std::endl;
     // branch
     branch_count++;
-    cascading_red_bandr(G, num_folded_cliques, new_queue, partition_config, t);
+    bandr(G, num_fold_cliques, new_queue, partition_config, t);
 
     // pop branched on clique
     reduVCC.pop_clique(clique);
@@ -297,16 +297,16 @@ void branch_and_reduce::bandr( graph_access &G, unsigned int num_folded_cliques,
 }
 
 
-// // void branch_and_reduce::brute_bandr( graph_access &G, unsigned int num_folded_cliques) {
+// // void branch_and_reduce::brute_bandr( graph_access &G, unsigned int num_fold_cliques) {
 // //
 // //   // perform exhaustive reductions
 // //   reducer R(G);
 // //   R.exhaustive_reductions(G, reduVCC); reducer_stack.push_back(R);
 // //   // keep track of total folded cliques to determine current clique cover size
-// //   num_folded_cliques += R.num_fold_cliques;
+// //   num_fold_cliques += R.num_fold_cliques;
 // //
 // //   // current size of parital clique cover
-// //   unsigned int curr_cover_size = reduVCC.next_cliqueID + num_folded_cliques;
+// //   unsigned int curr_cover_size = reduVCC.next_cliqueID + num_fold_cliques;
 // //
 // //   // check exit condition -- kernel is empty
 // //   if (reduVCC.remaining_nodes == 0) {
@@ -342,7 +342,7 @@ void branch_and_reduce::bandr( graph_access &G, unsigned int num_folded_cliques,
 // //
 // //     // branch
 // //     branch_count++;
-// //     brute_bandr(G, num_folded_cliques);
+// //     brute_bandr(G, num_fold_cliques);
 // //
 // //     // pop branched on clique
 // //     reduVCC.pop_clique(clique);
@@ -353,16 +353,16 @@ void branch_and_reduce::bandr( graph_access &G, unsigned int num_folded_cliques,
 // //   R.undoReductions(G, reduVCC); reducer_stack.pop_back();
 // // }
 //
-// // void branch_and_reduce::reduMIS_bandr( graph_access &G, unsigned int num_folded_cliques) {
+// // void branch_and_reduce::reduMIS_bandr( graph_access &G, unsigned int num_fold_cliques) {
 // //
 // //   // perform exhaustive reductions
 // //   reducer R(G);
 // //   R.exhaustive_reductions(G, reduVCC); reducer_stack.push_back(R);
 // //   // keep track of total folded cliques to determine current clique cover size
-// //   num_folded_cliques += R.num_fold_cliques;
+// //   num_fold_cliques += R.num_fold_cliques;
 // //
 // //   // current size of parital clique cover
-// //   unsigned int curr_cover_size = reduVCC.next_cliqueID + num_folded_cliques;
+// //   unsigned int curr_cover_size = reduVCC.next_cliqueID + num_fold_cliques;
 // //
 // //   // check exit condition -- kernel is empty
 // //   if (reduVCC.remaining_nodes == 0) {
@@ -409,7 +409,7 @@ void branch_and_reduce::bandr( graph_access &G, unsigned int num_folded_cliques,
 // //
 // //     // branch
 // //     branch_count++;
-// //     reduMIS_bandr(G, num_folded_cliques);
+// //     reduMIS_bandr(G, num_fold_cliques);
 // //
 // //     // pop branched on clique
 // //     reduVCC.pop_clique(clique);
@@ -442,7 +442,7 @@ void branch_and_reduce::bandr( graph_access &G, unsigned int num_folded_cliques,
 //
 // }
 //
-// void branch_and_reduce::small_degree_bandr( graph_access &G, unsigned int num_folded_cliques) {
+// void branch_and_reduce::small_degree_bandr( graph_access &G, unsigned int num_fold_cliques) {
 //
 //   // perform exhaustive reductions
 //   reducer R(G);
@@ -450,10 +450,10 @@ void branch_and_reduce::bandr( graph_access &G, unsigned int num_folded_cliques,
 //   red_perf += R.num_reductions;
 //   red_tried += R.num_attempts;
 //   // keep track of total folded cliques to determine current clique cover size
-//   num_folded_cliques += R.num_fold_cliques;
+//   num_fold_cliques += R.num_fold_cliques;
 //
 //   // current size of parital clique cover
-//   unsigned int curr_cover_size = reduVCC.next_cliqueID + num_folded_cliques;
+//   unsigned int curr_cover_size = reduVCC.next_cliqueID + num_fold_cliques;
 //
 //   // check exit condition -- kernel is empty
 //   if (reduVCC.remaining_nodes == 0) {
@@ -499,7 +499,7 @@ void branch_and_reduce::bandr( graph_access &G, unsigned int num_folded_cliques,
 //
 //     // branch
 //     branch_count++;
-//     small_degree_bandr(G, num_folded_cliques);
+//     small_degree_bandr(G, num_fold_cliques);
 //
 //     // pop branched on clique
 //     reduVCC.pop_clique(clique);
@@ -560,7 +560,7 @@ void branch_and_reduce::bandr( graph_access &G, unsigned int num_folded_cliques,
 //     return sorted_cliques;
 // }
 //
-// // void branch_and_reduce::sort_enum_bandr( graph_access &G, unsigned int num_folded_cliques, PartitionConfig &partition_config, timer &t) {
+// // void branch_and_reduce::sort_enum_bandr( graph_access &G, unsigned int num_fold_cliques, PartitionConfig &partition_config, timer &t) {
 // //
 // //   if (t.elapsed() > partition_config.solver_time_limit) return;
 // //
@@ -568,10 +568,10 @@ void branch_and_reduce::bandr( graph_access &G, unsigned int num_folded_cliques,
 // //   reducer R(G);
 // //   R.exhaustive_reductions(G, reduVCC, iso_degree, dom_degree); reducer_stack.push_back(R);
 // //   // keep track of total folded cliques to determine current clique cover size
-// //   num_folded_cliques += R.num_fold_cliques;
+// //   num_fold_cliques += R.num_fold_cliques;
 // //
 // //   // current size of parital clique cover
-// //   unsigned int curr_cover_size = reduVCC.next_cliqueID + num_folded_cliques;
+// //   unsigned int curr_cover_size = reduVCC.next_cliqueID + num_fold_cliques;
 // //
 // //   // check exit condition -- kernel is empty
 // //   if (reduVCC.remaining_nodes == 0) {
@@ -617,7 +617,7 @@ void branch_and_reduce::bandr( graph_access &G, unsigned int num_folded_cliques,
 // //
 // //     // branch
 // //     branch_count++;
-// //     sort_enum_bandr(G, num_folded_cliques, partition_config, t);
+// //     sort_enum_bandr(G, num_fold_cliques, partition_config, t);
 // //
 // //     // pop branched on clique
 // //     reduVCC.pop_clique(clique);
@@ -628,7 +628,7 @@ void branch_and_reduce::bandr( graph_access &G, unsigned int num_folded_cliques,
 // //   R.undoReductions(G, reduVCC); reducer_stack.pop_back();
 // // }
 //
-// // void branch_and_reduce::chalupa_status_bandr( graph_access &G, unsigned int num_folded_cliques, PartitionConfig &partition_config, timer &t) {
+// // void branch_and_reduce::chalupa_status_bandr( graph_access &G, unsigned int num_fold_cliques, PartitionConfig &partition_config, timer &t) {
 // //
 // //   if (t.elapsed() > partition_config.solver_time_limit) return;
 // //
@@ -636,10 +636,10 @@ void branch_and_reduce::bandr( graph_access &G, unsigned int num_folded_cliques,
 // //   reducer R(G);
 // //   R.exhaustive_reductions(G, reduVCC); reducer_stack.push_back(R);
 // //   // keep track of total folded cliques to determine current clique cover size
-// //   num_folded_cliques += R.num_fold_cliques;
+// //   num_fold_cliques += R.num_fold_cliques;
 // //
 // //   // current size of parital clique cover
-// //   unsigned int curr_cover_size = reduVCC.next_cliqueID + num_folded_cliques;
+// //   unsigned int curr_cover_size = reduVCC.next_cliqueID + num_fold_cliques;
 // //
 // //   // check exit condition -- kernel is empty
 // //   if (reduVCC.remaining_nodes == 0) {
@@ -690,7 +690,7 @@ void branch_and_reduce::bandr( graph_access &G, unsigned int num_folded_cliques,
 // //
 // //     // branch
 // //     branch_count++;
-// //     chalupa_status_bandr(G, num_folded_cliques, partition_config, t);
+// //     chalupa_status_bandr(G, num_fold_cliques, partition_config, t);
 // //
 // //     // pop branched on clique
 // //     reduVCC.pop_clique(clique);
@@ -701,7 +701,7 @@ void branch_and_reduce::bandr( graph_access &G, unsigned int num_folded_cliques,
 // //   R.undoReductions(G, reduVCC); reducer_stack.pop_back();
 // // }
 //
-// void branch_and_reduce::cascading_red_bandr( graph_access &G, unsigned int num_folded_cliques,
+// void branch_and_reduce::cascading_red_bandr( graph_access &G, unsigned int num_fold_cliques,
 //                                              vertex_queue *queue,
 //                                              PartitionConfig &partition_config, timer &t) {
 //
@@ -720,11 +720,11 @@ void branch_and_reduce::bandr( graph_access &G, unsigned int num_folded_cliques,
 //   red_tried += R.num_attempts;
 //   // R.exhaustive_reductions(G, reduVCC); reducer_stack.push_back(R);
 //   // keep track of total folded cliques to determine current clique cover size
-//   num_folded_cliques += R.num_fold_cliques;
+//   num_fold_cliques += R.num_fold_cliques;
 //   delete queue;
 //
 //   // current size of parital clique cover
-//   unsigned int curr_cover_size = reduVCC.next_cliqueID + num_folded_cliques;
+//   unsigned int curr_cover_size = reduVCC.next_cliqueID + num_fold_cliques;
 //   // std::cout << "curr cover size: " << curr_cover_size << std::endl;
 //   // std::cout << "post reductions reduMIS: " << reduVCC.curr_mis << std::endl;
 //   // std::cout << "remaining nodes: " << reduVCC.remaining_nodes << std::endl;
@@ -779,7 +779,7 @@ void branch_and_reduce::bandr( graph_access &G, unsigned int num_folded_cliques,
 //     // std::cout << "branch" << std::endl;
 //     // branch
 //     branch_count++;
-//     cascading_red_bandr(G, num_folded_cliques, new_queue, partition_config, t);
+//     cascading_red_bandr(G, num_fold_cliques, new_queue, partition_config, t);
 //
 //     // pop branched on clique
 //     reduVCC.pop_clique(clique);
@@ -790,7 +790,7 @@ void branch_and_reduce::bandr( graph_access &G, unsigned int num_folded_cliques,
 //   R.undoReductions(G, reduVCC); reducer_stack.pop_back();
 // }
 //
-//   // void branch_and_reduce::generate_mis_bandr( graph_access &G, unsigned int num_folded_cliques, PartitionConfig &partition_config, timer &t) {
+//   // void branch_and_reduce::generate_mis_bandr( graph_access &G, unsigned int num_fold_cliques, PartitionConfig &partition_config, timer &t) {
 //   //
 //   //     if (t.elapsed() > partition_config.solver_time_limit) return;
 //   //
@@ -798,10 +798,10 @@ void branch_and_reduce::bandr( graph_access &G, unsigned int num_folded_cliques,
 //   //     reducer R(G);
 //   //     R.exhaustive_reductions(G, reduVCC); reducer_stack.push_back(R);
 //   //     // keep track of total folded cliques to determine current clique cover size
-//   //     num_folded_cliques += R.num_fold_cliques;
+//   //     num_fold_cliques += R.num_fold_cliques;
 //   //
 //   //     // current size of parital clique cover
-//   //     unsigned int curr_cover_size = reduVCC.next_cliqueID + num_folded_cliques;
+//   //     unsigned int curr_cover_size = reduVCC.next_cliqueID + num_fold_cliques;
 //   //
 //   //     // check exit condition -- kernel is empty
 //   //     if (reduVCC.remaining_nodes == 0) {
@@ -858,7 +858,7 @@ void branch_and_reduce::bandr( graph_access &G, unsigned int num_folded_cliques,
 //   //
 //   //       // branch
 //   //       branch_count++;
-//   //       generate_mis_bandr(G, num_folded_cliques, partition_config, t);
+//   //       generate_mis_bandr(G, num_fold_cliques, partition_config, t);
 //   //
 //   //       // pop branched on clique
 //   //       reduVCC.pop_clique(clique);
