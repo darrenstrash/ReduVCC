@@ -7,7 +7,7 @@
 // #include "mis/ils/ils.h"
 
 
-branch_and_reduce::construct_run(PartitionConfig &partition_config) {
+void branch_and_reduce::construct_run(PartitionConfig &partition_config) {
 
   redu_type = "exhaustive";
   prune_type = "none";
@@ -207,8 +207,8 @@ NodeID branch_and_reduce::min_deg_node() {
 
 NodeID branch_and_reduce::nextNode(){
 
-  if (node_type = "small_deg") {
-    return min_degree();
+  if (next_node_type = "small_deg") {
+    return min_deg_node();
   }
   else {
     NodeID next_node = 0;
@@ -224,7 +224,7 @@ void branch_and_reduce::bandr( graph_access &G, unsigned int num_fold_cliques,
   if (t.elapsed() > partition_config.solver_time_limit) return;
 
   reducer R(G);
-  reduce(G, R, num_fold_cliques, queue, partition_config);
+  reduce(G, R, num_fold_cliques, queue);
 
   // current size of parital clique cover
   unsigned int curr_cover_size = reduVCC.next_cliqueID + num_fold_cliques;
@@ -264,7 +264,7 @@ void branch_and_reduce::bandr( graph_access &G, unsigned int num_fold_cliques,
 
 
   // get next node in kernel with minimum degree
-  NodeID next_node = min_deg_node(reduVCC);
+  NodeID next_node = nextNode();
 
   // enumerate all maximal cliques of next_node sorted by size and MIS
   // std::cout << "enumerate" << std::endl;

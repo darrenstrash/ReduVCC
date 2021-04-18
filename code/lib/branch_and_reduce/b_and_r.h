@@ -44,6 +44,9 @@ private:
     branch_and_reduce(graph_access &G, PartitionConfig &partition_config);
     virtual ~branch_and_reduce() {};
 
+    void construct_run(PartitionConfig &partition_config);
+
+
     std::vector<std::vector<NodeID>> enumerate(NodeID v);
     void pivot_enumerator(std::vector<std::vector<NodeID>> &minimal_cliques,
                     std::vector<NodeID> &consider_nodes, std::vector<NodeID> &curr_clique, std::vector<NodeID> &excluded_nodes);
