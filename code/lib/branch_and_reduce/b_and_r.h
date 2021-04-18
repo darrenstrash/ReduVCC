@@ -40,7 +40,7 @@ private:
     unsigned int num_reductions;
     unsigned int num_attempts;
 
-    branch_and_reduce(graph_access &G);
+    // branch_and_reduce(graph_access &G);
     branch_and_reduce(graph_access &G, PartitionConfig &partition_config);
     virtual ~branch_and_reduce() {};
 
