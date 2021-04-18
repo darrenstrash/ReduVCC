@@ -24,7 +24,7 @@ void branch_and_reduce::construct_run(PartitionConfig &partition_config) {
   if (partition_config.run_type == "ReduMIS") return;
   prune_type = "KaMIS";
   if (partition_config.run_type == "KaMIS") return;
-  redu_type = "cascading"
+  redu_type = "cascading";
   if (partition_config.run_type == "cascading") return;
 }
 
@@ -207,14 +207,13 @@ NodeID branch_and_reduce::min_deg_node() {
 
 NodeID branch_and_reduce::nextNode(){
 
-  if (next_node_type = "small_deg") {
+  if (next_node_type == "small_deg") {
     return min_deg_node();
   }
-  else {
-    NodeID next_node = 0;
-    while (!reduVCC.node_status[next_node]) next_node++;
-    return next_node;
-  }
+  NodeID next_node = 0;
+  while (!reduVCC.node_status[next_node]) next_node++;
+  return next_node;
+
 }
 
 void branch_and_reduce::bandr( graph_access &G, unsigned int num_fold_cliques,
@@ -247,7 +246,7 @@ void branch_and_reduce::bandr( graph_access &G, unsigned int num_fold_cliques,
   }
 
 
-  if (prune(curr_cover_size, partition_config)) {
+  if (prune(curr_cover_size)) {
     R.undoReductions(G, reduVCC); reducer_stack.pop_back();
     return;
   }
