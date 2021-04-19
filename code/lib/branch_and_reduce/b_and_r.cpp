@@ -420,7 +420,7 @@ void branch_and_reduce::bandr( graph_access &G, unsigned int num_fold_cliques,
   }
 
 
-  estimated_cover_size = curr_cover_size + reduVCC.curr_mis;
+  unsigned int estimated_cover_size = curr_cover_size + reduVCC.curr_mis;
 
 // std::cout << "est cover: " << estimated_cover_size << ", " << reduVCC.clique_cover.size() << std::endl;
 // prune branch if estimated cover is larger than current best
@@ -441,12 +441,12 @@ if (reduVCC.clique_cover.size() != 0 && estimated_cover_size >= reduVCC.clique_c
 
 
   // get next node in kernel with minimum degree
-  NodeID next_node = small_deg();
+  NodeID next_node = min_deg_node();
 
   // enumerate all maximal cliques of next_node sorted by size and MIS
   // std::cout << "enumerate" << std::endl;
   // std::vector<std::vector<NodeID>> curr_cliques = sorted_enumerate(next_node, reduVCC.node_mis);
-  std::vector<std::vector<NodeID>> curr_cliques = sort_enum(next_node);
+  std::vector<std::vector<NodeID>> curr_cliques = sorted_enumerate(next_node);
 
   // std::cout << "complete enumerate" << std::endl;
   // branch on each clique in enumerated set
