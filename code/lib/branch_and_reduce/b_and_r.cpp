@@ -22,8 +22,8 @@ void branch_and_reduce::construct_run(PartitionConfig &partition_config) {
   // if (partition_config.run_type == "sort_enum") return;
   prune_type = "ReduMIS";
   if (partition_config.run_type == "ReduMIS") return;
-  prune_type = "KaMIS";
-  if (partition_config.run_type == "KaMIS") return;
+  // prune_type = "KaMIS";
+  // if (partition_config.run_type == "KaMIS") return;
   redu_type = "cascading";
   if (partition_config.run_type == "cascading") return;
 }
