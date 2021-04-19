@@ -207,6 +207,17 @@ NodeID branch_and_reduce::min_deg_node() {
 
 }
 
+vertex_queue* branch_and_reduce::construct_queue(graph_access &G, std::vertex<std::vertex<NodeID>> &clique) {
+
+  vertex_queue *new_queue = nullptr;
+  if (redu_type == "exhaustive") return new_queue;
+
+  new_queue = new vertex_queue(G);
+  for (NodeID a : clique) new_queue->adjust_queue(reduVCC, a);
+  return new_queue;
+
+}
+
 NodeID branch_and_reduce::nextNode(){
 
   if (next_node_type == "small_deg") {
@@ -280,8 +291,9 @@ void branch_and_reduce::bandr( graph_access &G, unsigned int num_fold_cliques,
     reduVCC.removeVertexSet(clique);
     // std::cout << "new queue" << std::endl;
 
-    vertex_queue *new_queue = new vertex_queue(G);
-    for (NodeID a : clique) new_queue->adjust_queue(reduVCC, a);
+    vertex_queue *new_queue = construct_queue(G, clique);
+    // vertex_queue *new_queue = new vertex_queue(G);
+    // for (NodeID a : clique) new_queue->adjust_queue(reduVCC, a);
 
     // std::cout << "branch" << std::endl;
     // branch
