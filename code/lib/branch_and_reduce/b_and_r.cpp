@@ -168,7 +168,7 @@ bool branch_and_reduce::prune(unsigned int &curr_cover_size) {
       return false;
     }
     else if (prune_type == "KaMIS") {
-      geneate MIS of kernel using ILS
+      // geneate MIS of kernel using ILS
       graph_access G_p;
       graph_io::readGraphKernel(G_p, reduVCC);
       MISConfig config;
