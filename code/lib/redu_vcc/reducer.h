@@ -28,6 +28,7 @@ class reducer {
   public:
     reducer() {};
     reducer(graph_access &G);
+    reducer(graph_access &G, unsigned int iso_lim);
     virtual ~reducer() {};
 
     unsigned int num_reductions;
