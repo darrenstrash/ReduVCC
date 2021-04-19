@@ -19,7 +19,7 @@ class iso_reduction: public reduction {
     NodeID v;
     std::vector <NodeID> clique;
 
-    static bool validISO(redu_vcc &reduVCC, NodeID &v);
+    static bool validISO(redu_vcc &reduVCC, unsigned int& deg_limit, NodeID &v);
     static bool validNeighbor(redu_vcc &reduVCC, NodeID &v, NodeID &u);
 
     void reduce(graph_access &G, redu_vcc &reduVCC,

@@ -31,10 +31,10 @@ bool iso_reduction::validNeighbor(redu_vcc &reduVCC, NodeID &v, NodeID &u){
     return true;
 }
 
-bool iso_reduction::validISO(redu_vcc &reduVCC, NodeID &v){
+bool iso_reduction::validISO(redu_vcc &reduVCC, unsigned int &deg_limit, NodeID &v){
     // checks if v is an isolated vertex
 
-    // if (reduVCC.adj_size(v) > 10) return false;
+    if (deg_limit != 0 && reduVCC.adj_size(v) > deg_limit) return false;
     // std::cout << reduVCC.adj_size(v) << std::endl;
 
     for (NodeID u : reduVCC.adj_list[v]) {

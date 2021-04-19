@@ -60,7 +60,7 @@ void reducer::bruteISO(graph_access &G, redu_vcc &reduVCC, std::vector<unsigned 
 
           if (!reduVCC.node_status[v]) { continue;}
 
-          if (iso_reduction::validISO(reduVCC, v)){
+          if (iso_reduction::validISO(reduVCC, iso_limit, v)){
 
               vertexReduced = true;
               reduction *pReduction = nullptr;
@@ -234,33 +234,33 @@ void reducer::cascading_reductions(graph_access &G, redu_vcc &reduVCC, vertex_qu
 
       unsigned int adj_size = reduVCC.adj_size(v);
 
-      if (iso_reduction::validISO(reduVCC, v)) {
+      if (iso_reduction::validISO(reduVCC, iso_limit, v)) {
         iso_degree[adj_size]++;
         num_attempts++;
         pReduction = new iso_reduction();
       }
       else if (d2_reduction::validD2(reduVCC, v)){
-        // if (adj_size <= 5) num_attempts++;
-        num_attempts += 2;
+        if ( iso_limit == 0 || adj_size <= iso_limit) num_attempts++;
+        num_attempts++;
         pReduction = new d2_reduction();
       }
       else if (twin_reduction::validTWIN(reduVCC, v, u)){
-        // if (adj_size <= 5) num_attempts++;
+        if ( iso_limit == 0 || adj_size <= iso_limit) num_attempts++;
         if (adj_size == 2) num_attempts++;
-        num_attempts+=2;
+        num_attempts++;
         pReduction = new twin_reduction();
       }
       else if (dom_reduction::validDOM(reduVCC, v, u)){
         dom_degree[adj_size]++;
-        // if (adj_size <= 5) num_attempts++;
+        if ( iso_limit == 0 || adj_size <= iso_limit) num_attempts++;
         if (adj_size == 2) num_attempts++;
         if (adj_size == 3) num_attempts++;
-        num_attempts+=2;
+        num_attempts++;
         pReduction = new dom_reduction();
       }
       else {
-        num_attempts +=2;
-        // if (adj_size <= 5) num_attempts++;
+        num_attempts ++;
+        if ( iso_limit == 0 || adj_size <= iso_limit) num_attempts++;
         if (adj_size == 2) num_attempts++;
         if (adj_size == 3) num_attempts++;
         delete pReduction;
