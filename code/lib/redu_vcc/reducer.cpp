@@ -8,7 +8,7 @@ reducer::reducer(graph_access &G) {
   num_cliques = 0;
   num_fold_cliques = 0;
 
-  unsigned int iso_limit = 0;
+  iso_limit = 0;
 }
 
 reducer::reducer(graph_access &G, unsigned int iso_lim) : reducer(G) {

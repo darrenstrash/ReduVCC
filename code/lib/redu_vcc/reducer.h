@@ -24,6 +24,8 @@ class reducer {
   private:
     std::vector<reduction*> reduction_stack;
 
+    unsigned int iso_limit;
+
 
   public:
     reducer() {};

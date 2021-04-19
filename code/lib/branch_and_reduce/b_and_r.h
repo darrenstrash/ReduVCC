@@ -38,7 +38,7 @@ private:
   bool prune(unsigned int &curr_cover_size);
   std::vector<std::vector<NodeID>> enum_vertex(NodeID &v);
   NodeID nextNode();
-  
+
   vertex_queue* construct_queue(graph_access &G, std::vector<NodeID> &clique);
 
 
@@ -82,6 +82,9 @@ private:
     void analyzeGraph(std::string &filename, graph_access &G, timer &t) {
       reduVCC.analyzeGraph(filename, G, t);
       std::cout << "Branches: " << branch_count << std::endl;
+      std::cout << "ISO degree distrib. : [";
+      for (unsigned int i : iso_degree) std::cout << i << ", ";
+      std::cout << "]" << std::endl;
     };
 };
 
