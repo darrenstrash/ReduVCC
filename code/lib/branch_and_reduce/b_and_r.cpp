@@ -172,7 +172,9 @@ std::vector<std::vector<NodeID>> branch_and_reduce::sorted_enumerate(NodeID x) {
 
   //order cliques
   std::sort(curr_cliques_indices.begin(), curr_cliques_indices.end(),
-    [curr_clique_is, curr_clique_sizes](unsigned int i, unsigned int j) {
+    // [curr_clique_is, curr_clique_sizes](unsigned int i, unsigned int j) {
+    [curr_clique_sizes](unsigned int i, unsigned int j) {
+
 
 
         // if (curr_clique_is[i] == curr_clique_is[j]) {
