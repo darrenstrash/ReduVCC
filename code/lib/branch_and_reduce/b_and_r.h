@@ -15,6 +15,10 @@
 #include "redu_vcc/reducer.h"
 #include "redu_vcc/redu_vcc.h"
 
+#include "graph_io.h"
+#include "mis/mis_config.h"
+#include "mis/ils/ils.h"
+
 class branch_and_reduce {
 private:
 
