@@ -29,6 +29,8 @@ private:
   bool prune(unsigned int &curr_cover_size);
   NodeID nextNode();
   NodeID min_deg_node();
+  vertex_queue* construct_queue(graph_access &G, std::vector<std::vectore<NodeID>> &clique);
+
 
   public:
 

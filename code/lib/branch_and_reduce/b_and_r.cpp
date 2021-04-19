@@ -207,7 +207,7 @@ NodeID branch_and_reduce::min_deg_node() {
 
 }
 
-vertex_queue* branch_and_reduce::construct_queue(graph_access &G, std::vertex<std::vertex<NodeID>> &clique) {
+vertex_queue* branch_and_reduce::construct_queue(graph_access &G, std::vector<std::vectore<NodeID>> &clique) {
 
   vertex_queue *new_queue = nullptr;
   if (redu_type == "exhaustive") return new_queue;
