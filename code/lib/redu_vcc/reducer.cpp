@@ -234,27 +234,27 @@ void reducer::cascading_reductions(graph_access &G, redu_vcc &reduVCC, vertex_qu
         pReduction = new iso_reduction();
       }
       else if (d2_reduction::validD2(reduVCC, v)){
-        if (adj_size <= 5) num_attempts++;
-        num_attempts += 1;
+        // if (adj_size <= 5) num_attempts++;
+        num_attempts += 2;
         pReduction = new d2_reduction();
       }
       else if (twin_reduction::validTWIN(reduVCC, v, u)){
-        if (adj_size <= 5) num_attempts++;
+        // if (adj_size <= 5) num_attempts++;
         if (adj_size == 2) num_attempts++;
-        num_attempts++;
+        num_attempts+=2;
         pReduction = new twin_reduction();
       }
       else if (dom_reduction::validDOM(reduVCC, v, u)){
         dom_degree[adj_size]++;
-        if (adj_size <= 5) num_attempts++;
+        // if (adj_size <= 5) num_attempts++;
         if (adj_size == 2) num_attempts++;
         if (adj_size == 3) num_attempts++;
-        num_attempts++;
+        num_attempts+=2;
         pReduction = new dom_reduction();
       }
       else {
-        num_attempts ++;
-        if (adj_size <= 5) num_attempts++;
+        num_attempts +=2;
+        // if (adj_size <= 5) num_attempts++;
         if (adj_size == 2) num_attempts++;
         if (adj_size == 3) num_attempts++;
         delete pReduction;
