@@ -76,6 +76,24 @@ int main(int argn, char **argv) {
 
     timer s;
 
+    if (partition_config.run_type == "Redu") {
+        redu_vcc reduVCC(G);
+        reducer R(G);
+        R.exhaustive_reductions(G, reduVCC);
+        reduVCC.analyzeGraph(graph_filename, G, s);
+        return;
+    }
+    if (partition_config.run_type == "ReduVCC") {
+        redu_vcc reduVCC(G);
+        reducer R(G);
+        R.exhaustive_reductions(G, reduVCC);
+        // reduVCC.analyzeGraph(graph_filename, G, s);
+        reduVCC.build_cover(G);
+        reduVCC.solveKernel(G, partition_config, s);
+        R.unwindReductions(G, reduVCC);
+        reduVCC.analyzeGraph(graph_filename, G, s);
+    }
+
     branch_and_reduce B(G, partition_config);
     vertex_queue *queue = nullptr;
     if (partition_config.run_type == "cascading") queue = new vertex_queue(G);

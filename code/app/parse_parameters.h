@@ -26,7 +26,7 @@ int parse_parameters(int argn, char **argv,
         struct arg_str *mis_file                            = arg_str0(NULL, "mis_file", NULL, "MIS file for Chalupa.");
         struct arg_int *user_solver_time_limit               = arg_int0(NULL, "solver_time_limit", NULL, "Time Limit for Chalupa.");
         struct arg_str *user_run_type                        = arg_str0(NULL, "run_type", NULL, "Chalupa only or reductions then Chalupa.");
-        struct arg_int *user_iso_limit                       = arg_int0(NULL, "user_iso_limit", NULL, "Limit on iso deg.");
+        struct arg_int *user_iso_limit                       = arg_int0(NULL, "iso_limit", NULL, "Limit on iso deg.");
 
         // Setup argtable parameters.
         struct arg_lit *help                                 = arg_lit0(NULL, "help","Print help.");
