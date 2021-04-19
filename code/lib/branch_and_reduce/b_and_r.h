@@ -25,6 +25,8 @@ private:
   std::string next_node_type;
   std::string enum_type;
 
+  MISConfig config;
+
   void reduce(graph_access &G, reducer &R, unsigned int &num_fold_cliques, vertex_queue *queue);
   bool prune(unsigned int &curr_cover_size);
   NodeID nextNode();
