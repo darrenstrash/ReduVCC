@@ -31,10 +31,14 @@ private:
 
   MISConfig config;
 
+  NodeID min_deg_node();
+  std::vector<std::vector<NodeID>> sorted_enumerate(NodeID x);
+
   void reduce(graph_access &G, reducer &R, unsigned int &num_fold_cliques, vertex_queue *queue);
   bool prune(unsigned int &curr_cover_size);
+  std::vector<std::vector<NodeID>> enum_vertex(NodeID &v);
   NodeID nextNode();
-  NodeID min_deg_node();
+  
   vertex_queue* construct_queue(graph_access &G, std::vector<NodeID> &clique);
 
 
@@ -75,7 +79,10 @@ private:
                               // PartitionConfig &partition_config, timer &t);
     // void generate_mis_bandr( graph_access &G, unsigned int num_fold_cliques, PartitionConfig &partition_config, timer &t);
 
-    void analyzeGraph(std::string &filename, graph_access &G, timer &t) {reduVCC.analyzeGraph(filename, G, t);};
+    void analyzeGraph(std::string &filename, graph_access &G, timer &t) {
+      reduVCC.analyzeGraph(filename, G, t);
+      std::cout << "Branches: " << branch_count << std::endl;
+    };
 };
 
 #endif

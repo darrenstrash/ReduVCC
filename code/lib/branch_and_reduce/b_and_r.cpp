@@ -15,12 +15,12 @@ void branch_and_reduce::construct_run(PartitionConfig &partition_config) {
 
   next_node_type = "small_deg";
   if (partition_config.run_type == "small_deg") return;
-  // enum_type = "sort_enum";
-  // if (partition_config.run_type == "sort_enum") return;
+  enum_type = "sort_enum";
+  if (partition_config.run_type == "sort_enum") return;
   prune_type = "ReduMIS";
   if (partition_config.run_type == "ReduMIS") return;
-  prune_type = "KaMIS";
-  if (partition_config.run_type == "KaMIS") return;
+  // prune_type = "KaMIS";
+  // if (partition_config.run_type == "KaMIS") return;
   redu_type = "cascading";
   if (partition_config.run_type == "cascading") return;
 }
@@ -141,6 +141,56 @@ void branch_and_reduce::pivot_enumerator(std::vector<std::vector<NodeID>> &minim
   }
 }
 
+// std::vector<std::vector<NodeID>> branch_and_reduce::sorted_enumerate(NodeID x, std::vector<bool> &indset) {
+std::vector<std::vector<NodeID>> branch_and_reduce::sorted_enumerate(NodeID x) {
+
+  std::vector<std::vector<NodeID>> curr_cliques = enumerate(x);
+  // std::cout << "complete enumerate " << std::endl;
+
+  // sort enumerated cliques
+  std::vector<unsigned int> curr_cliques_indices;
+  // std::vector<bool> curr_clique_is;
+  std::vector<unsigned int> curr_clique_sizes;
+
+  for (int i =0; i < curr_cliques.size(); i++) {
+
+    curr_cliques_indices.push_back(i);
+    curr_clique_sizes.push_back(curr_cliques[i].size());
+
+    // curr_clique_is.push_back(0);
+    // for (NodeID a : curr_cliques[i]) {
+    //   // std::cout << a << std::endl;
+    //   if (indset[a]) {
+    //     curr_clique_is.pop_back();
+    //     curr_clique_is.push_back(1);
+    //     break;
+    //   }
+    // }
+  }
+
+  // std::cout << "constructed" << std::endl;
+
+  //order cliques
+  std::sort(curr_cliques_indices.begin(), curr_cliques_indices.end(),
+    [curr_clique_is, curr_clique_sizes](unsigned int i, unsigned int j) {
+
+
+        // if (curr_clique_is[i] == curr_clique_is[j]) {
+          return curr_clique_sizes[i] > curr_clique_sizes[j];
+        // }
+        // return curr_clique_is[i] < curr_clique_is[j];
+    });
+
+
+    std::vector<std::vector<NodeID>> sorted_cliques;
+
+    for (unsigned int index : curr_cliques_indices) {
+      sorted_cliques.push_back(curr_cliques[index]);
+    }
+
+    return sorted_cliques;
+}
+
 void branch_and_reduce::reduce(graph_access &G, reducer &R, unsigned int &num_fold_cliques, vertex_queue *queue) {
 
     if (queue == nullptr || queue->empty()) {
@@ -217,6 +267,12 @@ NodeID branch_and_reduce::min_deg_node() {
 
 }
 
+std::vector<std::vector<NodeID>> branch_and_reduce::enum_vertex(NodeID &v) {
+
+  if (enum_type == "sort_enum") return sorted_enumerate(v);
+  else return enumerate(v);
+}
+
 vertex_queue* branch_and_reduce::construct_queue(graph_access &G, std::vector<NodeID> &clique) {
 
   vertex_queue *new_queue = nullptr;
@@ -291,7 +347,7 @@ void branch_and_reduce::bandr( graph_access &G, unsigned int num_fold_cliques,
   // enumerate all maximal cliques of next_node sorted by size and MIS
   // std::cout << "enumerate" << std::endl;
   // std::vector<std::vector<NodeID>> curr_cliques = sorted_enumerate(next_node, reduVCC.node_mis);
-  std::vector<std::vector<NodeID>> curr_cliques = enumerate(next_node);
+  std::vector<std::vector<NodeID>> curr_cliques = enum_vertex(next_node);
 
   // std::cout << "complete enumerate" << std::endl;
   // branch on each clique in enumerated set
