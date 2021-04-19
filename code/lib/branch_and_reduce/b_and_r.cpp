@@ -164,25 +164,25 @@ bool branch_and_reduce::prune(unsigned int &curr_cover_size) {
 
     unsigned int estimated_cover_size;
 
-    if (prune_type == "none") {
-      return false;
-    }
-    else if (prune_type == "KaMIS") {
-      // geneate MIS of kernel using ILS
-      graph_access G_p;
-      graph_io::readGraphKernel(G_p, reduVCC);
-      MISConfig config;
-      config.console_log = true;
-      config.time_limit = 60;
-      config.force_cand = 4;
-      ils new_ils;
-      new_ils.perform_ils(config, G_p, 1000);
-
-      estimated_cover_size = curr_cover_size + new_ils.solution_size;
-    }
-    else { // prune_type == "ReduMIS"
+    // if (prune_type == "none") {
+    //   return false;
+    // }
+    // else if (prune_type == "KaMIS") {
+    //   // geneate MIS of kernel using ILS
+    //   graph_access G_p;
+    //   graph_io::readGraphKernel(G_p, reduVCC);
+    //   MISConfig config;
+    //   config.console_log = true;
+    //   config.time_limit = 60;
+    //   config.force_cand = 4;
+    //   ils new_ils;
+    //   new_ils.perform_ils(config, G_p, 1000);
+    //
+    //   estimated_cover_size = curr_cover_size + new_ils.solution_size;
+    // }
+    // else { // prune_type == "ReduMIS"
       estimated_cover_size = curr_cover_size + reduVCC.curr_mis;
-    }
+    // }
 
     // std::cout << "est cover: " << estimated_cover_size << ", " << reduVCC.clique_cover.size() << std::endl;
     // prune branch if estimated cover is larger than current best
@@ -220,7 +220,7 @@ NodeID branch_and_reduce::min_deg_node() {
 vertex_queue* branch_and_reduce::construct_queue(graph_access &G, std::vector<NodeID> &clique) {
 
   vertex_queue *new_queue = nullptr;
-  if (redu_type == "exhaustive") return new_queue;
+  // if (redu_type == "exhaustive") return new_queue;
 
   new_queue = new vertex_queue(G);
   for (NodeID a : clique) new_queue->adjust_queue(reduVCC, a);
@@ -230,9 +230,9 @@ vertex_queue* branch_and_reduce::construct_queue(graph_access &G, std::vector<No
 
 NodeID branch_and_reduce::nextNode(){
 
-  if (next_node_type == "small_deg") {
+  // if (next_node_type == "small_deg") {
     return min_deg_node();
-  }
+  // }
   NodeID next_node = 0;
   while (!reduVCC.node_status[next_node]) next_node++;
   return next_node;
