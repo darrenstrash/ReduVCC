@@ -22,8 +22,8 @@ void branch_and_reduce::construct_run(PartitionConfig &partition_config) {
   // if (partition_config.run_type == "sort_enum") return;
   prune_type = "ReduMIS";
   if (partition_config.run_type == "ReduMIS") return;
-  // prune_type = "KaMIS";
-  // if (partition_config.run_type == "KaMIS") return;
+  prune_type = "KaMIS";
+  if (partition_config.run_type == "KaMIS") return;
   redu_type = "cascading";
   if (partition_config.run_type == "cascading") return;
 }
@@ -167,10 +167,20 @@ bool branch_and_reduce::prune(unsigned int &curr_cover_size) {
     if (prune_type == "none") {
       return false;
     }
-    // else if (prune_type == "KaMIS") {
-    //   // KaMIS stuff
-    // }
-    else {
+    else if (prune_type == "KaMIS") {
+      geneate MIS of kernel using ILS
+      graph_access G_p;
+      graph_io::readGraphKernel(G_p, reduVCC);
+      MISConfig config;
+      config.console_log = true;
+      config.time_limit = 60;
+      config.force_cand = 4;
+      ils new_ils;
+      new_ils.perform_ils(config, G_p, 1000);
+
+      estimated_cover_size = curr_cover_size + new_ils.solution_size;
+    }
+    else { // prune_type == "ReduMIS"
       estimated_cover_size = curr_cover_size + reduVCC.curr_mis;
     }
 
