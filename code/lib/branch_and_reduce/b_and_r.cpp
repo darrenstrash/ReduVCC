@@ -30,6 +30,8 @@ void branch_and_reduce::construct_run(PartitionConfig &partition_config) {
 
 branch_and_reduce::branch_and_reduce(graph_access &G, PartitionConfig &partition_config) {
 
+  construct_run(partition_config);
+
   if (prune_type == "ReduMIS") reduVCC = redu_vcc(G, partition_config);
   else reduVCC = redu_vcc(G);
 
