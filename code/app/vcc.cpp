@@ -95,7 +95,7 @@ int main(int argn, char **argv) {
         dom_degree.assign(G.number_of_nodes(), 0);
         reducer R(G);
         R.exhaustive_reductions(G, reduVCC, iso_degree, dom_degree);
-        // reduVCC.analyzeGraph(graph_filename, G, s);
+        reduVCC.analyzeGraph(graph_filename, G, s);
         reduVCC.build_cover(G);
         reduVCC.solveKernel(G, partition_config, s);
         R.unwindReductions(G, reduVCC);
