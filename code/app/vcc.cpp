@@ -78,19 +78,23 @@ int main(int argn, char **argv) {
 
     if (partition_config.run_type == "Redu") {
         redu_vcc reduVCC(G);
-        std::vector<unsigned int> iso_degree.assign(G.number_of_nodes(), 0);
-        std::vector<unsigned int> dom_degree.assign(G.number_of_nodes(), 0);
+        std::vector<unsigned int> iso_degree;
+        iso_degree;.assign(G.number_of_nodes(), 0);
+        std::vector<unsigned int> dom_degree;
+        dom_degree.assign(G.number_of_nodes(), 0);
         reducer R(G);
-        R.exhaustive_reductions(G, reduVCC);
+        R.exhaustive_reductions(G, reduVCC, iso_degree, dom_degree);
         reduVCC.analyzeGraph(graph_filename, G, s);
         return 0;
     }
     if (partition_config.run_type == "ReduVCC") {
         redu_vcc reduVCC(G);
-        std::vector<unsigned int> iso_degree.assign(G.number_of_nodes(), 0);
-        std::vector<unsigned int> dom_degree.assign(G.number_of_nodes(), 0);
+        std::vector<unsigned int> iso_degree;
+        iso_degree;.assign(G.number_of_nodes(), 0);
+        std::vector<unsigned int> dom_degree;
+        dom_degree.assign(G.number_of_nodes(), 0);
         reducer R(G);
-        R.exhaustive_reductions(G, reduVCC);
+        R.exhaustive_reductions(G, reduVCC, iso_degree, dom_degree);
         // reduVCC.analyzeGraph(graph_filename, G, s);
         reduVCC.build_cover(G);
         reduVCC.solveKernel(G, partition_config, s);
