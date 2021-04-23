@@ -38,8 +38,8 @@ branch_and_reduce::branch_and_reduce(graph_access &G, PartitionConfig &partition
   num_reductions = 0;
   num_attempts = 0;
 
-  config.time_limit = 60;
-  config.force_cand = 4;
+  // config.time_limit = 60;
+  // config.force_cand = 4;
 }
 
 std::vector<std::vector<NodeID>> branch_and_reduce::enumerate(NodeID v) {
@@ -218,19 +218,19 @@ bool branch_and_reduce::prune(unsigned int &curr_cover_size) {
     if (prune_type == "none") {
       return false;
     }
-    else if (prune_type == "KaMIS") {
-      // geneate MIS of kernel using ILS
-      graph_access G_p;
-      graph_io::readGraphKernel(G_p, reduVCC);
-      // MISConfig config;
-      // config.console_log = true;
-      // config.time_limit = 60;
-      // config.force_cand = 4;
-      ils new_ils;
-      new_ils.perform_ils(config, G_p, 1000);
-
-      estimated_cover_size = curr_cover_size + new_ils.solution_size;
-    }
+    // else if (prune_type == "KaMIS") {
+    //   // geneate MIS of kernel using ILS
+    //   graph_access G_p;
+    //   graph_io::readGraphKernel(G_p, reduVCC);
+    //   // MISConfig config;
+    //   // config.console_log = true;
+    //   // config.time_limit = 60;
+    //   // config.force_cand = 4;
+    //   ils new_ils;
+    //   new_ils.perform_ils(config, G_p, 1000);
+    //
+    //   estimated_cover_size = curr_cover_size + new_ils.solution_size;
+    // }
     else { // prune_type == "ReduMIS"
       estimated_cover_size = curr_cover_size + reduVCC.curr_mis;
     }

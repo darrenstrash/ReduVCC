@@ -76,6 +76,19 @@ int main(int argn, char **argv) {
 
     timer s;
 
+    redu_vcc reduVCC(G);
+    std::vector<unsigned int> iso_degree;
+    iso_degree.assign(G.number_of_nodes(), 0);
+    std::vector<unsigned int> dom_degree;
+    dom_degree.assign(G.number_of_nodes(), 0);
+    reducer R(G);
+    // R.bruteISO(G, reduVCC, iso_degree);
+    R.bruteD2(G, reduVCC);
+    reduVCC.analyzeGraph(graph_filename, G, s);
+    return 0;
+
+    // redu_vcc
+
     if (partition_config.run_type == "Redu") {
         redu_vcc reduVCC(G);
         std::vector<unsigned int> iso_degree;

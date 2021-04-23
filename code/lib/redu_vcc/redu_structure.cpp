@@ -230,6 +230,32 @@ std::vector<NodeID> redu_structure::curr_adj_list(NodeID v) {
 void redu_structure::removeVertex(NodeID v) {
   // removes vertex
 
+  std::cout << "remove start" << std::endl;
+  for (NodeID u : adj_list[v]) {
+    std::cout << u << std::endl;
+    // if (!node_status[u]) break;
+    unsigned int adj_size = adj_list[u].size();
+    unsigned int i = adj_size - 1; // index where last in node is
+    unsigned int j; // index where v is
+    std::cout << "index loop: " << adj_size << std::endl;
+    for (unsigned int k = 0; k < adj_size; k++){
+      NodeID w = adj_list[u][k];
+    // for (NodeID w : adj_list[u]) {
+      if (!node_status[w]) {
+        i = k - 1; break;
+      }
+      if (w == v)  j = k;
+    }
+    std::cout << "i: " << i << std::endl;
+    std::cout << "j: " << j << std::endl;
+    // node at place to put v
+    NodeID w = adj_list[u][i];
+    adj_list[u][j] = w;
+    adj_list[u][i] = v;
+  }
+
+  std::cout << "remove end" << std::endl;
+
   node_status[v] = false;
   remaining_nodes--;
 
@@ -239,10 +265,53 @@ void redu_structure::removeVertex(NodeID v) {
 void redu_structure::addVertex(NodeID v) {
   // adds vertex
 
+  for (NodeID u : adj_list[v]) {
+    // std::cout << "u: " << u << std::endl;
+    // if (!node_status[u]) break;
+    unsigned int adj_size = adj_list[u].size();
+    unsigned int i = adj_size; // index where first out node is
+    unsigned int j; // index where v is
+    for (unsigned int k = 0; k < adj_size; k++){
+      NodeID w = adj_list[u][k];
+    // for (NodeID w : adj_list[u]) {
+      if (i == adj_list[u].size() && !node_status[w]) {
+        i = k;
+        // std::cout << "i: " << i << std::endl;
+      }
+      if (w == v) {
+        j = k;
+        // std::cout << "j: " << j << std::endl;
+        break;
+      }
+    }
+    adj_list[u][j] = adj_list[u][i];
+    adj_list[u][i] = v;
+  }
+
   node_status[v] = true;
   remaining_nodes++;
 
   if (!node_mis.empty() && node_mis[v]) curr_mis++;
+}
+
+void redu_structure::addHalfEdge(NodeID v, NodeID u) {
+  // adds u to adj_list v (assumes u is in kernel)
+
+  unsigned int i = 0;
+  for (i; i < adj_list[v].size(); i++) {
+    if (!node_status[i]) break;
+  }
+
+  NodeID x = adj_list[v][i];
+  adj_list[v][i] = u;
+  adj_list[v].push_back(x);
+}
+
+void redu_structure::addEdge(NodeID v, NodeID u) {
+  // adds u to adj_list v, and opposite
+
+  addHalfEdge(v, u);
+  addHalfEdge(u, v);
 }
 
 // void redu_structure::addClique(std::vector<NodeID> &clique) {

@@ -69,6 +69,8 @@ class redu_structure {
     void addVertex(NodeID v);
     void removeVertexSet(std::vector<NodeID> &S);
     void addVertexSet(std::vector<NodeID> &S);
+    void addEdge(NodeID v, NodeID u);
+    void addHalfEdge(NodeID v, NodeID u);
 
     void addClique(std::vector<NodeID> &clique);
     void addCliqueToCover(std::vector<NodeID> &clique);
