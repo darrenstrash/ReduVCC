@@ -38,8 +38,8 @@ branch_and_reduce::branch_and_reduce(graph_access &G, PartitionConfig &partition
   num_reductions = 0;
   num_attempts = 0;
 
-  config.time_limit = 60;
-  config.force_cand = 4;
+  // config.time_limit = 60;
+  // config.force_cand = 4;
 }
 
 std::vector<std::vector<NodeID>> branch_and_reduce::enumerate(NodeID v) {
@@ -218,19 +218,19 @@ bool branch_and_reduce::prune(unsigned int &curr_cover_size) {
     if (prune_type == "none") {
       return false;
     }
-    else if (prune_type == "KaMIS") {
-      // geneate MIS of kernel using ILS
-      graph_access G_p;
-      graph_io::readGraphKernel(G_p, reduVCC);
-      // MISConfig config;
-      // config.console_log = true;
-      // config.time_limit = 60;
-      // config.force_cand = 4;
-      ils new_ils;
-      new_ils.perform_ils(config, G_p, 1000);
-
-      estimated_cover_size = curr_cover_size + new_ils.solution_size;
-    }
+    // else if (prune_type == "KaMIS") {
+    //   // geneate MIS of kernel using ILS
+    //   graph_access G_p;
+    //   graph_io::readGraphKernel(G_p, reduVCC);
+    //   // MISConfig config;
+    //   // config.console_log = true;
+    //   // config.time_limit = 60;
+    //   // config.force_cand = 4;
+    //   ils new_ils;
+    //   new_ils.perform_ils(config, G_p, 1000);
+    //
+    //   estimated_cover_size = curr_cover_size + new_ils.solution_size;
+    // }
     else { // prune_type == "ReduMIS"
       estimated_cover_size = curr_cover_size + reduVCC.curr_mis;
     }
@@ -385,7 +385,7 @@ std::vector<NodeID> branch_and_reduce::find_component( std::vector<bool> &visite
   NodeID v = 0;
   while (visited_nodes[v]) v ++;
   visited_nodes[v] = true; visit_remaining--;
-  current_nodes.push_back[v];
+  current_nodes.push_back(v);
 
   queue.push_back(v);
 
@@ -398,12 +398,19 @@ std::vector<NodeID> branch_and_reduce::find_component( std::vector<bool> &visite
     for (NodeID u : reduVCC.adj_list[v]) {
       if (!visited_nodes[u]) {
         visited_nodes[u] = true; visit_remaining--;
-        current_nodes.push_back[y];
+        current_nodes.push_back(u);
         queue.push_back(u);
       }
     }
 
   }
+
+  for (NodeID a : current_nodes) {
+    std::cout << a << ", ";
+  }
+  std::cout << std::endl;
+
+  return current_nodes;
 }
 
 void branch_and_reduce::unconnected_components() {
@@ -414,17 +421,22 @@ void branch_and_reduce::unconnected_components() {
 
   std::vector<redu_vcc> components;
 
-  while (visit_remaining > 0) {
-    std::vector<NodeID> component_nodes = find_component(std::vector)
-    if (visit_remaining == 0) {
-      components.push_back(reduVCC)
-      return components
-    }
-    redu_vcc new_component (reduVCC, component_nodes)
-    componens.push_back(new_component)
-
+  std::vector<NodeID> component_nodes = find_component(visited_nodes, visit_remaining);
+  if (visit_remaining == 0) {
+    components.push_back(reduVCC)
+    return components
   }
 
+  redu_vcc new_component(reduVCC, component_nodes);
+  component_nodes.push_back(new_component);
 
+  while (visit_remaining > 0) {
+    component_nodes = find_component(visited_nodes, visit_remaining);
+    new_component = redu_vcc(reduVCC, component_nodes)
+    // redu_vcc new_component (reduVCC, component_nodes)
+    componens.push_back(new_component)
+  }
+
+  return components;
 
 }

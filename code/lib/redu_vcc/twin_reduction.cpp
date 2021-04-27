@@ -204,30 +204,30 @@ void twin_reduction::reduce( graph_access &G, redu_vcc &reduVCC, vertex_queue *q
   queue->adjust_queue(reduVCC, y);
 }
 
-void twin_reduction::unfoldTWIN(redu_vcc &reduVCC,
+void twin_reduction::unfoldTWIN(redu_vcc* reduVCC,
                                 std::vector<NodeID> &partial_clique,
                                 unsigned &cliqueID,
                                 NodeID &a, NodeID &b, NodeID &c) {
 
   partial_clique.push_back(a);
-  reduVCC.replaceClique(cliqueID, partial_clique);
+  reduVCC->replaceClique(cliqueID, partial_clique);
 
   std::vector<NodeID> new_clique1 {v, b};
-  reduVCC.addCliqueToCover(new_clique1);
+  reduVCC->addCliqueToCover(new_clique1);
   std::vector<NodeID> new_clique2 {u, c};
-  reduVCC.addCliqueToCover(new_clique2);
+  reduVCC->addCliqueToCover(new_clique2);
 }
 
-void twin_reduction::unfold(graph_access &G, redu_vcc &reduVCC){
+void twin_reduction::unfold(graph_access &G, redu_vcc* reduVCC){
   if (remove_type) { return; }
 
-  std::vector<std::vector<NodeID>> &adj_list = reduVCC.adj_list;
-  std::vector<bool> &scratch1 = reduVCC.scratch1;
+  std::vector<std::vector<NodeID>> &adj_list = reduVCC->adj_list;
+  std::vector<bool> &scratch1 = reduVCC->scratch1;
 
   // unsigned int fold_cliqueID = reduVCC.getCliqueID(y);
-  unsigned int fold_cliqueID = reduVCC.solve_node_clique[y];
+  unsigned int fold_cliqueID = reduVCC->solve_node_clique[y];
   // std::vector<NodeID> fold_clique = reduVCC.getClique(y);
-  std::vector<NodeID> fold_clique = reduVCC.clique_cover[fold_cliqueID];
+  std::vector<NodeID> fold_clique = reduVCC->clique_cover[fold_cliqueID];
 
   std::vector<NodeID> partial_clique; // fold_clique \setminus y
   for (NodeID a : fold_clique) {

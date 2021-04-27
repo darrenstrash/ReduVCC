@@ -86,6 +86,6 @@ void iso_reduction::unreduce(graph_access &G, redu_vcc &reduVCC) {
   reduVCC.addVertexSet(clique);
 }
 
-void iso_reduction::unfold(graph_access &G, redu_vcc &reduVCC) {
+void iso_reduction::unfold(graph_access &G, redu_vcc* reduVCC) {
     // iso cliques do not need to be unfolded, G' is not impacted
 }

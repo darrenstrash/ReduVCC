@@ -40,7 +40,7 @@ class reducer {
 
 
     // construct C from C'
-    void unwindReductions(graph_access &G, redu_vcc &reduVCC);
+    void unwindReductions(graph_access &G, redu_vcc *reduVCC);
     // undo num reductions, constructing G from G'
     void undoReductions(graph_access &G, redu_vcc &reduVCC);
 

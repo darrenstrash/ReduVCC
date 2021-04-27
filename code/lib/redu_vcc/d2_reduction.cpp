@@ -101,14 +101,14 @@ void d2_reduction::reduce( graph_access &G, redu_vcc &reduVCC, vertex_queue *que
     queue->adjust_queue(reduVCC, w);
 }
 
-void d2_reduction::unfold(graph_access &G, redu_vcc &reduVCC) {
+void d2_reduction::unfold(graph_access &G, redu_vcc* reduVCC) {
   // std::cout << "Unreducing D2... " << std::endl;
 
-  std::vector<std::vector<NodeID>> &adj_list = reduVCC.adj_list;
-  std::vector<bool> &scratch1 = reduVCC.scratch1;
+  std::vector<std::vector<NodeID>> &adj_list = reduVCC->adj_list;
+  std::vector<bool> &scratch1 = reduVCC->scratch1;
 
-  unsigned int fold_cliqueID = reduVCC.solve_node_clique[w];
-  std::vector<NodeID> fold_clique = reduVCC.clique_cover[fold_cliqueID];
+  unsigned int fold_cliqueID = reduVCC->solve_node_clique[w];
+  std::vector<NodeID> fold_clique = reduVCC->clique_cover[fold_cliqueID];
 
   NodeID x = u;   // vertex x will be connected "externally" -- outside [v,u,w] or no connection
   NodeID y = w;   // vertex y will be connected to v
@@ -133,16 +133,16 @@ void d2_reduction::unfold(graph_access &G, redu_vcc &reduVCC) {
   for (unsigned int i = 0; i < fold_clique.size(); i++){
       if (fold_clique[i] == w){
           fold_clique[i] = x;
-          reduVCC.solve_node_clique[x] = fold_cliqueID;
+          reduVCC->solve_node_clique[x] = fold_cliqueID;
           std::sort(fold_clique.begin(), fold_clique.end());
           break;
       }
   }
   // reduVCC.printVectorSet(fold_clique);
-  reduVCC.replaceClique(fold_cliqueID, fold_clique);
+  reduVCC->replaceClique(fold_cliqueID, fold_clique);
 
   std::vector<NodeID> new_clique {v, y};
-  reduVCC.addCliqueToCover(new_clique);
+  reduVCC->addCliqueToCover(new_clique);
   // reduVCC.printVectorSet(new_clique);
 
 }

@@ -96,13 +96,13 @@ void dom_reduction::reduce(graph_access &G,  redu_vcc &reduVCC, vertex_queue *qu
   queue->adjust_queue(reduVCC, v);
 }
 
-void dom_reduction::unfold(graph_access &G, redu_vcc &reduVCC){
+void dom_reduction::unfold(graph_access &G, redu_vcc* reduVCC){
 
-  std::vector<std::vector<NodeID>> &adj_list = reduVCC.adj_list;
-  std::vector<bool> &scratch1 = reduVCC.scratch1;
+  std::vector<std::vector<NodeID>> &adj_list = reduVCC->adj_list;
+  std::vector<bool> &scratch1 = reduVCC->scratch1;
 
-  unsigned int fold_cliqueID = reduVCC.solve_node_clique[u];
-  std::vector<NodeID> fold_clique = reduVCC.clique_cover[fold_cliqueID];
+  unsigned int fold_cliqueID = reduVCC->solve_node_clique[u];
+  std::vector<NodeID> fold_clique = reduVCC->clique_cover[fold_cliqueID];
 
   fold_clique.push_back(v);
   reduVCC.replaceClique(fold_cliqueID, fold_clique);

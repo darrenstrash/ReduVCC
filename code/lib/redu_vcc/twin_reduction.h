@@ -32,7 +32,7 @@ class twin_reduction: public reduction {
     void removeTWIN (redu_vcc &reduVCC);
     void foldTWIN(redu_vcc &reduVCC);
 
-    void unfoldTWIN(redu_vcc &reduVCC, std::vector<NodeID> &partial_clique,
+    void unfoldTWIN(redu_vcc* reduVCC, std::vector<NodeID> &partial_clique,
                     unsigned int &clique_id, NodeID &a, NodeID &b, NodeID &c);
 
   public:
@@ -53,7 +53,7 @@ class twin_reduction: public reduction {
     void reduce(graph_access &G, redu_vcc &reduVCC, vertex_queue *queue,
                 NodeID &node_v, NodeID &node_u );
     void unreduce(graph_access &G, redu_vcc &reduVCC);
-    void unfold(graph_access &G, redu_vcc &reduVCC);
+    void unfold(graph_access &G, redu_vcc* reduVCC);
 
 };
 

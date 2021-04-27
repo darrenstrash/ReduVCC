@@ -16,7 +16,7 @@ reducer::reducer(graph_access &G, unsigned int iso_lim) : reducer(G) {
 }
 
 
-void reducer::unwindReductions(graph_access &G, redu_vcc &reduVCC) {
+void reducer::unwindReductions(graph_access &G, redu_vcc *reduVCC) {
 
     for (unsigned int i = reduction_stack.size(); i > 0; i--) {
 
@@ -27,16 +27,16 @@ void reducer::unwindReductions(graph_access &G, redu_vcc &reduVCC) {
     // std::cout << reduVCC.next_cliqueID << std::endl;
 }
 
-void reducer::undoReductions(graph_access &G, redu_vcc &reduVCC) {
-
-  while (reduction_stack.size() != 0) {
-        reduction *pReduction = reduction_stack.back();
-        reduction_stack.pop_back();
-
-        pReduction->unreduce(G, reduVCC);
-
-        delete pReduction;
-  }
+// void reducer::undoReductions(graph_access &G, redu_vcc &reduVCC) {
+//
+//   while (reduction_stack.size() != 0) {
+//         reduction *pReduction = reduction_stack.back();
+//         reduction_stack.pop_back();
+//
+//         pReduction->unreduce(G, reduVCC);
+//
+//         delete pReduction;
+//   }
 
   // for (unsigned int i = 0; i < num; i++) {
   //     reduction *pReduction = reduction_stack.back();

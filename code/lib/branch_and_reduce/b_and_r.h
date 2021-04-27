@@ -15,9 +15,9 @@
 #include "redu_vcc/reducer.h"
 #include "redu_vcc/redu_vcc.h"
 
-#include "graph_io.h"
-#include "mis/mis_config.h"
-#include "mis/ils/ils.h"
+// #include "graph_io.h"
+// #include "mis/mis_config.h"
+// #include "mis/ils/ils.h"
 
 class branch_and_reduce {
 private:
@@ -29,7 +29,7 @@ private:
   std::string next_node_type;
   std::string enum_type;
 
-  MISConfig config;
+  // MISConfig config;
 
   NodeID min_deg_node();
   std::vector<std::vector<NodeID>> sorted_enumerate(NodeID x);
@@ -68,6 +68,8 @@ private:
     void bandr( graph_access &G, unsigned int num_fold_cliques,
                 vertex_queue *queue, PartitionConfig &partition_config, timer &t);
 
+    std::vector<NodeID> find_component( std::vector<bool> &visited_nodes, unsigned int &visit_remaining);
+    void unconnected_components();
 
 
     // void brute_bandr( graph_access &G, unsigned int num_fold_cliques);

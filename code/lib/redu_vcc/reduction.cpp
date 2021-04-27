@@ -4,10 +4,10 @@
 
 #include "reduction.h"
 
-bool reduction::isSubset(redu_vcc &reduVCC, std::vector<NodeID> &A, std::vector<NodeID> &B){
+bool reduction::isSubset(redu_vcc* reduVCC, std::vector<NodeID> &A, std::vector<NodeID> &B){
   // tests if A is a subset of B
 
-  std::vector<bool> &scratch1 = reduVCC.scratch1;
+  std::vector<bool> &scratch1 = reduVCC->scratch1;
 
   for (NodeID v : B) {scratch1[v] = true;}
   for (NodeID v : A) {

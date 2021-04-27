@@ -36,11 +36,11 @@
 #include <time.h>
 
 #include "redu_vcc/redu_vcc.h"
-#include "redu_vcc/reducer.h"
-#include "branch_and_reduce/b_and_r.h"
+// #include "redu_vcc/reducer.h"
+// #include "branch_and_reduce/b_and_r.h"
 
-#include "mis/ils/ils.h"
-#include "mis/mis_config.h"
+// #include "mis/ils/ils.h"
+// #include "mis/mis_config.h"
 
 int main(int argn, char **argv) {
 
@@ -76,29 +76,39 @@ int main(int argn, char **argv) {
 
     timer s;
 
-    if (partition_config.run_type == "Redu") {
-        redu_vcc reduVCC(G);
-        reducer R(G);
-        R.exhaustive_reductions(G, reduVCC);
-        reduVCC.analyzeGraph(graph_filename, G, s);
-        return;
-    }
-    if (partition_config.run_type == "ReduVCC") {
-        redu_vcc reduVCC(G);
-        reducer R(G);
-        R.exhaustive_reductions(G, reduVCC);
-        // reduVCC.analyzeGraph(graph_filename, G, s);
-        reduVCC.build_cover(G);
-        reduVCC.solveKernel(G, partition_config, s);
-        R.unwindReductions(G, reduVCC);
-        reduVCC.analyzeGraph(graph_filename, G, s);
+    redu_vcc reduVCC(G);
+    reduVCC.printAdjList();
+    reduVCC.decompose_components();
+    for (redu_vcc child : reduVCC.children) {
+      child.printAdjList();
     }
 
-    branch_and_reduce B(G, partition_config);
-    vertex_queue *queue = nullptr;
-    if (partition_config.run_type == "cascading") queue = new vertex_queue(G);
-    B.bandr(G, 0, queue, partition_config, s);
-    B.analyzeGraph(graph_filename, G, s);
+    // branch_and_reduce B(G, partition_config);
+    // B.unconnected_components();
+
+    // if (partition_config.run_type == "Redu") {
+    //     redu_vcc reduVCC(G);
+    //     reducer R(G);
+    //     R.exhaustive_reductions(G, reduVCC);
+    //     reduVCC.analyzeGraph(graph_filename, G, s);
+    //     return;
+    // }
+    // if (partition_config.run_type == "ReduVCC") {
+    //     redu_vcc reduVCC(G);
+    //     reducer R(G);
+    //     R.exhaustive_reductions(G, reduVCC);
+    //     // reduVCC.analyzeGraph(graph_filename, G, s);
+    //     reduVCC.build_cover(G);
+    //     reduVCC.solveKernel(G, partition_config, s);
+    //     R.unwindReductions(G, reduVCC);
+    //     reduVCC.analyzeGraph(graph_filename, G, s);
+    // }
+    //
+    // branch_and_reduce B(G, partition_config);
+    // vertex_queue *queue = nullptr;
+    // if (partition_config.run_type == "cascading") queue = new vertex_queue(G);
+    // B.bandr(G, 0, queue, partition_config, s);
+    // B.analyzeGraph(graph_filename, G, s);
 
     // branch_and_reduce Bra(G, partition_config);
     // std::cout << "here" << std::endl;

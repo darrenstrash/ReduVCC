@@ -26,7 +26,7 @@ class iso_reduction: public reduction {
                 NodeID &node_v, NodeID &node_u );
     void reduce(graph_access &G, redu_vcc &reduVCC, vertex_queue *queue,
                 NodeID &node_v, NodeID &node_u );
-    void unfold(graph_access &G, redu_vcc &reduVCC);
+    void unfold(graph_access &G, redu_vcc* reduVCC);
     void unreduce(graph_access &G, redu_vcc &reduVCC);
 
 };
