@@ -46,27 +46,27 @@ void redu_structure::generateAdjList(graph_access &G) {
   } endfor
 }
 
-redu_structure::redu_structure(graph_access &G) {
-
-  // produce adjacency list
-  generateAdjList(G);
-  // assign status of nodes
-  node_status.assign(G.number_of_nodes(), true);
-  fold_node.assign(G.number_of_nodes(), false);
-  remaining_nodes = G.number_of_nodes();
-  // allocate for graph cover
-  node_clique.resize(G.number_of_nodes());
-
-  // initialize mis mapping to 0
-  curr_mis = 0;
-
-  // allocate two scratch vectors
-  scratch1.assign(G.number_of_nodes(), false);
-  scratch2.assign(G.number_of_nodes(), false);
-
-  // assign first cliqueID to 0
-  next_cliqueID = 0;
-}
+// redu_structure::redu_structure(graph_access &G) {
+//
+//   // produce adjacency list
+//   generateAdjList(G);
+//   // assign status of nodes
+//   node_status.assign(G.number_of_nodes(), true);
+//   fold_node.assign(G.number_of_nodes(), false);
+//   remaining_nodes = G.number_of_nodes();
+//   // allocate for graph cover
+//   node_clique.resize(G.number_of_nodes());
+//
+//   // initialize mis mapping to 0
+//   curr_mis = 0;
+//
+//   // allocate two scratch vectors
+//   scratch1.assign(G.number_of_nodes(), false);
+//   scratch2.assign(G.number_of_nodes(), false);
+//
+//   // assign first cliqueID to 0
+//   next_cliqueID = 0;
+// }
 
 void redu_structure::build_cover(graph_access &G){
   /* Constructs clique cover from node_clique mapping. */
