@@ -145,7 +145,7 @@ void branch_and_reduce::pivot_enumerator( instance &inst, std::vector<std::vecto
 }
 
 // std::vector<std::vector<NodeID>> branch_and_reduce::sorted_enumerate(NodeID x, std::vector<bool> &indset) {
-std::vector<std::vector<NodeID>> branch_and_reduce::sorted_enumerateinstance &inst, NodeID x) {
+std::vector<std::vector<NodeID>> branch_and_reduce::sorted_enumerate(instance &inst, NodeID x) {
 
   std::vector<std::vector<NodeID>> curr_cliques = enumerate(inst, x);
   // std::cout << "complete enumerate " << std::endl;
