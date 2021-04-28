@@ -87,7 +87,7 @@ private:
     // void generate_mis_bandr( graph_access &G, unsigned int num_fold_cliques, PartitionConfig &partition_config, timer &t);
 
     void analyzeGraph(std::string &filename, graph_access &G, timer &t) {
-      reduVCC.analyzeGraph(filename, G, t);
+      root.reduVCC.analyzeGraph(filename, G, t);
       std::cout << "Branches: " << branch_count << std::endl;
       std::cout << "ISO degree distrib. : [";
       for (unsigned int i : iso_degree) std::cout << i << ", ";
