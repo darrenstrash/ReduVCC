@@ -199,6 +199,7 @@ std::vector<std::vector<NodeID>> branch_and_reduce::sorted_enumerate(instance &i
 void branch_and_reduce::reduce(graph_access &G, instance &inst, reducer &R, unsigned int &num_fold_cliques, vertex_queue *queue) {
 
     redu_vcc &reduVCC = inst.reduVCC;
+    std::vector<reducer> &reducer_stack = inst.reducer_stack;
 
     if (queue == nullptr || queue->empty()) {
       R.exhaustive_reductions(G, reduVCC, iso_degree, dom_degree);
@@ -342,7 +343,7 @@ void branch_and_reduce::bandr( graph_access &G, instance &inst,
   }
 
 
-  if (prune(curr_cover_size)) {
+  if (prune(inst, curr_cover_size)) {
     R.undoReductions(G, reduVCC); reducer_stack.pop_back();
     return;
   }
