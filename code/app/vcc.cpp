@@ -107,7 +107,7 @@ int main(int argn, char **argv) {
     vertex_queue *queue = nullptr;
     if (partition_config.run_type == "cascading") queue = new vertex_queue(G);
     // B.bandr(G, B.root, 0, queue, partition_config, s);
-    B.reduce(G, B.root, 0, queue, partition_config, s);
+    B.reduce_bnr(G, B.root, 0, queue, partition_config, s);
     B.analyzeGraph(graph_filename, G, s);
 
 
