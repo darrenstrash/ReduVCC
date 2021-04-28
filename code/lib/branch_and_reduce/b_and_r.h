@@ -76,6 +76,10 @@ private:
                 vertex_queue *queue, PartitionConfig &partition_config, timer &t);
 
 
+    void reduce( graph_access &G, instance &inst, unsigned int num_fold_cliques,
+                 vertex_queue *queue, PartitionConfig &partition_config, timer &t);
+    void branch( graph_access &G, instance &inst, unsigned int num_fold_cliques,
+                 PartitionConfig &partition_config, timer &t);
 
     // void brute_bandr( graph_access &G, unsigned int num_fold_cliques);
     // void reduMIS_bandr( graph_access &G, unsigned int num_fold_cliques);
