@@ -19,6 +19,12 @@
 #include "mis/mis_config.h"
 #include "mis/ils/ils.h"
 
+struct instance {
+  redu_vcc reduVCC;
+  std::vector<reducer> reducer_stack;
+  std::vector<redu_vcc> children;
+};
+
 class branch_and_reduce {
 private:
 
@@ -31,20 +37,21 @@ private:
 
   MISConfig config;
 
-  NodeID min_deg_node();
-  std::vector<std::vector<NodeID>> sorted_enumerate(NodeID x);
+  NodeID min_deg_node(instance &inst);
+  std::vector<std::vector<NodeID>> sorted_enumerate(instance &inst, NodeID x);
 
-  void reduce(graph_access &G, reducer &R, unsigned int &num_fold_cliques, vertex_queue *queue);
-  bool prune(unsigned int &curr_cover_size);
-  std::vector<std::vector<NodeID>> enum_vertex(NodeID &v);
-  NodeID nextNode();
+  void reduce(graph_access &G, instance &inst, reducer &R, unsigned int &num_fold_cliques, vertex_queue *queue);
+  bool prune(instance &inst, unsigned int &curr_cover_size);
+  std::vector<std::vector<NodeID>> enum_vertex(instance &inst, NodeID &v);
+  NodeID nextNode(instance &inst);
 
-  vertex_queue* construct_queue(graph_access &G, std::vector<NodeID> &clique);
+  vertex_queue* construct_queue(graph_access &G, instance &inst,std::vector<NodeID> &clique);
 
 
   public:
 
     redu_vcc reduVCC;
+    instance root;
 
     unsigned int branch_count;
     std::vector<unsigned int> iso_degree;
@@ -59,13 +66,13 @@ private:
     void construct_run(PartitionConfig &partition_config);
 
 
-    std::vector<std::vector<NodeID>> enumerate(NodeID v);
-    void pivot_enumerator(std::vector<std::vector<NodeID>> &minimal_cliques,
+    std::vector<std::vector<NodeID>> enumerate(instance &inst, NodeID v);
+    void pivot_enumerator(instance &inst, std::vector<std::vector<NodeID>> &minimal_cliques,
                     std::vector<NodeID> &consider_nodes, std::vector<NodeID> &curr_clique, std::vector<NodeID> &excluded_nodes);
 
-    std::vector<std::vector<NodeID>> sorted_enumerate(NodeID x, std::vector<bool> &indset);
+    std::vector<std::vector<NodeID>> sorted_enumerate(instance &inst, NodeID x, std::vector<bool> &indset);
 
-    void bandr( graph_access &G, unsigned int num_fold_cliques,
+    void bandr( graph_access &G, instance &inst, unsigned int num_fold_cliques,
                 vertex_queue *queue, PartitionConfig &partition_config, timer &t);
 
 
