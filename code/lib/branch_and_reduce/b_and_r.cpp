@@ -392,7 +392,7 @@ void branch_and_reduce::bandr( graph_access &G, instance &inst,
   R.undoReductions(G, reduVCC); reducer_stack.pop_back();
 }
 
-void branch_and_reduce::reduce( graph_access &G, instance &inst,
+void branch_and_reduce::reduce_bnr( graph_access &G, instance &inst,
                                 unsigned int num_fold_cliques,
                                 vertex_queue *queue,
                                 PartitionConfig &partition_config, timer &t) {
@@ -411,12 +411,15 @@ void branch_and_reduce::reduce( graph_access &G, instance &inst,
   //   reduce(G, child, 0, nullptr, partition_config, t);
   // }
 
-  branch(G, inst, num_fold_cliques, partition_config, t);
+  branch_bnr(G, inst, num_fold_cliques, R, partition_config, t);
 }
 
-void branch_and_reduce::branch( graph_access &G, instance &inst,
-                                unsigned int num_fold_cliques,
+void branch_and_reduce::branch_bnr( graph_access &G, instance &inst,
+                                unsigned int num_fold_cliques, reducer &R,
                                 PartitionConfig &partition_config, timer &t) {
+
+  redu_vcc &reduVCC = inst.reduVCC;
+  std::vector<reducer> &reducer_stack = inst.reducer_stack;
 
   // current size of parital clique cover
   unsigned int curr_cover_size = reduVCC.next_cliqueID + num_fold_cliques;
