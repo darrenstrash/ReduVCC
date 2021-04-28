@@ -28,7 +28,7 @@ struct instance {
 class branch_and_reduce {
 private:
 
-  std::vector<reducer> reducer_stack;
+  // std::vector<reducer> reducer_stack;
 
   std::string redu_type;
   std::string prune_type;
@@ -50,7 +50,7 @@ private:
 
   public:
 
-    redu_vcc reduVCC;
+    // redu_vcc reduVCC;
     instance root;
 
     unsigned int branch_count;
