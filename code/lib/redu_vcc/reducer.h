@@ -24,13 +24,17 @@ class reducer {
   private:
     std::vector<reduction*> reduction_stack;
 
+    unsigned int iso_limit;
+
 
   public:
     reducer() {};
     reducer(graph_access &G);
+    reducer(graph_access &G, unsigned int iso_lim);
     virtual ~reducer() {};
 
     unsigned int num_reductions;
+    unsigned int num_attempts;
     unsigned int num_cliques;
     unsigned int num_fold_cliques;
 
@@ -47,6 +51,7 @@ class reducer {
     void bruteCROWN(graph_access &G, redu_vcc &reduVCC);
 
     void exhaustive_reductions(graph_access &G, redu_vcc &reduVCC);
+    void cascading_reductions(graph_access &G, redu_vcc &reduVCC, vertex_queue *queue);
 
 };
 

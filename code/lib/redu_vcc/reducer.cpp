@@ -4,8 +4,15 @@
 
 reducer::reducer(graph_access &G) {
   num_reductions = 0;
+  num_attempts = 0;
   num_cliques = 0;
   num_fold_cliques = 0;
+
+  iso_limit = 0;
+}
+
+reducer::reducer(graph_access &G, unsigned int iso_lim) : reducer(G) {
+  iso_limit = iso_lim;
 }
 
 
@@ -53,7 +60,7 @@ void reducer::bruteISO(graph_access &G, redu_vcc &reduVCC) {
 
           if (!reduVCC.node_status[v]) { continue;}
 
-          if (iso_reduction::validISO(reduVCC, v)){
+          if (iso_reduction::validISO(reduVCC, iso_limit, v)){
 
               vertexReduced = true;
               reduction *pReduction = nullptr;
@@ -151,7 +158,6 @@ void reducer::bruteDOM(graph_access &G, redu_vcc &reduVCC) {
               reduction_stack.push_back(pReduction);
 
               num_reductions++;
-
          }
       } endfor
 
@@ -176,9 +182,7 @@ void reducer::bruteCROWN(graph_access &G, redu_vcc &reduVCC) {
     num_reductions++;
     num_cliques += pReduction-> num_cliques;
   }
-  else {
-    delete pReduction; }
-
+  else { delete pReduction; }
 
 }
 
@@ -202,4 +206,65 @@ void reducer::exhaustive_reductions(graph_access &G, redu_vcc &reduVCC){
     }
   }
 
+}
+
+void reducer::cascading_reductions(graph_access &G, redu_vcc &reduVCC, vertex_queue *queue){
+
+  while(!queue->empty()) {
+    while(!queue->empty()) {
+      NodeID v = queue->pop();
+      if (!reduVCC.node_status[v]) continue;
+      // std::cout << queue->size() << std::endl;
+
+      NodeID u;
+
+      reduction *pReduction = nullptr;
+
+      unsigned int adj_size = reduVCC.adj_size(v);
+
+      if (iso_reduction::validISO(reduVCC, iso_limit, v)) {
+        pReduction = new iso_reduction();
+      }
+      else if (d2_reduction::validD2(reduVCC, v)){
+        pReduction = new d2_reduction();
+      }
+      else if (twin_reduction::validTWIN(reduVCC, v, u)){
+        pReduction = new twin_reduction();
+      }
+      else if (dom_reduction::validDOM(reduVCC, v, u)){
+        pReduction = new dom_reduction();
+      }
+      else {
+        delete pReduction;
+        continue;
+      }
+
+      pReduction->reduce(G, reduVCC, queue, v, u);
+      num_reductions++;
+      num_cliques += pReduction-> num_cliques;
+      num_fold_cliques += pReduction->num_folded_cliques;
+      reduction_stack.push_back(pReduction);
+
+      // if (pReduction->type.compare("iso")){
+      //   iso_degree[pReduction->deg]++;
+      // }
+      // if (pReduction->type.compare("dom")){
+      //   dom_degree[pReduction->deg]++;
+      // }
+    }
+
+    NodeID v; NodeID u;
+
+    reduction *pReduction = new crown_reduction();
+    pReduction->reduce(G, reduVCC, queue, v, u);
+
+    if (pReduction->num_cliques > 0) {
+      reduction_stack.push_back(pReduction);
+
+      num_reductions++;
+      num_cliques += pReduction-> num_cliques;
+      // std::cout << "crown cliques: "<< pReduction->num_cliques << std::endl;;
+    }
+    else { delete pReduction; }
+    }
 }

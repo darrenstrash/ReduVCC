@@ -10,17 +10,31 @@
 
 #include "mis/kernel/branch_and_reduce_algorithm.h"
 #include "data_structure/graph_access.h"
+#include "vertex_queue.h"
 #include "redu_vcc.h"
 #include "reduction.h"
 
 class crown_reduction: public reduction {
+private:
 
-  public:
-    std::vector<std::vector<NodeID>> crown_cliques;
+  std::vector<std::vector<int>> adj_list;
+  std::vector<NodeID> int_to_node_map;
+  std::vector<int> node_to_int_map;
 
-    void reduce(graph_access &G, redu_vcc &reduVCC, NodeID &node_v, NodeID &node_u );
-    void unreduce(graph_access &G, redu_vcc &reduVCC);
-    void unfold(graph_access &G, redu_vcc &reduVCC) {};
+  unsigned int node_count;
+
+  void generateAdjList(redu_vcc &reduVCC);
+  void addCliques(redu_vcc &reduVCC, std::vector<std::vector<int>> &cliques);
+
+
+public:
+  std::vector<std::vector<NodeID>> crown_cliques;
+
+  void reduce(graph_access &G, redu_vcc &reduVCC, NodeID &node_v, NodeID &node_u );
+  void reduce(graph_access &G, redu_vcc &reduVCC, vertex_queue *queue,
+              NodeID &node_v, NodeID &node_u );
+  void unreduce(graph_access &G, redu_vcc &reduVCC);
+  void unfold(graph_access &G, redu_vcc &reduVCC) {};
 
 };
 

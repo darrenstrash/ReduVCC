@@ -19,6 +19,7 @@ struct PartitionConfig
         std::string mis_file;
         int solver_time_limit;
         std::string run_type;
+        unsigned int iso_limit;
 
 
         //============================================================

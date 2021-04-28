@@ -15,13 +15,8 @@
 
 class redu_structure {
   private:
-    // subgraph mapping
-    std::vector<int> old_to_new_map;
-    std::vector<NodeID> new_to_old_map;
-    void assignMaps(graph_access &G);
-
     // generate adj_list from G
-    void generateAdjList(graph_access &G);
+    // void generateAdjList(graph_access &G);
     // checks if clique is in original graph G
     bool cliqueInG(graph_access &G, std::vector<NodeID> &clique);
 
@@ -32,6 +27,7 @@ class redu_structure {
     std::vector<std::vector<NodeID>> adj_list;
     std::vector<bool> node_status;  // marks nodes status in G
     std::vector<bool> fold_node;   // marks nodes removed in a fold
+    unsigned int num_nodes;
     unsigned int remaining_nodes;
 
     std::vector<std::vector<NodeID>> clique_cover;
@@ -41,25 +37,23 @@ class redu_structure {
     std::vector<unsigned int> node_clique; // node to cliqueID mapping
     std::vector<unsigned int> solve_node_clique; // node to cliqueID mapping for solving
 
-    std::vector<std::vector<int>> kernel_adj_list; // subgraph adj_list
-    unsigned long kernel_edges; // num subgraph edges
-
     std::vector<bool> node_mis;
     unsigned int curr_mis;
 
     std::vector<bool> scratch1;
     std::vector<bool> scratch2;
 
-    redu_structure() {};
-    redu_structure(graph_access &G);
-    virtual ~redu_structure() {};
+    // redu_structure() {};
+    // redu_structure(graph_access &G);
+    // virtual ~redu_structure() {};
+
+    void init();
 
     void build_cover(graph_access &G);
     void validateCover(graph_access &G);
 
     void buildKernel(graph_access &G);
     void addKernelCliques(std::vector<std::vector<int>> &clique_set);
-    void addCrownCliques(std::vector<std::vector<NodeID>> &crown_cliques, std::vector<std::vector<int>> &clique_set);
 
 
     unsigned int adj_size(NodeID v);
