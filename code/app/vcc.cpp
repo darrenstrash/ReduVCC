@@ -77,7 +77,7 @@ int main(int argn, char **argv) {
     timer s;
 
     if (partition_config.run_type == "Redu") {
-        redu_vcc reduVCC(G);
+        redu_vcc reduVCC(G, partition_config);
         std::vector<unsigned int> iso_degree;
         iso_degree.assign(G.number_of_nodes(), 0);
         std::vector<unsigned int> dom_degree;
@@ -88,7 +88,7 @@ int main(int argn, char **argv) {
         return 0;
     }
     if (partition_config.run_type == "ReduVCC") {
-        redu_vcc reduVCC(G);
+        redu_vcc reduVCC(G, partition_config);
         std::vector<unsigned int> iso_degree;
         iso_degree.assign(G.number_of_nodes(), 0);
         std::vector<unsigned int> dom_degree;
