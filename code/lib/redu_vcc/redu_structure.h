@@ -32,6 +32,8 @@ class redu_structure {
     std::vector<std::vector<NodeID>> adj_list;
     std::vector<bool> node_status;  // marks nodes status in G
     std::vector<bool> fold_node;   // marks nodes removed in a fold
+
+    unsigned int num_nodes;
     unsigned int remaining_nodes;
 
     std::vector<std::vector<NodeID>> clique_cover;
@@ -50,9 +52,10 @@ class redu_structure {
     std::vector<bool> scratch1;
     std::vector<bool> scratch2;
 
-    redu_structure() {};
-    redu_structure(graph_access &G);
-    virtual ~redu_structure() {};
+    // redu_structure() {};
+    // redu_structure(graph_access &G);
+    // virtual ~redu_structure() {};
+    void init();
 
     void build_cover(graph_access &G);
     void validateCover(graph_access &G);

@@ -27,7 +27,28 @@ void redu_vcc::getMIS(std::string file) {
   for (bool n : node_mis) if (n) { curr_mis++; };
 }
 
-redu_vcc::redu_vcc(graph_access &G, PartitionConfig &partition_config) : redu_structure(G) {
+void redu_vcc::generateAdjList(graph_access &G) {
+  /* Generates adjacency list from graph */
+
+  forall_nodes(G, v){
+      std::vector<NodeID> N_v;    // open neighborhood of v
+
+      forall_out_edges(G, e, v){
+          NodeID u = G.getEdgeTarget(e);
+          N_v.push_back(u);
+
+      } endfor
+      adj_list.push_back(N_v);
+
+  } endfor
+}
+
+redu_vcc::redu_vcc(graph_access &G, PartitionConfig &partition_config) {
+
+  num_nodes = G.number_of_nodes();
+  generateAdjList(G);
+
+  init();
 
   if (!partition_config.mis_file.empty()) getMIS(partition_config.mis_file);
 };

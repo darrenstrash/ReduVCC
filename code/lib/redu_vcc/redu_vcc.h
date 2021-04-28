@@ -18,17 +18,32 @@
 
 class redu_vcc : public redu_structure {
 
-  public:
+private:
 
-    redu_vcc() {};
-    redu_vcc(graph_access &G) : redu_structure(G) {};
-    redu_vcc(graph_access &G, PartitionConfig &partition_config);
-    virtual ~redu_vcc() {};
+  // std::vector<NodeID> parent_to_self_map;
+  // std::vector<NodeID> self_to_parent_map;
 
-    void getMIS(std::string file);
+  void generateAdjList(graph_access &G);
+  // void generateAdjList(redu_vcc* parent);
+  // void subgraph_map(std::vector<NodeID> &subgraph_nodes);
 
-    void analyzeGraph(std::string &filename, graph_access &G, timer &t);
-    void solveKernel(graph_access &G, PartitionConfig &partition_config, timer &t);
+  // void generateReducedAdjList(std::vector<int> &node_to_int_map, std::vector<NodeID> &int_to_node_map,
+  //                             std::vector<std::vector<int>> &int_adj_list, unsigned long &edges_count);
+  // void addSolveCliques(std::vector<NodeID> &int_to_node_map, std::vector<std::vector<int>> &solve_cliques);
+  //
+  // std::vector<NodeID> find_component( std::vector<bool> &visited_nodes, unsigned int &visit_remaining);
+
+
+public:
+
+  redu_vcc() {};
+  redu_vcc(graph_access &G, PartitionConfig &partition_config);
+  virtual ~redu_vcc() {};
+
+  void getMIS(std::string file);
+
+  void analyzeGraph(std::string &filename, graph_access &G, timer &t);
+  void solveKernel(graph_access &G, PartitionConfig &partition_config, timer &t);
 
 
 };

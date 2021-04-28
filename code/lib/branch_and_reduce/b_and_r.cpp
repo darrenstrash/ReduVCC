@@ -29,8 +29,7 @@ branch_and_reduce::branch_and_reduce(graph_access &G, PartitionConfig &partition
 
   construct_run(partition_config);
 
-  if (prune_type == "ReduMIS") root.reduVCC = redu_vcc(G, partition_config);
-  else root.reduVCC = redu_vcc(G);
+  root.reduVCC = redu_vcc(G, partition_config);
 
   branch_count = 0;
   iso_degree.assign(G.number_of_nodes(), 0);

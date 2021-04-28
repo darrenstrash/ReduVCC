@@ -11,6 +11,25 @@
 
 #include "redu_structure.h"
 
+void redu_structure::init() {
+
+  node_status.assign(num_nodes, true);
+  fold_node.assign(num_nodes, false);
+  remaining_nodes = num_nodes;
+  // allocate for graph cover
+  node_clique.resize(num_nodes);
+
+  // initialize mis mapping to 0
+  curr_mis = 0;
+
+  // allocate two scratch vectors
+  scratch1.assign(num_nodes, false);
+  scratch2.assign(num_nodes, false);
+
+  // assign first cliqueID to 0
+  next_cliqueID = 0;
+}
+
 void redu_structure::generateAdjList(graph_access &G) {
   /* Generates adjacency list from graph */
 
