@@ -76,6 +76,7 @@ int main(int argn, char **argv) {
 
     timer s;
 
+
     if (partition_config.run_type == "Redu") {
         redu_vcc reduVCC(G);
         std::vector<unsigned int> iso_degree;
