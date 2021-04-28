@@ -70,6 +70,7 @@ std::vector<std::vector<NodeID>> branch_and_reduce::enumerate(instance &inst, No
 void branch_and_reduce::pivot_enumerator( instance &inst, std::vector<std::vector<NodeID>> &minimal_cliques,
                                    std::vector<NodeID> &consider_nodes, std::vector<NodeID> &curr_clique, std::vector<NodeID> &excluded_nodes) {
 
+  redu_vcc &reduVCC = inst.reduVCC;
 
   if (consider_nodes.empty() && excluded_nodes.empty()) {
 
