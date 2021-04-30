@@ -172,7 +172,7 @@ void redu_vcc::merge_covers(redu_vcc &parent) {
       NodeID parent_v = self_to_parent_map[v];
       parent_clique.push_back(parent_v);
     }
-    std::sort(parent_clique);
+    std::sort(parent_clique.begin(), parent_clique.end());
     parent.addCliqueToCover(parent_clique);
   }
 }
