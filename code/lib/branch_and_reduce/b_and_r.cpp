@@ -506,23 +506,23 @@ void branch_and_reduce::branch_bnr( graph_access &G, instance &inst,
   NodeID next_node = nextNode(inst);
 
   // enumerate all maximal cliques of next_node sorted by size and MIS
-  // std::cout << "enumerate" << std::endl;
+  std::cout << "enumerate" << std::endl;
   // std::vector<std::vector<NodeID>> curr_cliques = sorted_enumerate(next_node, reduVCC.node_mis);
   std::vector<std::vector<NodeID>> curr_cliques = enum_vertex(inst, next_node);
 
-  // std::cout << "complete enumerate" << std::endl;
+  std::cout << "complete enumerate" << std::endl;
   // branch on each clique in enumerated set
   for (std::vector<NodeID> &clique : curr_cliques) {
     // add new clique and remove from G
     reduVCC.addClique(clique);
     reduVCC.removeVertexSet(clique);
-    // std::cout << "new queue" << std::endl;
+    std::cout << "new queue" << std::endl;
 
     vertex_queue *new_queue = construct_queue(G, inst, clique);
     // vertex_queue *new_queue = new vertex_queue(G);
     // for (NodeID a : clique) new_queue->adjust_queue(reduVCC, a);
 
-    // std::cout << "branch" << std::endl;
+    std::cout << "branch" << std::endl;
     // branch
     branch_count++;
     reduce_bnr(G, inst, curr_cover_size + 1, new_queue, partition_config, t);
