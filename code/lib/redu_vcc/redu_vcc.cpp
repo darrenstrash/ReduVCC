@@ -92,11 +92,16 @@ redu_vcc::redu_vcc(graph_access &G, PartitionConfig &partition_config) {
 
 redu_vcc::redu_vcc(redu_vcc& parent, std::vector<NodeID> &subgraph_nodes) {
 
+  std::cout << "called" << std::endl;
+
   parent_to_self_map.resize(parent.num_nodes);
   self_to_parent_map.resize(parent.num_nodes);
 
+  std::cout << "success" << std::endl;
+
   subgraph_map(subgraph_nodes);
   generateAdjList(parent);
+  std::cout << "adj built" << std::endl;
 
   init();
   // if (!partition_config.mis_file.empty()) getMIS(partition_config.mis_file);
