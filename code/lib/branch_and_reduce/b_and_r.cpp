@@ -410,12 +410,12 @@ void branch_and_reduce::reduce_bnr( graph_access &G, instance &inst,
   reduce(G, inst, R, num_fold_cliques, queue);
   delete queue;
 
-  branch_bnr(G, inst, num_fold_cliques, queue, partition_config, t);
+  branch_bnr(G, inst, num_fold_cliques, R, partition_config, t);
 }
 
 void branch_and_reduce::branch_bnr( graph_access &G, instance &inst,
                                unsigned int num_fold_cliques,
-                               vertex_queue *queue,
+                               reducer &R,
                                PartitionConfig &partition_config, timer &t) {
 
   // current size of parital clique cover
