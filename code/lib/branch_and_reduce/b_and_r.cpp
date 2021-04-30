@@ -214,9 +214,9 @@ void branch_and_reduce::reduce(graph_access &G, instance &inst,
     num_attempts += R.num_attempts;
 
     // keep track of total folded cliques to determine current clique cover size
-    num_fold_cliques += R.num_fold_cliques;
+    // num_fold_cliques += R.num_fold_cliques;
 
-    // curr_cover_size += (R.num_cliques + R.num_fold_cliques);
+    curr_cover_size += (R.num_cliques + R.num_fold_cliques);
 
 }
 
@@ -397,7 +397,7 @@ void branch_and_reduce::bandr( graph_access &G, instance &inst,
 }
 
 void branch_and_reduce::reduce_bnr( graph_access &G, instance &inst,
-                               unsigned int num_fold_cliques,
+                               unsigned int curr_cover_size,
                                vertex_queue *queue,
                                PartitionConfig &partition_config, timer &t) {
 
@@ -407,14 +407,14 @@ void branch_and_reduce::reduce_bnr( graph_access &G, instance &inst,
   if (t.elapsed() > partition_config.solver_time_limit) return;
 
   reducer R(G, partition_config.iso_limit);
-  reduce(G, inst, R, num_fold_cliques, queue);
+  reduce(G, inst, R, curr_cover_size, queue);
   delete queue;
 
-  branch_bnr(G, inst, num_fold_cliques, R, partition_config, t);
+  branch_bnr(G, inst, curr_cover_size, R, partition_config, t);
 }
 
 void branch_and_reduce::branch_bnr( graph_access &G, instance &inst,
-                               unsigned int num_fold_cliques,
+                               unsigned int curr_cover_size,
                                reducer &R,
                                PartitionConfig &partition_config, timer &t) {
 
@@ -422,7 +422,7 @@ void branch_and_reduce::branch_bnr( graph_access &G, instance &inst,
  std::vector<reducer> &reducer_stack = inst.reducer_stack;
 
   // current size of parital clique cover
-  unsigned int curr_cover_size = reduVCC.next_cliqueID + num_fold_cliques;
+  // unsigned int curr_cover_size = reduVCC.next_cliqueID + num_fold_cliques;
 
   // check exit condition -- kernel is empty
   if (reduVCC.remaining_nodes == 0) {
@@ -481,7 +481,7 @@ void branch_and_reduce::branch_bnr( graph_access &G, instance &inst,
     // std::cout << "branch" << std::endl;
     // branch
     branch_count++;
-    reduce_bnr(G, inst, num_fold_cliques, new_queue, partition_config, t);
+    reduce_bnr(G, inst, curr_cover_size + 1, new_queue, partition_config, t);
 
     // pop branched on clique
     reduVCC.pop_clique(clique);
