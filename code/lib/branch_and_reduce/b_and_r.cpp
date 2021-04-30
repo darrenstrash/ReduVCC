@@ -396,7 +396,7 @@ void branch_and_reduce::bandr( graph_access &G, instance &inst,
   R.undoReductions(G, reduVCC); reducer_stack.pop_back();
 }
 
-void branch_and_reduce::buildCover(instance *inst) {
+void branch_and_reduce::buildCover(instance *&inst) {
 
   if (inst->has_child) {
     buildCover(inst->curr_child)
