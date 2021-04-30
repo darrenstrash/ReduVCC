@@ -467,6 +467,8 @@ void branch_and_reduce::reduce_bnr( graph_access &G, instance &inst,
     return;
   }
 
+  std::cout << "prepares to split: " << subgraph_nodes.size() << std::endl;;
+
   {
   instance child_inst;
   child_inst.reduVCC = redu_vcc(reduVCC, subgraph_nodes);
