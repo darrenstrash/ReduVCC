@@ -46,8 +46,8 @@ void redu_vcc::generateAdjList(graph_access &G) {
 void redu_vcc::subgraph_map(std::vector<NodeID> &subgraph_nodes) {
   // maps subgraph vertices from parent to new instance
 
-  parent_to_self_map.resize(num_nodes);
-  self_to_parent_map.resize(num_nodes);
+  // parent_to_self_map.resize(num_nodes);
+  // self_to_parent_map.resize(num_nodes);
   num_nodes = 0;
 
   for (NodeID old_v : subgraph_nodes) {
@@ -100,6 +100,7 @@ redu_vcc::redu_vcc(redu_vcc& parent, std::vector<NodeID> &subgraph_nodes) {
   std::cout << "success" << std::endl;
 
   subgraph_map(subgraph_nodes);
+  std::cout << "subgraph nodes created" << std::endl;
   generateAdjList(parent);
   std::cout << "adj built" << std::endl;
 
