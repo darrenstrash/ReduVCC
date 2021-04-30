@@ -54,7 +54,7 @@ private:
   public:
 
     // redu_vcc reduVCC;
-    instance root;
+    instance* root;
 
     unsigned int branch_count;
     std::vector<unsigned int> iso_degree;
