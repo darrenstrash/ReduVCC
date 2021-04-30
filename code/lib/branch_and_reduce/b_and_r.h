@@ -39,17 +39,17 @@ private:
 
   MISConfig config;
 
-  NodeID min_deg_node(instance &inst);
-  std::vector<std::vector<NodeID>> sorted_enumerate(instance &inst, NodeID x);
+  NodeID min_deg_node(instance *inst);
+  std::vector<std::vector<NodeID>> sorted_enumerate(instance *inst, NodeID x);
 
-  void reduce(graph_access &G, instance &inst, reducer &R, unsigned int &num_fold_cliques, vertex_queue *queue);
-  bool prune(instance &inst, unsigned int &curr_cover_size);
-  std::vector<std::vector<NodeID>> enum_vertex(instance &inst, NodeID &v);
-  NodeID nextNode(instance &inst);
+  void reduce(graph_access &G, instance *inst, reducer &R, unsigned int &num_fold_cliques, vertex_queue *queue);
+  bool prune(instance *inst, unsigned int &curr_cover_size);
+  std::vector<std::vector<NodeID>> enum_vertex(instance *inst, NodeID &v);
+  NodeID nextNode(instance *inst);
 
-  vertex_queue* construct_queue(graph_access &G, instance &inst,std::vector<NodeID> &clique);
+  vertex_queue* construct_queue(graph_access &G, instance *inst,std::vector<NodeID> &clique);
 
-  void buildCover(instance &inst);
+  void buildCover(instance *inst);
 
   public:
 
@@ -69,19 +69,19 @@ private:
     void construct_run(PartitionConfig &partition_config);
 
 
-    std::vector<std::vector<NodeID>> enumerate(instance &inst, NodeID v);
-    void pivot_enumerator(instance &inst, std::vector<std::vector<NodeID>> &minimal_cliques,
+    std::vector<std::vector<NodeID>> enumerate(instance *inst, NodeID v);
+    void pivot_enumerator(instance *inst, std::vector<std::vector<NodeID>> &minimal_cliques,
                     std::vector<NodeID> &consider_nodes, std::vector<NodeID> &curr_clique, std::vector<NodeID> &excluded_nodes);
 
-    std::vector<std::vector<NodeID>> sorted_enumerate(instance &inst, NodeID x, std::vector<bool> &indset);
+    std::vector<std::vector<NodeID>> sorted_enumerate(instance *inst, NodeID x, std::vector<bool> &indset);
 
-    void bandr( graph_access &G, instance &inst, unsigned int num_fold_cliques,
+    void bandr( graph_access &G, instance *inst, unsigned int num_fold_cliques,
                 vertex_queue *queue, PartitionConfig &partition_config, timer &t);
 
 
-    void reduce_bnr( graph_access &G, instance &inst, unsigned int num_fold_cliques,
+    void reduce_bnr( graph_access &G, instance *inst, unsigned int num_fold_cliques,
                  vertex_queue *queue, PartitionConfig &partition_config, timer &t);
-    void branch_bnr( graph_access &G, instance &inst, unsigned int num_fold_cliques,
+    void branch_bnr( graph_access &G, instance *inst, unsigned int num_fold_cliques,
                  reducer &R, PartitionConfig &partition_config, timer &t);
 
 
@@ -95,7 +95,7 @@ private:
     // void generate_mis_bandr( graph_access &G, unsigned int num_fold_cliques, PartitionConfig &partition_config, timer &t);
 
     void analyzeGraph(std::string &filename, graph_access &G, timer &t) {
-      root.reduVCC.analyzeGraph(filename, G, t);
+      root->reduVCC.analyzeGraph(filename, G, t);
       std::cout << "Branches: " << branch_count << std::endl;
       std::cout << "ISO degree distrib. : [";
       for (unsigned int i : iso_degree) std::cout << i << ", ";
