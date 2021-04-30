@@ -23,8 +23,8 @@ struct instance {
   redu_vcc reduVCC;
   std::vector<reducer> reducer_stack;
   // std::vector<redu_vcc> children;
-  instance& curr_child;
-  bool has_child;
+  // instance& curr_child;
+  // bool has_child;
 };
 
 class branch_and_reduce {
