@@ -415,17 +415,17 @@ void branch_and_reduce::reduce_bnr( graph_access &G, instance &inst,
 
   std::vector<bool> visited_nodes;
   for (bool status : reduVCC.node_status) visited_nodes.push_back(!status);
-  unsigned int visit_remaining = redu_vcc.num_nodes;
+  unsigned int visit_remaining = reduVCC.num_nodes;
 
   std::vector<NodeID> subgraph_nodes = reduVCC.find_component(visited_nodes, visit_remaining);
   if (visit_remaining == 0) {
-    branch_bnr(G, inst, num_fold_cliques, R, partition_config, t);
+    branch_bnr(G, inst, curr_cover_size, R, partition_config, t);
     return;
   }
 
   {
   instance child_inst;
-  child_inst.reduVCC = redu_vcc(this, subgraph_nodes);
+  child_inst.reduVCC = redu_vcc(reduVCC, subgraph_nodes);
   child_inst.has_child = false;
   inst.curr_child = &child_inst;
   inst.has_child = true;
@@ -436,7 +436,7 @@ void branch_and_reduce::reduce_bnr( graph_access &G, instance &inst,
   while (visit_remaining > 0) {
     subgraph_nodes = reduVCC.find_component(visited_nodes, visit_remaining);
     instance child_inst;
-    child_inst.reduVCC = redu_vcc(this, subgraph_nodes);
+    child_inst.reduVCC = redu_vcc(reduVCC, subgraph_nodes);
     child_inst.has_child = false;
     inst.curr_child = &child_inst;
     inst.has_child = true;
