@@ -418,6 +418,9 @@ void branch_and_reduce::branch_bnr( graph_access &G, instance &inst,
                                reducer &R,
                                PartitionConfig &partition_config, timer &t) {
 
+ redu_vcc &reduVCC = inst.reduVCC;
+ std::vector<reducer> &reducer_stack = inst.reducer_stack;
+
   // current size of parital clique cover
   unsigned int curr_cover_size = reduVCC.next_cliqueID + num_fold_cliques;
 
