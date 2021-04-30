@@ -29,7 +29,7 @@ branch_and_reduce::branch_and_reduce(graph_access &G, PartitionConfig &partition
 
   construct_run(partition_config);
 
-  root->reduVCC = redu_vcc(G, partition_config);
+  root.reduVCC = redu_vcc(G, partition_config);
 
   branch_count = 0;
   iso_degree.assign(G.number_of_nodes(), 0);
@@ -41,10 +41,10 @@ branch_and_reduce::branch_and_reduce(graph_access &G, PartitionConfig &partition
   config.force_cand = 4;
 }
 
-std::vector<std::vector<NodeID>> branch_and_reduce::enumerate(instance *inst, NodeID v) {
+std::vector<std::vector<NodeID>> branch_and_reduce::enumerate(instance &inst, NodeID v) {
     /* Enumerates set of minimal cliques */
 
-    redu_vcc &reduVCC = inst->reduVCC;
+    redu_vcc &reduVCC = inst.reduVCC;
 
     // initialize set of minimal cliques
     std::vector<std::vector<NodeID>> minimal_cliques;
@@ -66,10 +66,10 @@ std::vector<std::vector<NodeID>> branch_and_reduce::enumerate(instance *inst, No
     return minimal_cliques;
 }
 
-void branch_and_reduce::pivot_enumerator( instance *inst, std::vector<std::vector<NodeID>> &minimal_cliques,
+void branch_and_reduce::pivot_enumerator( instance &inst, std::vector<std::vector<NodeID>> &minimal_cliques,
                                    std::vector<NodeID> &consider_nodes, std::vector<NodeID> &curr_clique, std::vector<NodeID> &excluded_nodes) {
 
-  redu_vcc &reduVCC = inst->reduVCC;
+  redu_vcc &reduVCC = inst.reduVCC;
 
   if (consider_nodes.empty() && excluded_nodes.empty()) {
 
@@ -144,7 +144,7 @@ void branch_and_reduce::pivot_enumerator( instance *inst, std::vector<std::vecto
 }
 
 // std::vector<std::vector<NodeID>> branch_and_reduce::sorted_enumerate(NodeID x, std::vector<bool> &indset) {
-std::vector<std::vector<NodeID>> branch_and_reduce::sorted_enumerate(instance *inst, NodeID x) {
+std::vector<std::vector<NodeID>> branch_and_reduce::sorted_enumerate(instance &inst, NodeID x) {
 
   std::vector<std::vector<NodeID>> curr_cliques = enumerate(inst, x);
   // std::cout << "complete enumerate " << std::endl;
@@ -195,12 +195,12 @@ std::vector<std::vector<NodeID>> branch_and_reduce::sorted_enumerate(instance *i
     return sorted_cliques;
 }
 
-void branch_and_reduce::reduce(graph_access &G, instance *inst,
+void branch_and_reduce::reduce(graph_access &G, instance &inst,
                                reducer &R, unsigned int &curr_cover_size,
                                vertex_queue *queue) {
 
-    redu_vcc &reduVCC = inst->reduVCC;
-    std::vector<reducer> &reducer_stack = inst->reducer_stack;
+    redu_vcc &reduVCC = inst.reduVCC;
+    std::vector<reducer> &reducer_stack = inst.reducer_stack;
 
     if (queue == nullptr || queue->empty()) {
       R.exhaustive_reductions(G, reduVCC, iso_degree, dom_degree);
@@ -220,9 +220,9 @@ void branch_and_reduce::reduce(graph_access &G, instance *inst,
 
 }
 
-bool branch_and_reduce::prune(instance *inst, unsigned int &curr_cover_size) {
+bool branch_and_reduce::prune(instance &inst, unsigned int &curr_cover_size) {
 
-    redu_vcc &reduVCC = inst->reduVCC;
+    redu_vcc &reduVCC = inst.reduVCC;
 
     unsigned int estimated_cover_size;
 
@@ -257,9 +257,9 @@ bool branch_and_reduce::prune(instance *inst, unsigned int &curr_cover_size) {
 
 }
 
-NodeID branch_and_reduce::min_deg_node(instance *inst) {
+NodeID branch_and_reduce::min_deg_node(instance &inst) {
 
-  redu_vcc &reduVCC = inst->reduVCC;
+  redu_vcc &reduVCC = inst.reduVCC;
 
   unsigned int min_degree = 0;
   NodeID next_node = 0;
@@ -281,15 +281,15 @@ NodeID branch_and_reduce::min_deg_node(instance *inst) {
 
 }
 
-std::vector<std::vector<NodeID>> branch_and_reduce::enum_vertex(instance *inst, NodeID &v) {
+std::vector<std::vector<NodeID>> branch_and_reduce::enum_vertex(instance &inst, NodeID &v) {
 
   if (enum_type == "sort_enum") return sorted_enumerate(inst, v);
   else return enumerate(inst, v);
 }
 
-vertex_queue* branch_and_reduce::construct_queue(graph_access &G,instance *inst, std::vector<NodeID> &clique) {
+vertex_queue* branch_and_reduce::construct_queue(graph_access &G,instance &inst, std::vector<NodeID> &clique) {
 
-  redu_vcc &reduVCC = inst->reduVCC;
+  redu_vcc &reduVCC = inst.reduVCC;
 
   vertex_queue *new_queue = nullptr;
   if (redu_type == "exhaustive") return new_queue;
@@ -300,24 +300,24 @@ vertex_queue* branch_and_reduce::construct_queue(graph_access &G,instance *inst,
 
 }
 
-NodeID branch_and_reduce::nextNode(instance *inst){
+NodeID branch_and_reduce::nextNode(instance &inst){
 
   if (next_node_type == "small_deg") {
     return min_deg_node(inst);
   }
   NodeID next_node = 0;
-  while (!inst->reduVCC.node_status[next_node]) next_node++;
+  while (!inst.reduVCC.node_status[next_node]) next_node++;
   return next_node;
 
 }
 
-void branch_and_reduce::bandr( graph_access &G, instance *inst,
+void branch_and_reduce::bandr( graph_access &G, instance &inst,
                                unsigned int num_fold_cliques,
                                vertex_queue *queue,
                                PartitionConfig &partition_config, timer &t) {
 
-  redu_vcc &reduVCC = inst->reduVCC;
-  std::vector<reducer> &reducer_stack = inst->reducer_stack;
+  redu_vcc &reduVCC = inst.reduVCC;
+  std::vector<reducer> &reducer_stack = inst.reducer_stack;
 
   if (t.elapsed() > partition_config.solver_time_limit) return;
 
@@ -396,13 +396,13 @@ void branch_and_reduce::bandr( graph_access &G, instance *inst,
   R.undoReductions(G, reduVCC); reducer_stack.pop_back();
 }
 
-void branch_and_reduce::reduce_bnr( graph_access &G, instance *inst,
+void branch_and_reduce::reduce_bnr( graph_access &G, instance &inst,
                                unsigned int curr_cover_size,
                                vertex_queue *queue,
                                PartitionConfig &partition_config, timer &t) {
 
-  redu_vcc &reduVCC = inst->reduVCC;
-  std::vector<reducer> &reducer_stack = inst->reducer_stack;
+  redu_vcc &reduVCC = inst.reduVCC;
+  std::vector<reducer> &reducer_stack = inst.reducer_stack;
 
   if (t.elapsed() > partition_config.solver_time_limit) return;
 
@@ -445,13 +445,13 @@ void branch_and_reduce::reduce_bnr( graph_access &G, instance *inst,
   // }
 }
 
-void branch_and_reduce::branch_bnr( graph_access &G, instance *inst,
+void branch_and_reduce::branch_bnr( graph_access &G, instance &inst,
                                unsigned int curr_cover_size,
                                reducer &R,
                                PartitionConfig &partition_config, timer &t) {
 
- redu_vcc &reduVCC = inst->reduVCC;
- std::vector<reducer> &reducer_stack = inst->reducer_stack;
+ redu_vcc &reduVCC = inst.reduVCC;
+ std::vector<reducer> &reducer_stack = inst.reducer_stack;
 
   // current size of parital clique cover
   // unsigned int curr_cover_size = reduVCC.next_cliqueID + num_fold_cliques;
