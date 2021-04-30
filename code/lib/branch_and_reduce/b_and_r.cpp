@@ -411,7 +411,7 @@ void branch_and_reduce::reduce_bnr( graph_access &G, instance &inst,
   delete queue;
 
   branch_bnr(G, inst, curr_cover_size, R, partition_config, t);
-  return
+  return;
 
   // std::vector<bool> visited_nodes;
   // for (bool status : node_status) visited_nodes.push_back(!status);
@@ -531,7 +531,7 @@ void branch_and_reduce::buildCover(instance &inst) {
   // if (inst.has_child) {
   //   buildCover(inst.curr_child);
   // }
-  // 
+  //
   // redu_vcc &reduVCC = inst.reduVCC;
   // reduVCC.build_cover();
   // inst.curr_child.merge_covers(reduVCC);
