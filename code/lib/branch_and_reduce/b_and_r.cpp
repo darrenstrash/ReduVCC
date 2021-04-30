@@ -514,7 +514,7 @@ void branch_and_reduce::branch_bnr( graph_access &G, instance &inst,
     // std::cout << "branch" << std::endl;
     // branch
     branch_count++;
-    reduce_bnr(G, inst, num_fold_cliques, new_queue, partition_config, t);
+    reduce_bnr(G, inst, curr_cover_size, new_queue, partition_config, t);
 
     // pop branched on clique
     reduVCC.pop_clique(clique);
