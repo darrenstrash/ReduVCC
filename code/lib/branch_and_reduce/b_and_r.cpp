@@ -413,36 +413,36 @@ void branch_and_reduce::reduce_bnr( graph_access &G, instance &inst,
   branch_bnr(G, inst, curr_cover_size, R, partition_config, t);
   return
 
-  std::vector<bool> visited_nodes;
-  for (bool status : node_status) visited_nodes.push_back(!status);
-  unsigned int visit_remaining = node_status.size();
-
-  std::vector<NodeID> subgraph_nodes = reduVCC.find_component(visited_nodes, visit_remaining);
-  if (visit_remaining == 0) {
-    branch_bnr(G, inst, num_fold_cliques, R, partition_config, t);
-    return;
-  }
-
-  {
-  instance child_inst;
-  child_inst.reduVCC = child(this, subgraph_nodes);
-  child_inst.has_child = false;
-  inst.curr_child = child_inst;
-  inst.has_child = true;
-  reduce_bnr(G, child_inst, num_fold_cliques, R, partition_config, t);
-  inst.has_child = false;
-  }
-
-  while (visit_remaining > 0) {
-    subgraph_nodes = reduVCC.find_component(visited_nodes, visit_remaining);
-    instance child_inst;
-    child_inst.reduVCC = child(this, subgraph_nodes);
-    child_inst.has_child = false;
-    inst.curr_child = child_inst;
-    inst.has_child = true;
-    reduce_bnr(G, child_inst, num_fold_cliques, R, partition_config, t);
-    inst.has_child = false;
-  }
+  // std::vector<bool> visited_nodes;
+  // for (bool status : node_status) visited_nodes.push_back(!status);
+  // unsigned int visit_remaining = node_status.size();
+  //
+  // std::vector<NodeID> subgraph_nodes = reduVCC.find_component(visited_nodes, visit_remaining);
+  // if (visit_remaining == 0) {
+  //   branch_bnr(G, inst, num_fold_cliques, R, partition_config, t);
+  //   return;
+  // }
+  //
+  // {
+  // instance child_inst;
+  // child_inst.reduVCC = child(this, subgraph_nodes);
+  // child_inst.has_child = false;
+  // inst.curr_child = child_inst;
+  // inst.has_child = true;
+  // reduce_bnr(G, child_inst, num_fold_cliques, R, partition_config, t);
+  // inst.has_child = false;
+  // }
+  //
+  // while (visit_remaining > 0) {
+  //   subgraph_nodes = reduVCC.find_component(visited_nodes, visit_remaining);
+  //   instance child_inst;
+  //   child_inst.reduVCC = child(this, subgraph_nodes);
+  //   child_inst.has_child = false;
+  //   inst.curr_child = child_inst;
+  //   inst.has_child = true;
+  //   reduce_bnr(G, child_inst, num_fold_cliques, R, partition_config, t);
+  //   inst.has_child = false;
+  // }
 
 }
 
@@ -528,16 +528,16 @@ void branch_and_reduce::branch_bnr( graph_access &G, instance &inst,
 
 void branch_and_reduce::buildCover(instance &inst) {
 
-  if (inst.has_child) {
-    buildCover(inst.curr_child);
-  }
-
-  redu_vcc &reduVCC = inst.reduVCC;
-  reduVCC.build_cover();
-  inst.curr_child.merge_covers(reduVCC);
-
-  std::vector<reducer> &reducer_stack = int.reducer_stack;
-  for (unsigned int i = reducer_stack.size(); i > 0; i--) reducer_stack[i-1].unwindReductions(G, reduVCC);
+  // if (inst.has_child) {
+  //   buildCover(inst.curr_child);
+  // }
+  // 
+  // redu_vcc &reduVCC = inst.reduVCC;
+  // reduVCC.build_cover();
+  // inst.curr_child.merge_covers(reduVCC);
+  //
+  // std::vector<reducer> &reducer_stack = int.reducer_stack;
+  // for (unsigned int i = reducer_stack.size(); i > 0; i--) reducer_stack[i-1].unwindReductions(G, reduVCC);
 }
 
 // void branch_and_reduce::components_b_n_r( graph_access &G, instance &inst,
