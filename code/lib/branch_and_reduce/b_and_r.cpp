@@ -427,6 +427,11 @@ void branch_and_reduce::reduce_bnr( graph_access &G, instance &inst,
     return;
   }
 
+  if (prune(inst, curr_cover_size)) {
+    R.undoReductions(G, reduVCC); reducer_stack.pop_back();
+    return;
+  }
+
 
   branch_bnr(G, inst, curr_cover_size, R, partition_config, t);
   return;
@@ -447,7 +452,8 @@ void branch_and_reduce::reduce_bnr( graph_access &G, instance &inst,
   child_inst.has_child = false;
   inst.curr_child = &child_inst;
   inst.has_child = true;
-  reduce_bnr(G, child_inst, curr_cover_size, nullptr, partition_config, t);
+  reducer child_R(G, partition_config.iso_limit);
+  branch_bnr(G, child_inst, curr_cover_size, child_R, partition_config, t);
   inst.has_child = false;
   }
 
@@ -458,7 +464,8 @@ void branch_and_reduce::reduce_bnr( graph_access &G, instance &inst,
     child_inst.has_child = false;
     inst.curr_child = &child_inst;
     inst.has_child = true;
-    reduce_bnr(G, child_inst, curr_cover_size, nullptr, partition_config, t);
+    reducer child_R(G, partition_config.iso_limit);
+    branch_bnr(G, child_inst, curr_cover_size, child_R, partition_config, t);
     inst.has_child = false;
   }
 }
@@ -474,10 +481,6 @@ void branch_and_reduce::branch_bnr( graph_access &G, instance &inst,
   // current size of parital clique cover
   // unsigned int curr_cover_size = reduVCC.next_cliqueID + num_fold_cliques;
 
-  if (prune(inst, curr_cover_size)) {
-    R.undoReductions(G, reduVCC); reducer_stack.pop_back();
-    return;
-  }
 
   // // estimate cover size using partial cover size and MIS of kernel
   // unsigned int estimated_cover_size = curr_cover_size + reduVCC.curr_mis;
