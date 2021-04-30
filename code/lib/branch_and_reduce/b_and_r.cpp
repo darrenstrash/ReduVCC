@@ -196,7 +196,7 @@ std::vector<std::vector<NodeID>> branch_and_reduce::sorted_enumerate(instance &i
 }
 
 void branch_and_reduce::reduce(graph_access &G, instance &inst,
-                               reducer &R, unsigned int &num_fold_cliques,
+                               reducer &R, unsigned int &curr_cover_size,
                                vertex_queue *queue) {
 
     redu_vcc &reduVCC = inst.reduVCC;
@@ -488,6 +488,7 @@ void branch_and_reduce::branch_bnr( graph_access &G, instance &inst,
     reduVCC.addVertexSet(clique);
 
   }
+
   // undo number of reductions from reduce
   R.undoReductions(G, reduVCC); reducer_stack.pop_back();
 }
