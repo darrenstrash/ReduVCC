@@ -410,7 +410,7 @@ void branch_and_reduce::reduce_bnr( graph_access &G, instance *inst,
   reduce(G, inst, R, curr_cover_size, queue);
   delete queue;
 
-  branch_bnr(G, inst, num_fold_cliques, R, partition_config, t);
+  branch_bnr(G, inst, curr_cover_size, R, partition_config, t);
   return;
 
   // std::vector<bool> visited_nodes;
