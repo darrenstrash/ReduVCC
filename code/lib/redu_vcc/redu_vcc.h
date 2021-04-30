@@ -31,7 +31,6 @@ private:
   //                             std::vector<std::vector<int>> &int_adj_list, unsigned long &edges_count);
   // void addSolveCliques(std::vector<NodeID> &int_to_node_map, std::vector<std::vector<int>> &solve_cliques);
   //
-  std::vector<NodeID> find_component( std::vector<bool> &visited_nodes, unsigned int &visit_remaining);
 
 
 public:
@@ -44,6 +43,8 @@ public:
   void getMIS(std::string file);
 
   std::vector<redu_vcc> decompose_components();
+  std::vector<NodeID> find_component( std::vector<bool> &visited_nodes, unsigned int &visit_remaining);
+
 
   void merge_covers(redu_vcc &parent);
 
