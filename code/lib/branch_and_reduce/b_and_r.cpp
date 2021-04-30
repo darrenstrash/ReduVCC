@@ -407,7 +407,7 @@ void branch_and_reduce::buildCover(graph_access &G, instance *&inst) {
 
   reduVCC.build_cover(G);
   if (inst->has_child) {
-    inst->curr_child->merge_covers(reduVCC);
+    inst->curr_child->reduVCC.merge_covers(reduVCC);
   }
 
   for (unsigned int i = reducer_stack.size(); i > 0; i--) reducer_stack[i-1].unwindReductions(G, reduVCC);
