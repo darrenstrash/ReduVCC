@@ -429,7 +429,7 @@ void branch_and_reduce::reduce_bnr( graph_access &G, instance &inst,
   child_inst.has_child = false;
   inst.curr_child = &child_inst;
   inst.has_child = true;
-  reduce_bnr(G, child_inst, curr_cover_size, R, partition_config, t);
+  reduce_bnr(G, child_inst, curr_cover_size, nullptr, partition_config, t);
   inst.has_child = false;
   }
 
@@ -440,7 +440,7 @@ void branch_and_reduce::reduce_bnr( graph_access &G, instance &inst,
     child_inst.has_child = false;
     inst.curr_child = &child_inst;
     inst.has_child = true;
-    reduce_bnr(G, child_inst, curr_cover_size, R, partition_config, t);
+    reduce_bnr(G, child_inst, curr_cover_size, nullptr, partition_config, t);
     inst.has_child = false;
   }
 }
