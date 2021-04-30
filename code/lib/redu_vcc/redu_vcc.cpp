@@ -90,21 +90,29 @@ redu_vcc::redu_vcc(graph_access &G, PartitionConfig &partition_config) {
   if (!partition_config.mis_file.empty()) getMIS(partition_config.mis_file);
 };
 
-redu_vcc::redu_vcc(redu_vcc& parent, std::vector<NodeID> &subgraph_nodes) {
+void redu_vcc::map_mis(redu_vcc &parent) {
 
-  std::cout << "called" << std::endl;
+  node_mis.assign(num_nodes, 0);
+  for (NodeID v = 0; v < num_nodes; v++) {
+    NodeID v_old = self_to_parent_map[v];
+    if (parent.node_mis[v_old]) {
+      curr_mis++;
+      node_mis[v] = 1;
+    }
+  }
+
+}
+
+redu_vcc::redu_vcc(redu_vcc& parent, std::vector<NodeID> &subgraph_nodes) {
 
   parent_to_self_map.resize(parent.num_nodes);
   self_to_parent_map.resize(parent.num_nodes);
 
-  std::cout << "success" << std::endl;
-
   subgraph_map(subgraph_nodes);
-  std::cout << "subgraph nodes created" << std::endl;
   generateAdjList(parent);
-  std::cout << "adj built" << std::endl;
 
   init();
+  if (!parent.node_mis.empty()) map_mis(parent);
   // if (!partition_config.mis_file.empty()) getMIS(partition_config.mis_file);
 
 }
