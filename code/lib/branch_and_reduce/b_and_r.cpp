@@ -436,7 +436,8 @@ void branch_and_reduce::reduce_bnr( graph_access &G, instance &inst,
     if (reduVCC.clique_cover.size() == 0 || curr_cover_size < reduVCC.clique_cover.size()) {
       // build current parital cover
       std::cout << "smaller cover: " << curr_cover_size << ", " << reduVCC.clique_cover.size() << std::endl;
-      buildCover(*root);
+      instance* root_ptr = &root;
+      buildCover(root_ptr);
       // reduVCC.build_cover(G);
       // // unwind reductions to get full cover
       // for (unsigned int i = reducer_stack.size(); i > 0; i--) reducer_stack[i-1].unwindReductions(G, reduVCC);
