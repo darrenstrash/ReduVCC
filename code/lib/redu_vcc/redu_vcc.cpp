@@ -139,30 +139,30 @@ std::vector<NodeID> redu_vcc::find_component( std::vector<bool> &visited_nodes, 
   return current_nodes;
 }
 
-std::vector<redu_vcc> redu_vcc::decompose_components() {
-
-  std::vector<redu_vcc> children;
-
-  std::vector<bool> visited_nodes;
-  for (bool status : node_status) visited_nodes.push_back(!status);
-  unsigned int visit_remaining = node_status.size();
-
-  std::vector<NodeID> subgraph_nodes = find_component(visited_nodes, visit_remaining);
-  if (visit_remaining == 0) {
-    return children;
-  }
-
-
-  redu_vcc child(this, subgraph_nodes);
-  children.push_back(child);
-
-  while (visit_remaining > 0) {
-    subgraph_nodes = find_component(visited_nodes, visit_remaining);
-    child = redu_vcc(this, subgraph_nodes);
-    children.push_back(child);
-  }
-  return children;
-}
+// std::vector<redu_vcc> redu_vcc::decompose_components() {
+//
+//   std::vector<redu_vcc> children;
+//
+//   std::vector<bool> visited_nodes;
+//   for (bool status : node_status) visited_nodes.push_back(!status);
+//   unsigned int visit_remaining = node_status.size();
+//
+//   std::vector<NodeID> subgraph_nodes = find_component(visited_nodes, visit_remaining);
+//   if (visit_remaining == 0) {
+//     return children;
+//   }
+//
+//
+//   redu_vcc child(this, subgraph_nodes);
+//   children.push_back(child);
+//
+//   while (visit_remaining > 0) {
+//     subgraph_nodes = find_component(visited_nodes, visit_remaining);
+//     child = redu_vcc(this, subgraph_nodes);
+//     children.push_back(child);
+//   }
+//   return children;
+// }
 
 void redu_vcc::merge_covers(redu_vcc &parent) {
 

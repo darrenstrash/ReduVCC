@@ -42,7 +42,7 @@ public:
 
   void getMIS(std::string file);
 
-  std::vector<redu_vcc> decompose_components();
+  // std::vector<redu_vcc> decompose_components();
   std::vector<NodeID> find_component( std::vector<bool> &visited_nodes, unsigned int &visit_remaining);
 
 
