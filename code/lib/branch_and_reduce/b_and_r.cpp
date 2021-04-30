@@ -476,7 +476,7 @@ void branch_and_reduce::reduce_bnr( graph_access &G, instance &inst,
   inst.curr_child = &child_inst;
   inst.has_child = true;
   reducer child_R(G, partition_config.iso_limit);
-  child_inst.reduVCC.print(adj_list);
+  child_inst.reduVCC.printAdjList();
   branch_bnr(G, child_inst, curr_cover_size, child_R, partition_config, t);
   inst.has_child = false;
   }
