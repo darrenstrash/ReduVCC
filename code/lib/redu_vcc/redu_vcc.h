@@ -26,6 +26,7 @@ private:
   void generateAdjList(graph_access &G);
   void generateAdjList(redu_vcc& parent);
   void subgraph_map(std::vector<NodeID> &subgraph_nodes);
+  void map_mis(redu_vcc &parent);
 
   // void generateReducedAdjList(std::vector<int> &node_to_int_map, std::vector<NodeID> &int_to_node_map,
   //                             std::vector<std::vector<int>> &int_adj_list, unsigned long &edges_count);
