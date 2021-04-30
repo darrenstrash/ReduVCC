@@ -164,6 +164,19 @@ std::vector<redu_vcc> redu_vcc::decompose_components() {
   return children;
 }
 
+void redu_vcc::merge_covers(redu_vcc &parent) {
+
+  for (std::vector<NodeID> &clique : clique_cover) {
+    std::vector<NodeID> parent_clique;
+    for (NodeID &v : clique) {
+      NodeID parent_v = self_to_parent_map[v];
+      parent_clique.push_back(parent_v);
+    }
+    std::sort(parent_clique);
+    parent.addCliqueToCover(parent_clique);
+  }
+}
+
 void redu_vcc::solveKernel(graph_access &G, PartitionConfig &partition_config, timer &t) {
 
   if (remaining_nodes == 0) { return; }

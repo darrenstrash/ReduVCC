@@ -45,6 +45,8 @@ public:
 
   std::vector<redu_vcc> decompose_components();
 
+  void merge_covers(redu_vcc &parent);
+
   void analyzeGraph(std::string &filename, graph_access &G, timer &t);
   void solveKernel(graph_access &G, PartitionConfig &partition_config, timer &t);
 

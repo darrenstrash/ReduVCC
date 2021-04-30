@@ -22,7 +22,9 @@
 struct instance {
   redu_vcc reduVCC;
   std::vector<reducer> reducer_stack;
-  std::vector<redu_vcc> children;
+  // std::vector<redu_vcc> children;
+  instance& curr_child;
+  bool has_child;
 };
 
 class branch_and_reduce {
@@ -47,6 +49,7 @@ private:
 
   vertex_queue* construct_queue(graph_access &G, instance &inst,std::vector<NodeID> &clique);
 
+  void buildCover(instance &inst);
 
   public:
 
@@ -80,6 +83,7 @@ private:
                  vertex_queue *queue, PartitionConfig &partition_config, timer &t);
     void branch_bnr( graph_access &G, instance &inst, unsigned int num_fold_cliques,
                  reducer &R, PartitionConfig &partition_config, timer &t);
+
 
     // void brute_bandr( graph_access &G, unsigned int num_fold_cliques);
     // void reduMIS_bandr( graph_access &G, unsigned int num_fold_cliques);

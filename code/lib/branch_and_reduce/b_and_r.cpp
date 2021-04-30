@@ -195,7 +195,9 @@ std::vector<std::vector<NodeID>> branch_and_reduce::sorted_enumerate(instance &i
     return sorted_cliques;
 }
 
-void branch_and_reduce::reduce(graph_access &G, instance &inst, reducer &R, unsigned int &num_fold_cliques, vertex_queue *queue) {
+void branch_and_reduce::reduce(graph_access &G, instance &inst,
+                               reducer &R, unsigned int &curr_cover_size,
+                               vertex_queue *queue) {
 
     redu_vcc &reduVCC = inst.reduVCC;
     std::vector<reducer> &reducer_stack = inst.reducer_stack;
@@ -212,7 +214,9 @@ void branch_and_reduce::reduce(graph_access &G, instance &inst, reducer &R, unsi
     num_attempts += R.num_attempts;
 
     // keep track of total folded cliques to determine current clique cover size
-    num_fold_cliques += R.num_fold_cliques;
+    // num_fold_cliques += R.num_fold_cliques;
+
+    curr_cover_size += (R.num_cliques + R.num_fold_cliques);
 
 }
 
@@ -393,7 +397,7 @@ void branch_and_reduce::bandr( graph_access &G, instance &inst,
 }
 
 void branch_and_reduce::reduce_bnr( graph_access &G, instance &inst,
-                                unsigned int num_fold_cliques,
+                                unsigned int curr_cover_size,
                                 vertex_queue *queue,
                                 PartitionConfig &partition_config, timer &t) {
 
@@ -403,26 +407,54 @@ void branch_and_reduce::reduce_bnr( graph_access &G, instance &inst,
   if (t.elapsed() > partition_config.solver_time_limit) return;
 
   reducer R(G, partition_config.iso_limit);
-  reduce(G, inst, R, num_fold_cliques, queue);
+  reduce(G, inst, R, curr_cover_size, queue);
   delete queue;
 
-  // curr_inst.children = reduVCC.decompose_components();
-  // for (redu_vcc &child : curr_inst.children) {
-  //   reduce(G, child, 0, nullptr, partition_config, t);
-  // }
+  branch_bnr(G, inst, curr_cover_size, R, partition_config, t);
+  return
 
-  branch_bnr(G, inst, num_fold_cliques, R, partition_config, t);
+  std::vector<bool> visited_nodes;
+  for (bool status : node_status) visited_nodes.push_back(!status);
+  unsigned int visit_remaining = node_status.size();
+
+  std::vector<NodeID> subgraph_nodes = reduVCC.find_component(visited_nodes, visit_remaining);
+  if (visit_remaining == 0) {
+    branch_bnr(G, inst, num_fold_cliques, R, partition_config, t);
+    return;
+  }
+
+  {
+  instance child_inst;
+  child_inst.reduVCC = child(this, subgraph_nodes);
+  child_inst.has_child = false;
+  inst.curr_child = child_inst;
+  inst.has_child = true;
+  reduce_bnr(G, child_inst, num_fold_cliques, R, partition_config, t);
+  inst.has_child = false;
+  }
+
+  while (visit_remaining > 0) {
+    subgraph_nodes = reduVCC.find_component(visited_nodes, visit_remaining);
+    instance child_inst;
+    child_inst.reduVCC = child(this, subgraph_nodes);
+    child_inst.has_child = false;
+    inst.curr_child = child_inst;
+    inst.has_child = true;
+    reduce_bnr(G, child_inst, num_fold_cliques, R, partition_config, t);
+    inst.has_child = false;
+  }
+
 }
 
 void branch_and_reduce::branch_bnr( graph_access &G, instance &inst,
-                                unsigned int num_fold_cliques, reducer &R,
+                                unsigned int curr_cover_size, reducer &R,
                                 PartitionConfig &partition_config, timer &t) {
 
   redu_vcc &reduVCC = inst.reduVCC;
   std::vector<reducer> &reducer_stack = inst.reducer_stack;
 
   // current size of parital clique cover
-  unsigned int curr_cover_size = reduVCC.next_cliqueID + num_fold_cliques;
+  // unsigned int curr_cover_size = reduVCC.next_cliqueID + num_fold_cliques;
 
   // check exit condition -- kernel is empty
   if (reduVCC.remaining_nodes == 0) {
@@ -434,6 +466,7 @@ void branch_and_reduce::branch_bnr( graph_access &G, instance &inst,
 
       // unwind reductions to get full cover
       for (unsigned int i = reducer_stack.size(); i > 0; i--) reducer_stack[i-1].unwindReductions(G, reduVCC);
+      // buildCover(inst);
     }
 
     // undo branch's reductions and return
@@ -490,6 +523,21 @@ void branch_and_reduce::branch_bnr( graph_access &G, instance &inst,
   }
   // undo number of reductions from reduce
   R.undoReductions(G, reduVCC); reducer_stack.pop_back();
+}
+
+
+void branch_and_reduce::buildCover(instance &inst) {
+
+  if (inst.has_child) {
+    buildCover(inst.curr_child);
+  }
+
+  redu_vcc &reduVCC = inst.reduVCC;
+  reduVCC.build_cover();
+  inst.curr_child.merge_covers(reduVCC);
+
+  std::vector<reducer> &reducer_stack = int.reducer_stack;
+  for (unsigned int i = reducer_stack.size(); i > 0; i--) reducer_stack[i-1].unwindReductions(G, reduVCC);
 }
 
 // void branch_and_reduce::components_b_n_r( graph_access &G, instance &inst,
