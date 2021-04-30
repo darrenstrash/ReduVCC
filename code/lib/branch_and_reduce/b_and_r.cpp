@@ -410,6 +410,24 @@ void branch_and_reduce::reduce_bnr( graph_access &G, instance &inst,
   reduce(G, inst, R, curr_cover_size, queue);
   delete queue;
 
+  // check exit condition -- kernel is empty
+  if (reduVCC.remaining_nodes == 0) {
+    // check if we have a better solution
+    if (reduVCC.clique_cover.size() == 0 || curr_cover_size < reduVCC.clique_cover.size()) {
+      // build current parital cover
+      std::cout << "smaller cover: " << curr_cover_size << ", " << reduVCC.clique_cover.size() << std::endl;
+      reduVCC.build_cover(G);
+
+      // unwind reductions to get full cover
+      for (unsigned int i = reducer_stack.size(); i > 0; i--) reducer_stack[i-1].unwindReductions(G, reduVCC);
+    }
+
+    // undo branch's reductions and return
+    R.undoReductions(G, reduVCC); reducer_stack.pop_back();
+    return;
+  }
+
+
   branch_bnr(G, inst, curr_cover_size, R, partition_config, t);
   return;
 
@@ -455,24 +473,6 @@ void branch_and_reduce::branch_bnr( graph_access &G, instance &inst,
 
   // current size of parital clique cover
   // unsigned int curr_cover_size = reduVCC.next_cliqueID + num_fold_cliques;
-
-  // check exit condition -- kernel is empty
-  if (reduVCC.remaining_nodes == 0) {
-    // check if we have a better solution
-    if (reduVCC.clique_cover.size() == 0 || curr_cover_size < reduVCC.clique_cover.size()) {
-      // build current parital cover
-      std::cout << "smaller cover: " << curr_cover_size << ", " << reduVCC.clique_cover.size() << std::endl;
-      reduVCC.build_cover(G);
-
-      // unwind reductions to get full cover
-      for (unsigned int i = reducer_stack.size(); i > 0; i--) reducer_stack[i-1].unwindReductions(G, reduVCC);
-    }
-
-    // undo branch's reductions and return
-    R.undoReductions(G, reduVCC); reducer_stack.pop_back();
-    return;
-  }
-
 
   if (prune(inst, curr_cover_size)) {
     R.undoReductions(G, reduVCC); reducer_stack.pop_back();
