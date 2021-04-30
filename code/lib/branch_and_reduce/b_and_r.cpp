@@ -396,16 +396,16 @@ void branch_and_reduce::bandr( graph_access &G, instance &inst,
   R.undoReductions(G, reduVCC); reducer_stack.pop_back();
 }
 
-void branch_and_reduce::buildCover(instance *&inst) {
+void branch_and_reduce::buildCover(graph_access &G, instance *&inst) {
 
   if (inst->has_child) {
-    buildCover(inst->curr_child)
+    buildCover(inst->curr_child);
   }
 
   redu_vcc &reduVCC = inst->reduVCC;
   std::vector<reducer> &reducer_stack = inst->reducer_stack;
 
-  inst->reduVCC.build_cover();
+  inst->reduVCC.build_cover(G);
   if (inst->has_child) {
     inst->curr_child.merge_covers(inst->reduVCC);
   }
@@ -437,7 +437,7 @@ void branch_and_reduce::reduce_bnr( graph_access &G, instance &inst,
       // build current parital cover
       std::cout << "smaller cover: " << curr_cover_size << ", " << reduVCC.clique_cover.size() << std::endl;
       instance* root_ptr = &root;
-      buildCover(root_ptr);
+      buildCover(G, root_ptr);
       // reduVCC.build_cover(G);
       // // unwind reductions to get full cover
       // for (unsigned int i = reducer_stack.size(); i > 0; i--) reducer_stack[i-1].unwindReductions(G, reduVCC);

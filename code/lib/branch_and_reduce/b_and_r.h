@@ -49,7 +49,7 @@ private:
 
   vertex_queue* construct_queue(graph_access &G, instance &inst,std::vector<NodeID> &clique);
 
-  void buildCover(instance *&inst);
+  void buildCover(graph_access &G, instance *&inst);
 
   public:
 
