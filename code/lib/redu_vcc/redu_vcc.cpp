@@ -58,7 +58,7 @@ void redu_vcc::subgraph_map(std::vector<NodeID> &subgraph_nodes) {
   }
 }
 
-void redu_vcc::generateAdjList(redu_vcc* parent) {
+void redu_vcc::generateAdjList(redu_vcc& parent) {
   // generates adj_list from parent
 
   for (NodeID v = 0; v < num_nodes; v++){
@@ -67,8 +67,8 @@ void redu_vcc::generateAdjList(redu_vcc* parent) {
     // std::cout << old_v << std::endl;
 
     std::vector<NodeID> adj;
-    for (NodeID old_u : parent->adj_list[old_v]) {
-      if (!parent->node_status[old_u]) continue;
+    for (NodeID old_u : parent.adj_list[old_v]) {
+      if (!parent.node_status[old_u]) continue;
       NodeID u = parent_to_self_map[old_u];
 
       adj.push_back(u);
@@ -90,10 +90,10 @@ redu_vcc::redu_vcc(graph_access &G, PartitionConfig &partition_config) {
   if (!partition_config.mis_file.empty()) getMIS(partition_config.mis_file);
 };
 
-redu_vcc::redu_vcc(redu_vcc* parent, std::vector<NodeID> &subgraph_nodes) {
+redu_vcc::redu_vcc(redu_vcc& parent, std::vector<NodeID> &subgraph_nodes) {
 
-  parent_to_self_map.resize(parent->num_nodes);
-  self_to_parent_map.resize(parent->num_nodes);
+  parent_to_self_map.resize(parent.num_nodes);
+  self_to_parent_map.resize(parent.num_nodes);
 
   subgraph_map(subgraph_nodes);
   generateAdjList(parent);

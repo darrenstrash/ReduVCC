@@ -24,7 +24,7 @@ private:
   std::vector<NodeID> self_to_parent_map;
 
   void generateAdjList(graph_access &G);
-  void generateAdjList(redu_vcc* parent);
+  void generateAdjList(redu_vcc& parent);
   void subgraph_map(std::vector<NodeID> &subgraph_nodes);
 
   // void generateReducedAdjList(std::vector<int> &node_to_int_map, std::vector<NodeID> &int_to_node_map,
@@ -37,7 +37,7 @@ public:
 
   redu_vcc() {};
   redu_vcc(graph_access &G, PartitionConfig &partition_config);
-  redu_vcc(redu_vcc *parent, std::vector<NodeID> &subgraph_nodes);
+  redu_vcc(redu_vcc &parent, std::vector<NodeID> &subgraph_nodes);
   virtual ~redu_vcc() {};
 
   void getMIS(std::string file);
