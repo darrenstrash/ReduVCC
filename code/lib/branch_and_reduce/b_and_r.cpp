@@ -19,8 +19,8 @@ void branch_and_reduce::construct_run(PartitionConfig &partition_config) {
   if (partition_config.run_type == "sort_enum") return;
   prune_type = "ReduMIS";
   if (partition_config.run_type == "ReduMIS") return;
-  // prune_type = "KaMIS";
-  // if (partition_config.run_type == "KaMIS") return;
+  prune_type = "KaMIS";
+  if (partition_config.run_type == "KaMIS") return;
   redu_type = "cascading";
   if (partition_config.run_type == "cascading") return;
 }
@@ -33,6 +33,7 @@ branch_and_reduce::branch_and_reduce(graph_access &G, PartitionConfig &partition
   else reduVCC = redu_vcc(G);
 
   branch_count = 0;
+  prune_count = 0;
   iso_degree.assign(G.number_of_nodes(), 0);
   dom_degree.assign(G.number_of_nodes(), 0);
   num_reductions = 0;
@@ -239,6 +240,7 @@ bool branch_and_reduce::prune(unsigned int &curr_cover_size) {
     // prune branch if estimated cover is larger than current best
     if (reduVCC.clique_cover.size() != 0 && estimated_cover_size >= reduVCC.clique_cover.size()) {
       // std::cout << "prune" << std::endl;
+      prune_count++;
       return true;
     }
 
