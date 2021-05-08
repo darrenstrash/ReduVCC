@@ -240,7 +240,7 @@ bool branch_and_reduce::prune(unsigned int &curr_cover_size) {
     // prune branch if estimated cover is larger than current best
     if (reduVCC.clique_cover.size() != 0 && estimated_cover_size >= reduVCC.clique_cover.size()) {
       // std::cout << "prune" << std::endl;
-      prune_count++;
+      prune_count++; 
       return true;
     }
 
