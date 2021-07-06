@@ -17,7 +17,7 @@
 
 #include "graph_io.h"
 #include "mis/mis_config.h"
-#include "mis/ils/ils.h"
+// #include "mis/ils/ils.h"
 
 class branch_and_reduce {
 private:
@@ -83,7 +83,7 @@ private:
     void analyzeGraph(std::string &filename, graph_access &G, timer &t) {
       reduVCC.analyzeGraph(filename, G, t);
       std::cout << "Branches: " << branch_count << " Prunes: " << prune_count << std::endl;
-      std::cout << "ISO degree distrib. : ["; 
+      std::cout << "ISO degree distrib. : [";
       for (unsigned int i : iso_degree) std::cout << i << ", ";
       std::cout << "]" << std::endl;
     };

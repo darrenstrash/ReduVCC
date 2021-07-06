@@ -219,19 +219,19 @@ bool branch_and_reduce::prune(unsigned int &curr_cover_size) {
     if (prune_type == "none") {
       return false;
     }
-    else if (prune_type == "KaMIS") {
-      // geneate MIS of kernel using ILS
-      graph_access G_p;
-      graph_io::readGraphKernel(G_p, reduVCC);
-      // MISConfig config;
-      // config.console_log = true;
-      // config.time_limit = 60;
-      // config.force_cand = 4;
-      ils new_ils;
-      new_ils.perform_ils(config, G_p, 1000);
-
-      estimated_cover_size = curr_cover_size + new_ils.solution_size;
-    }
+    // else if (prune_type == "KaMIS") {
+    //   // geneate MIS of kernel using ILS
+    //   graph_access G_p;
+    //   graph_io::readGraphKernel(G_p, reduVCC);
+    //   // MISConfig config;
+    //   // config.console_log = true;
+    //   // config.time_limit = 60;
+    //   // config.force_cand = 4;
+    //   ils new_ils;
+    //   new_ils.perform_ils(config, G_p, 1000);
+    //
+    //   estimated_cover_size = curr_cover_size + new_ils.solution_size;
+    // }
     else { // prune_type == "ReduMIS"
       estimated_cover_size = curr_cover_size + reduVCC.curr_mis;
     }
@@ -240,7 +240,7 @@ bool branch_and_reduce::prune(unsigned int &curr_cover_size) {
     // prune branch if estimated cover is larger than current best
     if (reduVCC.clique_cover.size() != 0 && estimated_cover_size >= reduVCC.clique_cover.size()) {
       // std::cout << "prune" << std::endl;
-      prune_count++; 
+      prune_count++;
       return true;
     }
 
