@@ -2,7 +2,7 @@
 #include "reducer.h"
 
 
-reducer::reducer(graph_access &G) {
+reducer::reducer() {
   num_reductions = 0;
   num_attempts = 0;
   num_cliques = 0;
@@ -11,29 +11,29 @@ reducer::reducer(graph_access &G) {
   iso_limit = 0;
 }
 
-reducer::reducer(graph_access &G, unsigned int iso_lim) : reducer(G) {
+reducer::reducer(unsigned int iso_lim) : reducer() {
   iso_limit = iso_lim;
 }
 
 
-void reducer::unwindReductions(graph_access &G, redu_vcc &reduVCC) {
+void reducer::unwindReductions(redu_vcc &reduVCC) {
 
     for (unsigned int i = reduction_stack.size(); i > 0; i--) {
 
-        reduction_stack[i-1]->unfold(G, reduVCC);
+        reduction_stack[i-1]->unfold(reduVCC);
 
     }
 
     // std::cout << reduVCC.next_cliqueID << std::endl;
 }
 
-void reducer::undoReductions(graph_access &G, redu_vcc &reduVCC) {
+void reducer::undoReductions(redu_vcc &reduVCC) {
 
   while (reduction_stack.size() != 0) {
         reduction *pReduction = reduction_stack.back();
         reduction_stack.pop_back();
 
-        pReduction->unreduce(G, reduVCC);
+        pReduction->unreduce(reduVCC);
 
         delete pReduction;
   }
@@ -48,14 +48,15 @@ void reducer::undoReductions(graph_access &G, redu_vcc &reduVCC) {
   // }
 }
 
-void reducer::bruteISO(graph_access &G, redu_vcc &reduVCC, std::vector<unsigned int> &iso_degree) {
+void reducer::bruteISO(redu_vcc &reduVCC, std::vector<unsigned int> &iso_degree) {
 
   bool vertexReduced = true;
 
   while (vertexReduced){
       vertexReduced = false;
 
-      forall_nodes(G, v){
+      for (NodeID v = 0; v < reduVCC.num_nodes; v++) {
+      // forall_nodes(G, v){
           NodeID u;
 
           if (!reduVCC.node_status[v]) { continue;}
@@ -65,7 +66,7 @@ void reducer::bruteISO(graph_access &G, redu_vcc &reduVCC, std::vector<unsigned 
               vertexReduced = true;
               reduction *pReduction = nullptr;
               pReduction = new iso_reduction();
-              pReduction->reduce(G, reduVCC, v, u);
+              pReduction->reduce(reduVCC, v, u);
               reduction_stack.push_back(pReduction);
 
               num_reductions++;
@@ -74,19 +75,21 @@ void reducer::bruteISO(graph_access &G, redu_vcc &reduVCC, std::vector<unsigned 
               iso_degree[pReduction->deg]++;
          }
          num_attempts++;
-      } endfor
+       }
+      // } endfor
 
  }
 }
 
-void reducer::bruteD2(graph_access &G, redu_vcc &reduVCC) {
+void reducer::bruteD2(redu_vcc &reduVCC) {
 
   bool vertexReduced = true;
 
   while (vertexReduced){
       vertexReduced = false;
 
-      forall_nodes(G, v){
+      for (NodeID v = 0; v < reduVCC.num_nodes; v++) {
+      // forall_nodes(G, v){
           NodeID u;
 
           if (!reduVCC.node_status[v]) { continue;}
@@ -96,7 +99,7 @@ void reducer::bruteD2(graph_access &G, redu_vcc &reduVCC) {
               vertexReduced = true;
               reduction *pReduction = nullptr;
               pReduction = new d2_reduction();
-              pReduction->reduce(G, reduVCC, v, u);
+              pReduction->reduce(reduVCC, v, u);
               reduction_stack.push_back(pReduction);
 
               num_reductions++;
@@ -104,19 +107,21 @@ void reducer::bruteD2(graph_access &G, redu_vcc &reduVCC) {
 
          }
          if (reduVCC.adj_size(v) == 2) num_attempts++;
-      } endfor
+       }
+      // } endfor
 
  }
 }
 
-void reducer::bruteTWIN(graph_access &G, redu_vcc &reduVCC) {
+void reducer::bruteTWIN(redu_vcc &reduVCC) {
 
   bool vertexReduced = true;
 
   while (vertexReduced){
       vertexReduced = false;
 
-      forall_nodes(G, v){
+      for (NodeID v = 0; v < reduVCC.num_nodes; v++) {
+      // forall_nodes(G, v){
           NodeID u;
 
           if (!reduVCC.node_status[v]) { continue;}
@@ -127,7 +132,7 @@ void reducer::bruteTWIN(graph_access &G, redu_vcc &reduVCC) {
               vertexReduced = true;
               reduction *pReduction = nullptr;
               pReduction = new twin_reduction();
-              pReduction->reduce(G, reduVCC, v, u);
+              pReduction->reduce(reduVCC, v, u);
               reduction_stack.push_back(pReduction);
 
               num_reductions++;
@@ -136,19 +141,21 @@ void reducer::bruteTWIN(graph_access &G, redu_vcc &reduVCC) {
 
          }
          if (reduVCC.adj_size(v) == 3) num_attempts++;
-      } endfor
+       }
+      // } endfor
 
  }
 }
 
-void reducer::bruteDOM(graph_access &G, redu_vcc &reduVCC, std::vector<unsigned int> &dom_degree) {
+void reducer::bruteDOM(redu_vcc &reduVCC, std::vector<unsigned int> &dom_degree) {
 
   bool vertexReduced = true;
 
   while (vertexReduced){
       vertexReduced = false;
 
-      forall_nodes(G, v){
+      for (NodeID v = 0; v < reduVCC.num_nodes; v++) {
+      // forall_nodes(G, v){
           NodeID u;
 
           if (!reduVCC.node_status[v]) { continue;}
@@ -159,7 +166,7 @@ void reducer::bruteDOM(graph_access &G, redu_vcc &reduVCC, std::vector<unsigned 
               vertexReduced = true;
               reduction *pReduction = nullptr;
               pReduction = new dom_reduction();
-              pReduction->reduce(G, reduVCC, v, u);
+              pReduction->reduce(reduVCC, v, u);
               reduction_stack.push_back(pReduction);
 
               num_reductions++;
@@ -168,13 +175,14 @@ void reducer::bruteDOM(graph_access &G, redu_vcc &reduVCC, std::vector<unsigned 
 
          }
          num_attempts++;
-      } endfor
+       }
+      // } endfor
 
  }
 
 }
 
-void reducer::bruteCROWN(graph_access &G, redu_vcc &reduVCC) {
+void reducer::bruteCROWN(redu_vcc &reduVCC) {
 
   NodeID v; NodeID u;
 
@@ -182,7 +190,7 @@ void reducer::bruteCROWN(graph_access &G, redu_vcc &reduVCC) {
 
   reduction *pReduction = nullptr;
   pReduction = new crown_reduction();
-  pReduction->reduce(G, reduVCC, v, u);
+  pReduction->reduce(reduVCC, v, u);
   // reduction_stack.push_back(pReduction);
 
   if (pReduction->num_cliques > 0) {
@@ -196,7 +204,7 @@ void reducer::bruteCROWN(graph_access &G, redu_vcc &reduVCC) {
 
 }
 
-void reducer::exhaustive_reductions(graph_access &G, redu_vcc &reduVCC,
+void reducer::exhaustive_reductions(redu_vcc &reduVCC,
                                     std::vector<unsigned int> &iso_degree, std::vector<unsigned int> &dom_degree){
 
   bool new_reduced = true;
@@ -205,11 +213,11 @@ void reducer::exhaustive_reductions(graph_access &G, redu_vcc &reduVCC,
   while (new_reduced) {
     // std::cout << curr_reductions << std::endl;
     new_reduced = false;
-    bruteISO(G, reduVCC, iso_degree);
-    bruteD2(G, reduVCC);
-    bruteTWIN(G, reduVCC);
-    bruteDOM(G, reduVCC, dom_degree);
-    bruteCROWN(G, reduVCC);
+    bruteISO(reduVCC, iso_degree);
+    bruteD2(reduVCC);
+    bruteTWIN(reduVCC);
+    bruteDOM(reduVCC, dom_degree);
+    bruteCROWN(reduVCC);
 
     if (num_reductions > curr_reductions) {
       curr_reductions = num_reductions;
@@ -219,7 +227,7 @@ void reducer::exhaustive_reductions(graph_access &G, redu_vcc &reduVCC,
 
 }
 
-void reducer::cascading_reductions(graph_access &G, redu_vcc &reduVCC, vertex_queue *queue,
+void reducer::cascading_reductions(redu_vcc &reduVCC, vertex_queue *queue,
                                    std::vector<unsigned int> &iso_degree, std::vector<unsigned int> &dom_degree){
 
   while(!queue->empty()) {
@@ -267,7 +275,7 @@ void reducer::cascading_reductions(graph_access &G, redu_vcc &reduVCC, vertex_qu
         continue;
       }
 
-      pReduction->reduce(G, reduVCC, queue, v, u);
+      pReduction->reduce(reduVCC, queue, v, u);
       num_reductions++;
       num_cliques += pReduction-> num_cliques;
       num_fold_cliques += pReduction->num_folded_cliques;
@@ -284,7 +292,7 @@ void reducer::cascading_reductions(graph_access &G, redu_vcc &reduVCC, vertex_qu
     NodeID v; NodeID u;
 
     reduction *pReduction = new crown_reduction();
-    pReduction->reduce(G, reduVCC, queue, v, u);
+    pReduction->reduce(reduVCC, queue, v, u);
 
     if (pReduction->num_cliques > 0) {
       reduction_stack.push_back(pReduction);

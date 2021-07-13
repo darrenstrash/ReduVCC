@@ -30,12 +30,12 @@ class d2_reduction: public reduction {
     static void assignNodes(redu_vcc &reduVCC, NodeID &v, NodeID &u, NodeID &w);
     static bool isTriangle(redu_vcc &reduVCC, NodeID &u, NodeID &w);
 
-    void reduce(graph_access &G, redu_vcc &reduVCC,
+    void reduce( redu_vcc &reduVCC,
                 NodeID &node_v, NodeID &node_u );
-    void reduce(graph_access &G, redu_vcc &reduVCC, vertex_queue *queue,
+    void reduce( redu_vcc &reduVCC, vertex_queue *queue,
                 NodeID &node_v, NodeID &node_u );
-    void unreduce(graph_access &G, redu_vcc &reduVCC);
-    void unfold(graph_access &G, redu_vcc &reduVCC);
+    void unreduce( redu_vcc &reduVCC);
+    void unfold( redu_vcc &reduVCC);
 
 };
 

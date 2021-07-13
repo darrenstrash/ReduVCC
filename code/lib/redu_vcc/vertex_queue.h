@@ -17,13 +17,13 @@ private:
     std::vector<NodeID> queue;
 public:
 
-    vertex_queue(graph_access &G) {
-      queue_status.assign(G.number_of_nodes(), false);
+    vertex_queue(redu_vcc &reduVCC) {
+      queue_status.assign(reduVCC.num_nodes, false);
     };
     ~vertex_queue() {};
 
-    void init(graph_access &G) {
-      for (NodeID v; v < G.number_of_nodes(); v++) {
+    void init(redu_vcc &reduVCC) {
+      for (NodeID v; v < reduVCC.num_nodes; v++) {
         queue_status[v] = true;
         queue.push_back(v);
       }

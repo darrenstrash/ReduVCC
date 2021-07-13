@@ -19,11 +19,11 @@ class crown_reduction: public reduction {
   public:
     std::vector<std::vector<NodeID>> crown_cliques;
 
-    void reduce(graph_access &G, redu_vcc &reduVCC, NodeID &node_v, NodeID &node_u );
-    void reduce(graph_access &G, redu_vcc &reduVCC, vertex_queue *queue,
+    void reduce(redu_vcc &reduVCC, NodeID &node_v, NodeID &node_u );
+    void reduce(redu_vcc &reduVCC, vertex_queue *queue,
                 NodeID &node_v, NodeID &node_u );
-    void unreduce(graph_access &G, redu_vcc &reduVCC);
-    void unfold(graph_access &G, redu_vcc &reduVCC) {};
+    void unreduce(redu_vcc &reduVCC);
+    void unfold(redu_vcc &reduVCC) {};
 
 };
 

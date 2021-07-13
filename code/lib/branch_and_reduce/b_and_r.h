@@ -34,13 +34,15 @@ private:
   NodeID min_deg_node(redu_vcc &reduVCC);
   std::vector<std::vector<NodeID>> sorted_enumerate(redu_vcc &reduVCC, NodeID x);
 
-  void reduce(graph_access &G, redu_vcc &reduVCC, reducer &R, unsigned int &num_fold_cliques, vertex_queue *queue);
+  void reduce(redu_vcc &reduVCC, reducer &R, unsigned int &num_fold_cliques, vertex_queue *queue);
   bool prune(redu_vcc &reduVCC, unsigned int &curr_cover_size);
   std::vector<std::vector<NodeID>> enum_vertex(redu_vcc &reduVCC, NodeID &v);
   NodeID nextNode(redu_vcc &reduVCC);
 
-  vertex_queue* construct_queue(graph_access &G, redu_vcc &reduVCC, std::vector<NodeID> &clique);
+  vertex_queue* construct_queue(redu_vcc &reduVCC, std::vector<NodeID> &clique);
 
+  bool decompose(redu_vcc &reduVCC, PartitionConfig &partition_config, timer &t,
+                 unsigned int curr_cover_size);
 
   public:
 
@@ -53,6 +55,7 @@ private:
 
     // branch_and_reduce(graph_access &G);
     branch_and_reduce(graph_access &G, redu_vcc &reduVCC, PartitionConfig &partition_config);
+    branch_and_reduce(redu_vcc &reduVCC, PartitionConfig &partition_config);
     virtual ~branch_and_reduce() {};
 
     void construct_run(PartitionConfig &partition_config);
@@ -64,7 +67,7 @@ private:
 
     // std::vector<std::vector<NodeID>> sorted_enumerate(redu_vcc &reduVCC, NodeID x, std::vector<bool> &indset);
 
-    void bandr( graph_access &G, redu_vcc &reduVCC, unsigned int num_fold_cliques,
+    void bandr( redu_vcc &reduVCC, unsigned int num_fold_cliques,
                 vertex_queue *queue, PartitionConfig &partition_config, timer &t);
 
 

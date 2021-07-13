@@ -165,7 +165,7 @@ void twin_reduction::foldTWIN(redu_vcc &reduVCC) {
 
 }
 
-void twin_reduction::reduce( graph_access &G, redu_vcc &reduVCC,
+void twin_reduction::reduce( redu_vcc &reduVCC,
                              NodeID &node_v, NodeID &node_u ){
 
   type = "twin";
@@ -190,10 +190,10 @@ void twin_reduction::reduce( graph_access &G, redu_vcc &reduVCC,
 
 }
 
-void twin_reduction::reduce( graph_access &G, redu_vcc &reduVCC, vertex_queue *queue,
+void twin_reduction::reduce(  redu_vcc &reduVCC, vertex_queue *queue,
                              NodeID &node_v, NodeID &node_u ){
 
-  reduce(G, reduVCC, node_v, node_u);
+  reduce(reduVCC, node_v, node_u);
   if (remove_type) {
     queue->adjust_queue(reduVCC, w);
     queue->adjust_queue(reduVCC, x);
@@ -218,7 +218,7 @@ void twin_reduction::unfoldTWIN(redu_vcc &reduVCC,
   reduVCC.addCliqueToCover(new_clique2);
 }
 
-void twin_reduction::unfold(graph_access &G, redu_vcc &reduVCC){
+void twin_reduction::unfold( redu_vcc &reduVCC){
   if (remove_type) { return; }
 
   std::vector<std::vector<NodeID>> &adj_list = reduVCC.adj_list;
@@ -248,7 +248,7 @@ void twin_reduction::unfold(graph_access &G, redu_vcc &reduVCC){
 
 }
 
-void twin_reduction::unreduce(graph_access &G, redu_vcc &reduVCC){
+void twin_reduction::unreduce( redu_vcc &reduVCC){
 
     reduVCC.addVertex(v);
     reduVCC.fold_node[v] = false;

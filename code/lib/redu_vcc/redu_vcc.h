@@ -23,7 +23,7 @@ private:
   // subgraph mapping
   std::vector<int> old_to_new_map;
   std::vector<NodeID> new_to_old_map;
-  void assignMaps(graph_access &G);
+  void assignMaps();
 
 
   // mapping from current graph to parent graph
@@ -97,6 +97,8 @@ public:
   void printVectorSet(std::vector<NodeID> S);
 
   // cover methods
+  void addCliquesToParent(redu_vcc &parent);
+
   void addClique(std::vector<NodeID> &clique);
   void addCliqueToCover(std::vector<NodeID> &clique);
   void pop_clique(std::vector<NodeID> &clique);
@@ -105,7 +107,7 @@ public:
   std::vector<NodeID> getClique(NodeID &v);
   void replaceClique(unsigned int cliqueID, std::vector<NodeID> new_clique);
 
-  void build_cover(graph_access &G);
+  void build_cover();
   void validateCover(graph_access &G);
   void analyzeGraph(std::string &filename, graph_access &G, timer &t);
 
@@ -113,8 +115,8 @@ public:
   void getMIS(std::string file);
 
   // integer kernel methods
-  void buildKernel(graph_access &G);
-  void solveKernel(graph_access &G, PartitionConfig &partition_config, timer &t);
+  void buildKernel();
+  void solveKernel(PartitionConfig &partition_config, timer &t);
   void addKernelCliques(std::vector<std::vector<int>> &clique_set);
 
   void addCrownCliques(std::vector<std::vector<NodeID>> &crown_cliques, std::vector<std::vector<int>> &clique_set);

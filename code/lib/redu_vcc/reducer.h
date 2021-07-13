@@ -28,9 +28,8 @@ class reducer {
 
 
   public:
-    reducer() {};
-    reducer(graph_access &G);
-    reducer(graph_access &G, unsigned int iso_lim);
+    reducer();
+    reducer(unsigned int iso_lim);
     virtual ~reducer() {};
 
     unsigned int num_reductions;
@@ -40,19 +39,19 @@ class reducer {
 
 
     // construct C from C'
-    void unwindReductions(graph_access &G, redu_vcc &reduVCC);
+    void unwindReductions(redu_vcc &reduVCC);
     // undo num reductions, constructing G from G'
-    void undoReductions(graph_access &G, redu_vcc &reduVCC);
+    void undoReductions(redu_vcc &reduVCC);
 
-    void bruteISO(graph_access &G, redu_vcc &reduVCC, std::vector<unsigned int> &iso_degree);
-    void bruteD2(graph_access &G, redu_vcc &reduVCC);
-    void bruteTWIN(graph_access &G, redu_vcc &reduVCC);
-    void bruteDOM(graph_access &G, redu_vcc &reduVCC, std::vector<unsigned int> &dom_degree);
-    void bruteCROWN(graph_access &G, redu_vcc &reduVCC);
+    void bruteISO(redu_vcc &reduVCC, std::vector<unsigned int> &iso_degree);
+    void bruteD2(redu_vcc &reduVCC);
+    void bruteTWIN(redu_vcc &reduVCC);
+    void bruteDOM(redu_vcc &reduVCC, std::vector<unsigned int> &dom_degree);
+    void bruteCROWN(redu_vcc &reduVCC);
 
-    void exhaustive_reductions(graph_access &G, redu_vcc &reduVCC,
+    void exhaustive_reductions(redu_vcc &reduVCC,
                                std::vector<unsigned int> &iso_degree, std::vector<unsigned int> &d2_degree);
-    void cascading_reductions(graph_access &G, redu_vcc &reduVCC, vertex_queue *queue,
+    void cascading_reductions(redu_vcc &reduVCC, vertex_queue *queue,
                               std::vector<unsigned int> &iso_degree, std::vector<unsigned int> &d2_degree);
 
 };

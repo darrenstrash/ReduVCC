@@ -38,9 +38,11 @@
 #include "redu_vcc/redu_vcc.h"
 #include "redu_vcc/reducer.h"
 #include "branch_and_reduce/b_and_r.h"
+//
+// #include "mis/ils/ils.h"
+// #include "mis/mis_config.h"
 
-#include "mis/ils/ils.h"
-#include "mis/mis_config.h"
+// #include "redu_vcc/graph_vcc.h"
 
 int main(int argn, char **argv) {
 
@@ -76,6 +78,17 @@ int main(int argn, char **argv) {
 
     timer s;
 
+    // redu_vcc gVCC(G);
+    // std::cout<<std::endl;
+    // gVCC.printAdjList();
+    // std::vector<redu_vcc> comp = gVCC.decompose();
+    // for (redu_vcc &child : comp) {
+    //   child.printAdjList();
+    //   std::cout<<std::endl;
+    // }
+    //
+    // return;
+
 
     if (partition_config.run_type == "Redu") {
         redu_vcc reduVCC(G);
@@ -83,8 +96,8 @@ int main(int argn, char **argv) {
         iso_degree.assign(G.number_of_nodes(), 0);
         std::vector<unsigned int> dom_degree;
         dom_degree.assign(G.number_of_nodes(), 0);
-        reducer R(G);
-        R.exhaustive_reductions(G, reduVCC, iso_degree, dom_degree);
+        reducer R;
+        R.exhaustive_reductions(reduVCC, iso_degree, dom_degree);
         reduVCC.analyzeGraph(graph_filename, G, s);
         return 0;
     }
@@ -94,21 +107,23 @@ int main(int argn, char **argv) {
         iso_degree.assign(G.number_of_nodes(), 0);
         std::vector<unsigned int> dom_degree;
         dom_degree.assign(G.number_of_nodes(), 0);
-        reducer R(G);
-        R.exhaustive_reductions(G, reduVCC, iso_degree, dom_degree);
+        reducer R;
+        R.exhaustive_reductions(reduVCC, iso_degree, dom_degree);
         reduVCC.analyzeGraph(graph_filename, G, s);
-        reduVCC.build_cover(G);
-        reduVCC.solveKernel(G, partition_config, s);
-        R.unwindReductions(G, reduVCC);
+        reduVCC.build_cover();
+        reduVCC.solveKernel(partition_config, s);
+        R.unwindReductions(reduVCC);
         reduVCC.analyzeGraph(graph_filename, G, s);
         return 0;
     }
 
-    branch_and_reduce B(G, partition_config);
+    redu_vcc reduVCC;
+    branch_and_reduce B(G, reduVCC, partition_config);
+
     vertex_queue *queue = nullptr;
-    if (partition_config.run_type == "cascading") queue = new vertex_queue(G);
-    B.bandr(G, 0, queue, partition_config, s);
-    B.analyzeGraph(graph_filename, G, s);
+    if (partition_config.run_type == "cascading") queue = new vertex_queue(reduVCC);
+    B.bandr(reduVCC, 0, queue, partition_config, s);
+    B.analyzeGraph(graph_filename, G, reduVCC, s);
 
     // branch_and_reduce Bra(G, partition_config);
     // std::cout << "here" << std::endl;

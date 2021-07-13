@@ -33,28 +33,37 @@ void redu_vcc::generateAdjList(redu_vcc *parent, std::vector<NodeID> &child_node
   // assign nodes in graph
   num_nodes = child_nodes.size();
 
+  // std::cout << "begin map" << std::endl;
   // mapping from parent to child
   std::vector<NodeID> parent_to_self;
+  std::vector<bool> subgraph_node; // marks vertices that are subgraph nodes
+  subgraph_node.assign(parent->num_nodes, false);
   parent_to_self.resize(parent->num_nodes);
   self_to_parent.resize(child_nodes.size()); // allocate to size of original parent
   NodeID v = 0;
 
   for (NodeID u : child_nodes) {
     parent_to_self[u] = v;
+    subgraph_node[u] = true;
     self_to_parent[v] = u;
 
     v++;
   }
 
+  // std::cout << "begin trans" << std::endl;
+
   for (NodeID u : child_nodes) {
     std::vector<NodeID> N_v;
     for (NodeID w : parent->adj_list[u]) {
+      if (!subgraph_node[w]) continue;
       NodeID child_w = parent_to_self[w];
       N_v.push_back(child_w);
     }
-
+    std::sort(N_v.begin(), N_v.end());
     adj_list.push_back(N_v);
   }
+
+    // std::cout << "end" << std::endl;
 }
 
 void redu_vcc::init() {
@@ -99,6 +108,7 @@ std::vector<NodeID> redu_vcc::find_component( std::vector<bool> &visited_nodes, 
 
   std::vector<NodeID> current_nodes;
   std::vector<NodeID> queue;
+  unsigned int queue_size = 0;
 
   NodeID v = 0;
   while (visited_nodes[v]) v ++;
@@ -106,21 +116,34 @@ std::vector<NodeID> redu_vcc::find_component( std::vector<bool> &visited_nodes, 
   current_nodes.push_back(v);
 
   queue.push_back(v);
+  // if (v == 1138517) std::cout << "HERE" << std::endl;
+  queue_size++;
+
+  // std::cout << "ready for queue" << std::endl;
 
   while (!queue.size() == 0) {
-
+    // std::cout << queue.size() << ", " << queue_size << std::endl;
     v = queue.front();
     queue.erase(queue.begin());
+    queue_size--;
 
-
+    // std::cout << "queue front: " << v << std::endl;
+    // std::cout << " adj_size: " << adj_list[v].size() << std::endl;
+    // std::cout << "added to queue: ";
     for (NodeID u : adj_list[v]) {
       if (!visited_nodes[u]) {
         visited_nodes[u] = true; visit_remaining--;
         current_nodes.push_back(u);
+        // std::cout << u << ", ";
+        // if (u == 1138517) std::cout << "HERE" << std::endl;
         queue.push_back(u);
+        queue_size++;
       }
     }
+    // std::cout << std::endl;
   }
+
+  // std::cout << "comp found" << std::endl;
 
   // for (NodeID a : current_nodes) {
   //   std::cout << a << ", ";
@@ -132,46 +155,79 @@ std::vector<NodeID> redu_vcc::find_component( std::vector<bool> &visited_nodes, 
 
 std::vector<redu_vcc> redu_vcc::decompose() {
 
+  // printAdjList();
+
   std::vector<redu_vcc> children;
 
   std::vector<bool> visited_nodes;
   for (bool status : node_status) visited_nodes.push_back(!status);
-  unsigned int visit_remaining = node_status.size();
+  unsigned int visit_remaining = remaining_nodes;
 
   std::vector<NodeID> subgraph_nodes = find_component(visited_nodes, visit_remaining);
+  // std::cout << "num subgraph: "<< subgraph_nodes.size() << std::endl;
   if (visit_remaining == 0) {
-    return;
+    // std::cout << "no comp" << std::endl;
+    return children;
   }
 
+  // for (NodeID a : subgraph_nodes) {
+  //   std::cout << a << ", ";
+  // }
+  // std::cout << std::endl;
 
   redu_vcc child(this, subgraph_nodes);
   children.push_back(child);
+  // std::cout << "child created" << std::endl;
 
   while (visit_remaining > 0) {
     subgraph_nodes = find_component(visited_nodes, visit_remaining);
+    // for (NodeID a : subgraph_nodes) {
+    //   std::cout << a << ", ";
+    // }
+    // std::cout << std::endl;
+    // std::cout << subgraph_nodes.size() << std::endl;
     child = redu_vcc(this, subgraph_nodes);
     children.push_back(child);
   }
+
+  // std::cout << "all children" << std::endl;
 
   return children;
 
 }
 
+void redu_vcc::addCliquesToParent(redu_vcc &parent) {
 
-void redu_vcc::build_cover(graph_access &G){
+  for (std::vector<NodeID> &clique : clique_cover) {
+    std::vector<NodeID> parent_clique;
+
+    for (NodeID &v : clique) {
+      NodeID old_v = self_to_parent[v];
+      parent_clique.push_back(old_v);
+    }
+
+    std::sort(parent_clique.begin(), parent_clique.end());
+    parent.addCliqueToCover(parent_clique);
+  }
+}
+
+
+void redu_vcc::build_cover(){
   /* Constructs clique cover from node_clique mapping. */
 
   // clears clique_cover
   clique_cover.clear();
   clique_cover.assign(next_cliqueID, {});
 
-  forall_nodes(G, v) {
+  for (NodeID v = 0; v < num_nodes; v++) {
+  // forall_nodes(G, v) {
     if (fold_node[v]) { continue; } // if node in fold, skip
     if (node_status[v]) { continue; } // if node still in graph, skip
 
     unsigned int cliqueID = node_clique[v];
     clique_cover[cliqueID].push_back(v);
-  } endfor
+  }
+  // } endfor
 
   // prepare to solve, by setting solve node_clique mapping and next cliqueID
   solve_node_clique = node_clique;
@@ -228,15 +284,15 @@ void redu_vcc::validateCover(graph_access &G) {
   }
 }
 
-void redu_vcc::assignMaps(graph_access &G) {
+void redu_vcc::assignMaps() {
 
   old_to_new_map.clear();
-  old_to_new_map.resize(G.number_of_nodes());
+  old_to_new_map.resize(num_nodes);
   new_to_old_map.clear();
-  new_to_old_map.resize(G.number_of_nodes());
+  new_to_old_map.resize(num_nodes);
 
   int j = 0;
-  for (unsigned int i = 0; i < G.number_of_nodes(); i++){
+  for (unsigned int i = 0; i < num_nodes; i++){
       if (!node_status[i]){
           continue;
       }
@@ -246,15 +302,15 @@ void redu_vcc::assignMaps(graph_access &G) {
   }
 }
 
-void redu_vcc::buildKernel(graph_access &G) {
+void redu_vcc::buildKernel() {
 
-  assignMaps(G);
+  assignMaps();
 
   kernel_adj_list.clear();
   kernel_adj_list.resize(remaining_nodes);
   kernel_edges = 0;
 
-  for (unsigned int i = 0; i < G.number_of_nodes(); i++) {
+  for (unsigned int i = 0; i < num_nodes; i++) {
     if (!node_status[i]) { continue; }
 
     int new_v = old_to_new_map[i];
@@ -522,11 +578,11 @@ redu_vcc::redu_vcc(graph_access &G, PartitionConfig &partition_config) : redu_vc
 };
 
 
-void redu_vcc::solveKernel(graph_access &G, PartitionConfig &partition_config, timer &t) {
+void redu_vcc::solveKernel(PartitionConfig &partition_config, timer &t) {
 
   if (remaining_nodes == 0) { return; }
 
-  buildKernel(G);
+  buildKernel();
 
   cli *cli_instance;
   cli_instance = new cli(partition_config.seed, partition_config.mis);
