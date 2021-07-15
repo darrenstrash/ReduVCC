@@ -38,6 +38,7 @@ branch_and_reduce::branch_and_reduce(graph_access &G, redu_vcc &reduVCC, Partiti
 
   branch_count = 0;
   prune_count = 0;
+  decompose_count = 0;
   iso_degree.assign(reduVCC.num_nodes, 0);
   dom_degree.assign(reduVCC.num_nodes, 0);
   num_reductions = 0;
@@ -53,6 +54,7 @@ branch_and_reduce::branch_and_reduce(redu_vcc &reduVCC, PartitionConfig &partiti
 
   branch_count = 0;
   prune_count = 0;
+  decompose_count = 0;
   iso_degree.assign(reduVCC.num_nodes, 0);
   dom_degree.assign(reduVCC.num_nodes, 0);
   num_reductions = 0;
@@ -344,6 +346,8 @@ bool branch_and_reduce::decompose(redu_vcc &reduVCC, PartitionConfig &partition_
 
   unsigned int cover_size = curr_cover_size;
   // std::cout << "curr cover: " << cover_size << std::endl;
+
+  decompose_count += children.size();
 
   for (redu_vcc &child : children) {
     // solve child

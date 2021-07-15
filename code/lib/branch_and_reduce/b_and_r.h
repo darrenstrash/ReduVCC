@@ -51,6 +51,7 @@ private:
 
     unsigned int branch_count;
     unsigned int prune_count;
+    unsigned int decompose_count;
     std::vector<unsigned int> iso_degree;
     std::vector<unsigned int> dom_degree;
     unsigned int num_reductions;
@@ -86,10 +87,10 @@ private:
 
     void analyzeGraph(std::string &filename, graph_access &G, redu_vcc &reduVCC, timer &t) {
       reduVCC.analyzeGraph(filename, G, t);
-      std::cout << "Branches: " << branch_count << " Prunes: " << prune_count << std::endl;
-      std::cout << "ISO degree distrib. : [";
-      for (unsigned int i : iso_degree) std::cout << i << ", ";
-      std::cout << "]" << std::endl;
+      std::cout << "Branches: " << branch_count << " Prunes: " << prune_count << " Decompositions: " << decompose_count << std::endl;
+      // std::cout << "ISO degree distrib. : [";
+      // for (unsigned int i : iso_degree) std::cout << i << ", ";
+      // std::cout << "]" << std::endl;
     };
 };
 
