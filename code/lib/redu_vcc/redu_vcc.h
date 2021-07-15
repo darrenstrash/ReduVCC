@@ -9,7 +9,6 @@
 #define REDU_VCC
 
 #include "data_structure/graph_access.h"
-// #include "data_structure/graph_access.h"
 #include "partition/partition_config.h"
 #include "ccp/Chalupa/cli.h"
 #include <time.h>

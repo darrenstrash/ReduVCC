@@ -21,6 +21,10 @@ void branch_and_reduce::construct_run(PartitionConfig &partition_config) {
   if (partition_config.run_type == "ReduMIS") return;
   prune_type = "KaMIS";
   if (partition_config.run_type == "KaMIS") return;
+  prune_type = "SigMIS_linear";
+  if (partition_config.run_type == "SigMIS_linear") return;
+  prune_type = "SigMIS_nearlinear";
+  if (partition_config.run_type == "SigMIS_nearlinear") return;
   redu_type = "cascading";
   if (partition_config.run_type == "cascading") return;
 }
@@ -247,6 +251,22 @@ bool branch_and_reduce::prune(redu_vcc &reduVCC, unsigned int &curr_cover_size) 
     //
     //   estimated_cover_size = curr_cover_size + new_ils.solution_size;
     // }
+    else if (prune_type == "SigMIS_linear") {
+      // geneate MIS of kernel using Sigmod MIS
+      Graph mis_G;
+      mis_G.read_graph(reduVCC);
+      unsigned int res_mis = mis_G.degree_two_kernal_and_remove_max_degree_without_contraction();
+
+      estimated_cover_size = curr_cover_size + res_mis;
+    }
+    else if (prune_type == "SigMIS_nearlinear") {
+      // geneate MIS of kernel using Sigmod MIS
+      Graph mis_G;
+      mis_G.read_graph(reduVCC);
+      unsigned int res_mis = mis_G.degree_two_kernal_dominate_lp_and_remove_max_degree_without_contraction();
+
+      estimated_cover_size = curr_cover_size + res_mis;
+    }
     else { // prune_type == "ReduMIS"
       estimated_cover_size = curr_cover_size + reduVCC.curr_mis;
     }

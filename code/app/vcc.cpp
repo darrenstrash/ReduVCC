@@ -38,6 +38,8 @@
 #include "redu_vcc/redu_vcc.h"
 #include "redu_vcc/reducer.h"
 #include "branch_and_reduce/b_and_r.h"
+
+#include "sigmod_mis/Graph.h"
 //
 // #include "mis/ils/ils.h"
 // #include "mis/mis_config.h"
@@ -79,14 +81,26 @@ int main(int argn, char **argv) {
     timer s;
 
     // redu_vcc gVCC(G);
-    // std::cout<<std::endl;
-    // gVCC.printAdjList();
-    // std::vector<redu_vcc> comp = gVCC.decompose();
-    // for (redu_vcc &child : comp) {
-    //   child.printAdjList();
-    //   std::cout<<std::endl;
-    // }
-    //
+    // std::vector<unsigned int> iso_degree;
+    // iso_degree.assign(G.number_of_nodes(), 0);
+    // std::vector<unsigned int> dom_degree;
+    // dom_degree.assign(G.number_of_nodes(), 0);
+    // reducer R;
+    // R.exhaustive_reductions(gVCC, iso_degree, dom_degree);
+    // gVCC.analyzeGraph(graph_filename, G, s);
+    // Graph gra;
+    // // std::cout<< "comp"<<std::endl;
+    // gra.read_graph(gVCC);
+    // // std::cout<< "comp"<<std::endl;
+    // unsigned int mis = gra.degree_two_kernal_dominate_lp_and_remove_max_degree_without_contraction();
+    // std::cout<< mis << std::endl;
+    // // gVCC.printAdjList();
+    // // std::vector<redu_vcc> comp = gVCC.decompose();
+    // // for (redu_vcc &child : comp) {
+    // //   child.printAdjList();
+    // //   std::cout<<std::endl;
+    // // }
+    // //
     // return;
 
 
