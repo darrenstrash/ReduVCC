@@ -20,7 +20,7 @@
 
 #include "graph_io.h"
 #include "mis/mis_config.h"
-// #include "mis/ils/ils.h"
+#include "mis/ils/ils.h"
 
 class branch_and_reduce {
 private:

@@ -240,19 +240,19 @@ bool branch_and_reduce::prune(redu_vcc &reduVCC, unsigned int &curr_cover_size) 
     if (prune_type == "none") {
       return false;
     }
-    // else if (prune_type == "KaMIS") {
-    //   // geneate MIS of kernel using ILS
-    //   graph_access G_p;
-    //   graph_io::readGraphKernel(G_p, reduVCC);
-    //   // MISConfig config;
-    //   // config.console_log = true;
-    //   // config.time_limit = 60;
-    //   // config.force_cand = 4;
-    //   ils new_ils;
-    //   new_ils.perform_ils(config, G_p, 1000);
-    //
-    //   estimated_cover_size = curr_cover_size + new_ils.solution_size;
-    // }
+    else if (prune_type == "KaMIS") {
+      // geneate MIS of kernel using ILS
+      graph_access G_p;
+      graph_io::readGraphKernel(G_p, reduVCC);
+      // MISConfig config;
+      // config.console_log = true;
+      // config.time_limit = 60;
+      // config.force_cand = 4;
+      ils new_ils;
+      new_ils.perform_ils(config, G_p, 1000);
+
+      estimated_cover_size = curr_cover_size + new_ils.solution_size;
+    }
     else if (prune_type == "SigMIS_linear") {
       // geneate MIS of kernel using Sigmod MIS
       Graph mis_G;
@@ -350,6 +350,8 @@ bool branch_and_reduce::decompose(redu_vcc &reduVCC, PartitionConfig &partition_
   decompose_count += children.size();
 
   for (redu_vcc &child : children) {
+    if (t.elapsed() > partition_config.solver_time_limit) return;
+
     // solve child
     // std::cout << "next child" << std::endl;
     branch_and_reduce B_child(child, partition_config);
@@ -370,6 +372,7 @@ bool branch_and_reduce::decompose(redu_vcc &reduVCC, PartitionConfig &partition_
 
   }
 
+  if (t.elapsed() > partition_config.solver_time_limit) return;
   // std::cout << "cover size: " << cover_size << std::endl;
 
   // check clique cover size
