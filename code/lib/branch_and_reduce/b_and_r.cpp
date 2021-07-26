@@ -21,10 +21,10 @@ void branch_and_reduce::construct_run(PartitionConfig &partition_config) {
   if (partition_config.run_type == "ReduMIS") return;
   prune_type = "KaMIS";
   if (partition_config.run_type == "KaMIS") return;
-  prune_type = "SigMIS_linear";
-  if (partition_config.run_type == "SigMIS_linear") return;
   prune_type = "SigMIS_nearlinear";
   if (partition_config.run_type == "SigMIS_nearlinear") return;
+  prune_type = "SigMIS_linear";
+  if (partition_config.run_type == "SigMIS_linear") return;
   redu_type = "cascading";
   if (partition_config.run_type == "cascading") return;
 }
