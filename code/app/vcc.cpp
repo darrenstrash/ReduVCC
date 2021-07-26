@@ -80,6 +80,18 @@ int main(int argn, char **argv) {
 
     timer s;
 
+    redu_vcc redu(G);
+    reducer R1;
+    R1.bruteUNCONFINED(redu);
+    std::vector<unsigned int> iso_degree;
+    iso_degree.assign(G.number_of_nodes(), 0);
+    std::vector<unsigned int> dom_degree;
+    dom_degree.assign(G.number_of_nodes(), 0);
+    R1.exhaustive_reductions(redu, iso_degree, dom_degree);
+    redu.analyzeGraph(graph_filename, G, s);
+    // reduVCC.analyzeGraph(graph_filename, G, s);
+    return 0;
+
     // redu_vcc gVCC(G);
     // std::vector<unsigned int> iso_degree;
     // iso_degree.assign(G.number_of_nodes(), 0);

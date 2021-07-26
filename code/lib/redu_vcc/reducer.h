@@ -19,6 +19,7 @@
 #include "twin_reduction.h"
 #include "dom_reduction.h"
 #include "crown_reduction.h"
+#include "unconfined_reduction.h"
 
 class reducer {
   private:
@@ -48,6 +49,7 @@ class reducer {
     void bruteTWIN(redu_vcc &reduVCC);
     void bruteDOM(redu_vcc &reduVCC, std::vector<unsigned int> &dom_degree);
     void bruteCROWN(redu_vcc &reduVCC);
+    void bruteUNCONFINED(redu_vcc &reduVCC);
 
     void exhaustive_reductions(redu_vcc &reduVCC,
                                std::vector<unsigned int> &iso_degree, std::vector<unsigned int> &d2_degree);

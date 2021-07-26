@@ -204,6 +204,40 @@ void reducer::bruteCROWN(redu_vcc &reduVCC) {
 
 }
 
+void reducer::bruteUNCONFINED(redu_vcc &reduVCC) {
+
+  bool vertexReduced = true;
+
+  while (vertexReduced){
+      vertexReduced = false;
+
+      for (NodeID v = 0; v < reduVCC.num_nodes; v++) {
+      // forall_nodes(G, v){
+          NodeID u;
+
+          if (!reduVCC.node_status[v]) { continue;}
+
+          if (unconfined_reduction::validUNCONFINED(reduVCC, v, u)){
+              std::cout << "unconfined v: " << v << std::endl;
+              // std::cout<< "valid dom" << std::endl;
+              vertexReduced = true;
+              reduction *pReduction = nullptr;
+              pReduction = new unconfined_reduction();
+              pReduction->reduce(reduVCC, v, u);
+              reduction_stack.push_back(pReduction);
+
+              num_reductions++;
+              //
+              // dom_degree[pReduction->deg]++;
+
+         }
+         num_attempts++;
+       }
+      // } endfor
+
+ }
+}
+
 void reducer::exhaustive_reductions(redu_vcc &reduVCC,
                                     std::vector<unsigned int> &iso_degree, std::vector<unsigned int> &dom_degree){
 
