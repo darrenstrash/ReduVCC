@@ -20,6 +20,7 @@ struct PartitionConfig
         int solver_time_limit;
         std::string run_type;
         unsigned int iso_limit;
+        unsigned int decompose_limit;
 
 
         //============================================================
