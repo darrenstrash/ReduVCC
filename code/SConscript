@@ -96,8 +96,9 @@ libkaffpa_files = [   'lib/data_structure/graph_hierarchy.cpp',
                       'lib/ccp/Chalupa/random_generator.cpp',
                       'lib/ccp/Chalupa/statistics.cpp',
                       'lib/ccp/Chalupa/vertex_label_function_refer.cpp',
-		      'lib/redu_vcc/reducer.cpp',
-		      'lib/redu_vcc/redu_vcc.cpp',
+
+              'lib/redu_vcc/redu_vcc.cpp',
+              'lib/redu_vcc/reducer.cpp',
 		      'lib/redu_vcc/redu_structure.cpp',
 		      'lib/redu_vcc/iso_reduction.cpp',
 		      'lib/redu_vcc/d2_reduction.cpp',
@@ -106,7 +107,11 @@ libkaffpa_files = [   'lib/data_structure/graph_hierarchy.cpp',
 		      'lib/redu_vcc/crown_reduction.cpp',
 		      'lib/redu_vcc/reduction.cpp',
 		      'lib/branch_and_reduce/b_and_r.cpp',
+
+              'lib/sigmod_mis/Graph.cpp',
+              'lib/sigmod_mis/Utility.cpp',
                       ]
+                       # 'lib/redu_vcc/graph_vcc.cpp',
 
 libkaffpa_parallel_async  = ['lib/parallel_mh/parallel_mh_async.cpp',
                              'lib/parallel_mh/population.cpp',
@@ -306,9 +311,9 @@ if env['program'] == 'spac':
 #                       'lib/ccp/Chalupa/random_generator.cpp',
 #                       'lib/ccp/Chalupa/statistics.cpp',
 #                       'lib/ccp/Chalupa/vertex_label_function_refer.cpp',
+#
 # 		      'lib/redu_vcc/reducer.cpp',
 # 		      'lib/redu_vcc/redu_vcc.cpp',
-# 		      'lib/redu_vcc/redu_structure.cpp',
 # 		      'lib/redu_vcc/iso_reduction.cpp',
 # 		      'lib/redu_vcc/d2_reduction.cpp',
 # 		      'lib/redu_vcc/twin_reduction.cpp',
@@ -316,6 +321,9 @@ if env['program'] == 'spac':
 # 		      'lib/redu_vcc/crown_reduction.cpp',
 # 		      'lib/redu_vcc/reduction.cpp',
 # 		      'lib/branch_and_reduce/b_and_r.cpp',
+#
+#                             'lib/sigmod_mis/Graph.cpp',
+#                             'lib/sigmod_mis/Utility.cpp',
 #                       ]
 #
 # libkaffpa_parallel_async  = ['lib/parallel_mh/parallel_mh_async.cpp',

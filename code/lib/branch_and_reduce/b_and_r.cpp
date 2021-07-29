@@ -19,13 +19,17 @@ void branch_and_reduce::construct_run(PartitionConfig &partition_config) {
   if (partition_config.run_type == "sort_enum") return;
   prune_type = "ReduMIS";
   if (partition_config.run_type == "ReduMIS") return;
-  prune_type = "KaMIS";
-  if (partition_config.run_type == "KaMIS") return;
   redu_type = "cascading";
   if (partition_config.run_type == "cascading") return;
+  prune_type = "KaMIS";
+  if (partition_config.run_type == "KaMIS") return;
+  prune_type = "SigMIS_nearlinear";
+  if (partition_config.run_type == "SigMIS_nearlinear") return;
+  prune_type = "SigMIS_linear";
+  if (partition_config.run_type == "SigMIS_linear") return;
 }
 
-branch_and_reduce::branch_and_reduce(graph_access &G, PartitionConfig &partition_config) {
+branch_and_reduce::branch_and_reduce(graph_access &G, redu_vcc &reduVCC, PartitionConfig &partition_config) {
 
   construct_run(partition_config);
 
@@ -34,8 +38,9 @@ branch_and_reduce::branch_and_reduce(graph_access &G, PartitionConfig &partition
 
   branch_count = 0;
   prune_count = 0;
-  iso_degree.assign(G.number_of_nodes(), 0);
-  dom_degree.assign(G.number_of_nodes(), 0);
+  decompose_count = 0;
+  iso_degree.assign(reduVCC.num_nodes, 0);
+  dom_degree.assign(reduVCC.num_nodes, 0);
   num_reductions = 0;
   num_attempts = 0;
 
@@ -43,7 +48,23 @@ branch_and_reduce::branch_and_reduce(graph_access &G, PartitionConfig &partition
   config.force_cand = 4;
 }
 
-std::vector<std::vector<NodeID>> branch_and_reduce::enumerate(NodeID v) {
+branch_and_reduce::branch_and_reduce(redu_vcc &reduVCC, PartitionConfig &partition_config) {
+
+  construct_run(partition_config);
+
+  branch_count = 0;
+  prune_count = 0;
+  decompose_count = 0;
+  iso_degree.assign(reduVCC.num_nodes, 0);
+  dom_degree.assign(reduVCC.num_nodes, 0);
+  num_reductions = 0;
+  num_attempts = 0;
+
+  config.time_limit = 60;
+  config.force_cand = 4;
+}
+
+std::vector<std::vector<NodeID>> branch_and_reduce::enumerate(redu_vcc &reduVCC, NodeID v) {
     /* Enumerates set of minimal cliques */
 
     // initialize set of minimal cliques
@@ -60,13 +81,13 @@ std::vector<std::vector<NodeID>> branch_and_reduce::enumerate(NodeID v) {
     std::vector<NodeID> excluded_nodes {};
     std::vector<NodeID> curr_clique {v};
 
-    pivot_enumerator( minimal_cliques, consider_nodes, curr_clique, excluded_nodes);
+    pivot_enumerator(reduVCC, minimal_cliques, consider_nodes, curr_clique, excluded_nodes);
 
     // for (std::vector<NodeID> clique : minimal_cliques) R.reduVCC.printVectorSet(clique);
     return minimal_cliques;
 }
 
-void branch_and_reduce::pivot_enumerator(std::vector<std::vector<NodeID>> &minimal_cliques,
+void branch_and_reduce::pivot_enumerator(redu_vcc &reduVCC, std::vector<std::vector<NodeID>> &minimal_cliques,
                                    std::vector<NodeID> &consider_nodes, std::vector<NodeID> &curr_clique, std::vector<NodeID> &excluded_nodes) {
 
 
@@ -134,7 +155,7 @@ void branch_and_reduce::pivot_enumerator(std::vector<std::vector<NodeID>> &minim
     curr_clique.push_back(x);
 
 
-    pivot_enumerator(minimal_cliques, new_consider, curr_clique, new_excluded);
+    pivot_enumerator(reduVCC, minimal_cliques, new_consider, curr_clique, new_excluded);
 
     curr_clique.pop_back();
     pivot_consider.erase(pivot_consider.begin());
@@ -143,9 +164,9 @@ void branch_and_reduce::pivot_enumerator(std::vector<std::vector<NodeID>> &minim
 }
 
 // std::vector<std::vector<NodeID>> branch_and_reduce::sorted_enumerate(NodeID x, std::vector<bool> &indset) {
-std::vector<std::vector<NodeID>> branch_and_reduce::sorted_enumerate(NodeID x) {
+std::vector<std::vector<NodeID>> branch_and_reduce::sorted_enumerate(redu_vcc &reduVCC, NodeID x) {
 
-  std::vector<std::vector<NodeID>> curr_cliques = enumerate(x);
+  std::vector<std::vector<NodeID>> curr_cliques = enumerate(reduVCC, x);
   // std::cout << "complete enumerate " << std::endl;
 
   // sort enumerated cliques
@@ -194,13 +215,13 @@ std::vector<std::vector<NodeID>> branch_and_reduce::sorted_enumerate(NodeID x) {
     return sorted_cliques;
 }
 
-void branch_and_reduce::reduce(graph_access &G, reducer &R, unsigned int &num_fold_cliques, vertex_queue *queue) {
+void branch_and_reduce::reduce(redu_vcc &reduVCC, reducer &R, unsigned int &num_fold_cliques, vertex_queue *queue) {
 
     if (queue == nullptr || queue->empty()) {
-      R.exhaustive_reductions(G, reduVCC, iso_degree, dom_degree);
+      R.exhaustive_reductions(reduVCC, iso_degree, dom_degree);
     }
     else {
-      R.cascading_reductions(G, reduVCC, queue, iso_degree, dom_degree);
+      R.cascading_reductions(reduVCC, queue, iso_degree, dom_degree);
     }
     reducer_stack.push_back(R);
 
@@ -212,7 +233,7 @@ void branch_and_reduce::reduce(graph_access &G, reducer &R, unsigned int &num_fo
 
 }
 
-bool branch_and_reduce::prune(unsigned int &curr_cover_size) {
+bool branch_and_reduce::prune(redu_vcc &reduVCC, unsigned int &curr_cover_size) {
 
     unsigned int estimated_cover_size;
 
@@ -232,6 +253,22 @@ bool branch_and_reduce::prune(unsigned int &curr_cover_size) {
     //
     //   estimated_cover_size = curr_cover_size + new_ils.solution_size;
     // }
+    else if (prune_type == "SigMIS_linear") {
+      // geneate MIS of kernel using Sigmod MIS
+      Graph mis_G;
+      mis_G.read_graph(reduVCC);
+      unsigned int res_mis = mis_G.degree_two_kernal_and_remove_max_degree_without_contraction();
+
+      estimated_cover_size = curr_cover_size + res_mis;
+    }
+    else if (prune_type == "SigMIS_nearlinear") {
+      // geneate MIS of kernel using Sigmod MIS
+      Graph mis_G;
+      mis_G.read_graph(reduVCC);
+      unsigned int res_mis = mis_G.degree_two_kernal_dominate_lp_and_remove_max_degree_without_contraction();
+
+      estimated_cover_size = curr_cover_size + res_mis;
+    }
     else { // prune_type == "ReduMIS"
       estimated_cover_size = curr_cover_size + reduVCC.curr_mis;
     }
@@ -248,7 +285,7 @@ bool branch_and_reduce::prune(unsigned int &curr_cover_size) {
 
 }
 
-NodeID branch_and_reduce::min_deg_node() {
+NodeID branch_and_reduce::min_deg_node(redu_vcc &reduVCC) {
 
   unsigned int min_degree = 0;
   NodeID next_node = 0;
@@ -270,27 +307,27 @@ NodeID branch_and_reduce::min_deg_node() {
 
 }
 
-std::vector<std::vector<NodeID>> branch_and_reduce::enum_vertex(NodeID &v) {
+std::vector<std::vector<NodeID>> branch_and_reduce::enum_vertex(redu_vcc &reduVCC, NodeID &v) {
 
-  if (enum_type == "sort_enum") return sorted_enumerate(v);
-  else return enumerate(v);
+  if (enum_type == "sort_enum") return sorted_enumerate(reduVCC, v);
+  else return enumerate(reduVCC, v);
 }
 
-vertex_queue* branch_and_reduce::construct_queue(graph_access &G, std::vector<NodeID> &clique) {
+vertex_queue* branch_and_reduce::construct_queue(redu_vcc &reduVCC, std::vector<NodeID> &clique) {
 
   vertex_queue *new_queue = nullptr;
   if (redu_type == "exhaustive") return new_queue;
 
-  new_queue = new vertex_queue(G);
+  new_queue = new vertex_queue(reduVCC);
   for (NodeID a : clique) new_queue->adjust_queue(reduVCC, a);
   return new_queue;
 
 }
 
-NodeID branch_and_reduce::nextNode(){
+NodeID branch_and_reduce::nextNode(redu_vcc &reduVCC){
 
   if (next_node_type == "small_deg") {
-    return min_deg_node();
+    return min_deg_node(reduVCC);
   }
   NodeID next_node = 0;
   while (!reduVCC.node_status[next_node]) next_node++;
@@ -298,14 +335,71 @@ NodeID branch_and_reduce::nextNode(){
 
 }
 
-void branch_and_reduce::bandr( graph_access &G, unsigned int num_fold_cliques,
+bool branch_and_reduce::decompose(redu_vcc &reduVCC, PartitionConfig &partition_config, timer &t,
+                                  unsigned int curr_cover_size) {
+
+  // std::cout << "remaining nodes: " << reduVCC.remaining_nodes << std::endl;
+  std::vector<redu_vcc> children = reduVCC.decompose();
+
+  if (children.empty()) return false;
+  // std::cout << children.size() << std::endl;
+
+  unsigned int cover_size = curr_cover_size;
+  // std::cout << "curr cover: " << cover_size << std::endl;
+
+  decompose_count += children.size();
+
+  for (redu_vcc &child : children) {
+    if (t.elapsed() > partition_config.solver_time_limit) return;
+
+    // solve child
+    // std::cout << "next child" << std::endl;
+    branch_and_reduce B_child(child, partition_config);
+    vertex_queue *queue = nullptr;
+    if (partition_config.run_type == "cascading") queue = new vertex_queue(child);
+    // child.printAdjList();
+    B_child.bandr(child, 0, queue, partition_config, t);
+    // std::cout << child.clique_cover.size() << std::endl;
+    cover_size += child.clique_cover.size();
+
+    // update branching counts
+    branch_count += B_child.branch_count;
+    prune_count += B_child.prune_count;
+    // iso degree
+    // dom_degree
+    num_reductions += B_child.num_reductions;
+    num_attempts += B_child.num_attempts;
+
+  }
+
+  if (t.elapsed() > partition_config.solver_time_limit) return;
+  // std::cout << "cover size: " << cover_size << std::endl;
+
+  // check clique cover size
+  if (reduVCC.clique_cover.size() == 0 || cover_size < reduVCC.clique_cover.size()) {
+    // for each child, add cliques to cover
+
+
+    std::cout << "smaller cover: " << curr_cover_size << ", " << reduVCC.clique_cover.size() << std::endl;
+    reduVCC.build_cover();
+    // std::cout << "builds?" << std::endl;
+    for (redu_vcc &child : children) child.addCliquesToParent(reduVCC);
+
+    // unwind reductions to get full cover
+    for (unsigned int i = reducer_stack.size(); i > 0; i--) reducer_stack[i-1].unwindReductions(reduVCC);
+  }
+
+  return true;
+}
+
+void branch_and_reduce::bandr( redu_vcc &reduVCC, unsigned int num_fold_cliques,
                                vertex_queue *queue,
                                PartitionConfig &partition_config, timer &t) {
 
   if (t.elapsed() > partition_config.solver_time_limit) return;
 
-  reducer R(G, partition_config.iso_limit);
-  reduce(G, R, num_fold_cliques, queue);
+  reducer R(partition_config.iso_limit);
+  reduce(reduVCC, R, num_fold_cliques, queue);
   delete queue;
 
   // current size of parital clique cover
@@ -317,23 +411,29 @@ void branch_and_reduce::bandr( graph_access &G, unsigned int num_fold_cliques,
     if (reduVCC.clique_cover.size() == 0 || curr_cover_size < reduVCC.clique_cover.size()) {
       // build current parital cover
       std::cout << "smaller cover: " << curr_cover_size << ", " << reduVCC.clique_cover.size() << std::endl;
-      reduVCC.build_cover(G);
+      reduVCC.build_cover();
 
       // unwind reductions to get full cover
-      for (unsigned int i = reducer_stack.size(); i > 0; i--) reducer_stack[i-1].unwindReductions(G, reduVCC);
+      for (unsigned int i = reducer_stack.size(); i > 0; i--) reducer_stack[i-1].unwindReductions(reduVCC);
     }
 
     // undo branch's reductions and return
-    R.undoReductions(G, reduVCC); reducer_stack.pop_back();
+    R.undoReductions(reduVCC); reducer_stack.pop_back();
     return;
   }
 
 
-  if (prune(curr_cover_size)) {
-    R.undoReductions(G, reduVCC); reducer_stack.pop_back();
+  if (prune(reduVCC, curr_cover_size)) {
+    R.undoReductions(reduVCC); reducer_stack.pop_back();
     return;
   }
 
+  if (reduVCC.remaining_nodes > partition_config.decompose_limit && decompose(reduVCC, partition_config, t, curr_cover_size)) {
+    R.undoReductions(reduVCC); reducer_stack.pop_back();
+    return;
+  }
+
+  // std::cout << "continues" << std::endl;
   // // estimate cover size using partial cover size and MIS of kernel
   // unsigned int estimated_cover_size = curr_cover_size + reduVCC.curr_mis;
   // // std::cout << "est cover: " << estimated_cover_size << ", " << reduVCC.clique_cover.size() << std::endl;
@@ -346,12 +446,12 @@ void branch_and_reduce::bandr( graph_access &G, unsigned int num_fold_cliques,
 
 
   // get next node in kernel with minimum degree
-  NodeID next_node = nextNode();
+  NodeID next_node = nextNode(reduVCC);
 
   // enumerate all maximal cliques of next_node sorted by size and MIS
   // std::cout << "enumerate" << std::endl;
   // std::vector<std::vector<NodeID>> curr_cliques = sorted_enumerate(next_node, reduVCC.node_mis);
-  std::vector<std::vector<NodeID>> curr_cliques = enum_vertex(next_node);
+  std::vector<std::vector<NodeID>> curr_cliques = enum_vertex(reduVCC, next_node);
 
   // std::cout << "complete enumerate" << std::endl;
   // branch on each clique in enumerated set
@@ -361,14 +461,14 @@ void branch_and_reduce::bandr( graph_access &G, unsigned int num_fold_cliques,
     reduVCC.removeVertexSet(clique);
     // std::cout << "new queue" << std::endl;
 
-    vertex_queue *new_queue = construct_queue(G, clique);
+    vertex_queue *new_queue = construct_queue(reduVCC, clique);
     // vertex_queue *new_queue = new vertex_queue(G);
     // for (NodeID a : clique) new_queue->adjust_queue(reduVCC, a);
 
     // std::cout << "branch" << std::endl;
     // branch
     branch_count++;
-    bandr(G, num_fold_cliques, new_queue, partition_config, t);
+    bandr(reduVCC, num_fold_cliques, new_queue, partition_config, t);
 
     // pop branched on clique
     reduVCC.pop_clique(clique);
@@ -376,8 +476,16 @@ void branch_and_reduce::bandr( graph_access &G, unsigned int num_fold_cliques,
 
   }
   // undo number of reductions from reduce
-  R.undoReductions(G, reduVCC); reducer_stack.pop_back();
+  R.undoReductions(reduVCC); reducer_stack.pop_back();
 }
+
+
+// bool branch_and_reduce::decompose() {
+//
+//   std::vector<redu_vcc> children = reduVCC
+//
+// }
+
 
 // void branch_and_reduce::bandr( graph_access &G, unsigned int num_fold_cliques,
 //                                vertex_queue *queue,
