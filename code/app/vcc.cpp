@@ -104,113 +104,51 @@ int main(int argn, char **argv) {
     // return;
 
 
-    if (partition_config.run_type == "Redu") {
-        redu_vcc reduVCC(G);
-        std::vector<unsigned int> iso_degree;
-        iso_degree.assign(G.number_of_nodes(), 0);
-        std::vector<unsigned int> dom_degree;
-        dom_degree.assign(G.number_of_nodes(), 0);
-        reducer R;
-        R.exhaustive_reductions(reduVCC, iso_degree, dom_degree);
-        reduVCC.analyzeGraph(graph_filename, G, s);
-        return 0;
-    }
-    if (partition_config.run_type == "ReduVCC") {
-        redu_vcc reduVCC(G);
-        std::vector<unsigned int> iso_degree;
-        iso_degree.assign(G.number_of_nodes(), 0);
-        std::vector<unsigned int> dom_degree;
-        dom_degree.assign(G.number_of_nodes(), 0);
-        reducer R;
-        R.exhaustive_reductions(reduVCC, iso_degree, dom_degree);
-        reduVCC.analyzeGraph(graph_filename, G, s);
-        reduVCC.build_cover();
-        reduVCC.solveKernel(partition_config, s);
-        R.unwindReductions(reduVCC);
-        reduVCC.analyzeGraph(graph_filename, G, s);
-        return 0;
-    }
-
     redu_vcc reduVCC;
     branch_and_reduce B(G, reduVCC, partition_config);
 
     vertex_queue *queue = nullptr;
-    if (partition_config.run_type == "cascading") queue = new vertex_queue(reduVCC);
-    B.bandr(reduVCC, 0, queue, partition_config, s);
+    if (partition_config.run_type == "edge") { B.edge_bandr(reduVCC, 0, queue, partition_config, s, 0); }
+    else { B.bandr(reduVCC, 0, queue, partition_config, s);}
     B.analyzeGraph(graph_filename, G, reduVCC, s);
 
-    // branch_and_reduce Bra(G, partition_config);
-    // std::cout << "here" << std::endl;
-    // std::vector<std::vector<NodeID>> cliques = Bra.sorted_enumerate(7, Bra.reduVCC.node_mis);
-    // std::cout << std::endl;
-    // for (std::vector<NodeID> &clique : cliques) {
-    //   std::cout << "size: " << clique.size() << " mis: ";
-    //   for (NodeID a : clique) {
-    //     if (Bra.reduVCC.node_mis[a]) {
-    //       std::cout << "1";
-    //       break;
-    //     }
-    //   }
-    //   std::cout << std::endl;
-    // }
+    return;
 
-    // if (partition_config.run_type == "reductions_chalupa") {
-    //   redu_vcc reduVCC(G);
-    //   reducer R(G);
-    //   // reduVCC.analyzeGraph(graph_filename, G, s);
-    //   R.exhaustive_reductions(G, reduVCC);
-    //   // reduVCC.analyzeGraph(graph_filename, G, s);
-    //   reduVCC.build_cover(G);
-    //   // reduVCC.analyzeGraph(graph_filename, G, s);
-    //   reduVCC.solveKernel(G, partition_config, s);
-    //   R.unwindReductions(G, reduVCC);
-    //   reduVCC.analyzeGraph(graph_filename, G, s);
-    //
-    //   return 0;
+    // if (partition_config.run_type == "Redu") {
+    //     redu_vcc reduVCC(G);
+    //     std::vector<unsigned int> iso_degree;
+    //     iso_degree.assign(G.number_of_nodes(), 0);
+    //     std::vector<unsigned int> dom_degree;
+    //     dom_degree.assign(G.number_of_nodes(), 0);
+    //     reducer R;
+    //     R.exhaustive_reductions(reduVCC, iso_degree, dom_degree);
+    //     reduVCC.analyzeGraph(graph_filename, G, s);
+    //     return 0;
+    // }
+    // if (partition_config.run_type == "ReduVCC") {
+    //     redu_vcc reduVCC(G);
+    //     std::vector<unsigned int> iso_degree;
+    //     iso_degree.assign(G.number_of_nodes(), 0);
+    //     std::vector<unsigned int> dom_degree;
+    //     dom_degree.assign(G.number_of_nodes(), 0);
+    //     reducer R;
+    //     R.exhaustive_reductions(reduVCC, iso_degree, dom_degree);
+    //     reduVCC.analyzeGraph(graph_filename, G, s);
+    //     reduVCC.build_cover();
+    //     reduVCC.solveKernel(partition_config, s);
+    //     R.unwindReductions(reduVCC);
+    //     reduVCC.analyzeGraph(graph_filename, G, s);
+    //     return 0;
     // }
     //
-    // // branch_and_reduce B(G, partition_config);
-    // if (partition_config.run_type == "brute") {
-    //   branch_and_reduce B(G);
-    //   B.brute_bandr(G, 0);
-    //   B.analyzeGraph(graph_filename, G, s);
-    //   std::cout << "branches: " << B.branch_count << std::endl;
-    // }
-    // else if (partition_config.run_type == "reduMIS") {
-    //   branch_and_reduce B(G, partition_config);
-    //   B.reduMIS_bandr(G, 0);
-    //   B.analyzeGraph(graph_filename, G, s);
-    //   std::cout << "branches: " << B.branch_count << std::endl;
-    // }
-    // else if (partition_config.run_type == "small_degree") {
-    //   branch_and_reduce B(G, partition_config);
-    //   B.small_degree_bandr(G, 0);
-    //   B.analyzeGraph(graph_filename, G, s);
-    //   std::cout << "branches: " << B.branch_count << std::endl;
-    // }
-    // else if (partition_config.run_type == "sort_enum") {
-    //   branch_and_reduce B(G, partition_config);
-    //   B.sort_enum_bandr(G, 0, partition_config, s);
-    //   B.analyzeGraph(graph_filename, G, s);
-    //   std::cout << "branches: " << B.branch_count << std::endl;
-    // }
-    // else if (partition_config.run_type == "chalupa_status") {
-    //   branch_and_reduce B(G, partition_config);
-    //   B.chalupa_status_bandr(G, 0, partition_config, s);
-    //   B.analyzeGraph(graph_filename, G, s);
-    //   std::cout << "branches: " << B.branch_count << std::endl;
-    // }
-    // else if (partition_config.run_type == "KaMIS") {
-    //   branch_and_reduce B(G);
-    //   B.generate_mis_bandr(G, 0, partition_config, s);
-    //   B.analyzeGraph(graph_filename, G, s);
-    //   std::cout << "branches: " << B.branch_count << std::endl;
-    // }
-    // else {
-    //   std::cout << "Error: required run-type" << std::endl;
-    // }
+    // redu_vcc reduVCC;
+    // branch_and_reduce B(G, reduVCC, partition_config);
     //
-    // return 0;
+    // vertex_queue *queue = nullptr;
+    // if (partition_config.run_type == "cascading") queue = new vertex_queue(reduVCC);
+    // B.bandr(reduVCC, 0, queue, partition_config, s);
+    // B.analyzeGraph(graph_filename, G, reduVCC, s);
+
 
 
 

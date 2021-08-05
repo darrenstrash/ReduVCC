@@ -71,8 +71,10 @@ void redu_vcc::init() {
   // assign status of nodes
   node_status.assign(num_nodes, true);
   fold_node.assign(num_nodes, false);
+  merge_node.assign(num_nodes, false);
   remaining_nodes = num_nodes;
   // allocate for graph cover
+  nodes_merged.resize(num_nodes);
   node_clique.resize(num_nodes);
 
   // initialize mis mapping to 0
@@ -424,8 +426,18 @@ void redu_vcc::addVertex(NodeID v) {
 
 void redu_vcc::addClique(std::vector<NodeID> &clique) {
 
+  unsigned int cliqueID = next_cliqueID;
+
   for (NodeID u : clique) {
-    node_clique[u] = next_cliqueID;
+    if (merge_node[u]) {
+      cliqueID = node_clique[u];
+      next_cliqueID--;
+      break;
+    }
+  }
+
+  for (NodeID u : clique) {
+    node_clique[u] = cliqueID;
   }
 
   next_cliqueID++;
@@ -454,6 +466,10 @@ void redu_vcc::addCliqueToCover(std::vector<NodeID> &clique) {
 void redu_vcc::pop_clique(std::vector<NodeID> &clique) {
 
   for (NodeID u : clique) {
+    if (merge_node[u] && nodes_merged[u].size() > 0) {
+      next_cliqueID++;
+      continue;
+    }
     node_clique[u] = node_clique.size();
   }
 

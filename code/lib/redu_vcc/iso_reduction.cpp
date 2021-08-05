@@ -60,13 +60,21 @@ void iso_reduction::reduce(redu_vcc &reduVCC,
   // reduVCC.printNeighborhood(v);
 
   clique.push_back(v);
+
   for (NodeID u : reduVCC.adj_list[v]) {
     if (!reduVCC.node_status[u]) { continue; };
     clique.push_back(u);
+
   };
 
   reduVCC.addClique(clique);
   reduVCC.removeVertexSet(clique);
+
+  std::cout << "[";
+  for (NodeID a : clique) {
+    std::cout << a << ", ";
+  }
+  std::cout << "] ";
 
 }
 

@@ -49,6 +49,8 @@ public:
 
   std::vector<bool> node_status;  // marks nodes status in G
   std::vector<bool> fold_node;   // marks nodes removed in a fold
+  std::vector<bool> merge_node; // marks node if it is a merged clique
+  std::vector<std::vector<NodeID>> nodes_merged; // sets of nodes merged
   unsigned int remaining_nodes;
 
   std::vector<std::vector<NodeID>> clique_cover;
