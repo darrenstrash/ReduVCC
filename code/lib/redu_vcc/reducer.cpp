@@ -214,10 +214,10 @@ void reducer::exhaustive_reductions(redu_vcc &reduVCC,
     // std::cout << curr_reductions << std::endl;
     new_reduced = false;
     bruteISO(reduVCC, iso_degree);
-    bruteD2(reduVCC);
-    bruteTWIN(reduVCC);
-    bruteDOM(reduVCC, dom_degree);
-    bruteCROWN(reduVCC);
+    // bruteD2(reduVCC);
+    // bruteTWIN(reduVCC);
+    // bruteDOM(reduVCC, dom_degree);
+    // bruteCROWN(reduVCC);
 
     if (num_reductions > curr_reductions) {
       curr_reductions = num_reductions;

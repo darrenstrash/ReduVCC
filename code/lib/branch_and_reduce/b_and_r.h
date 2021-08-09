@@ -26,6 +26,7 @@ class branch_and_reduce {
 private:
 
   std::vector<reducer> reducer_stack;
+  std::vector<std::vector<NodeID>> edge_stack;
 
   std::string redu_type;
   std::string prune_type;
@@ -46,6 +47,18 @@ private:
 
   bool decompose(redu_vcc &reduVCC, PartitionConfig &partition_config, timer &t,
                  unsigned int curr_cover_size);
+
+
+  // edge branching methods
+  void getEdge( redu_vcc &reduVCC, PartitionConfig &partition_config,
+                NodeID &curr_node, NodeID &edge_node );
+  vertex_queue* construct_queue_edge(redu_vcc &reduVCC, NodeID &v, NodeID &u);
+  void branch_edge ( redu_vcc &reduVCC, unsigned int num_fold_cliques,
+                     PartitionConfig &partition_config, timer &t,
+                     NodeID &curr_node, NodeID &edge_node );
+  void branch_nonedge ( redu_vcc &reduVCC, unsigned int num_fold_cliques,
+                        PartitionConfig &partition_config, timer &t,
+                        NodeID &curr_node, NodeID &edge_node );
 
   public:
 
@@ -74,9 +87,8 @@ private:
     void bandr( redu_vcc &reduVCC, unsigned int num_fold_cliques,
                 vertex_queue *queue, PartitionConfig &partition_config, timer &t);
     void edge_bandr( redu_vcc &reduVCC, unsigned int num_fold_cliques,
-                                   vertex_queue *queue,
-                                   PartitionConfig &partition_config, timer &t,
-                                   NodeID curr_node);
+                     vertex_queue *queue, PartitionConfig &partition_config, timer &t,
+                     NodeID curr_node);
 
 
 

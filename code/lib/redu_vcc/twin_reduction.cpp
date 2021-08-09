@@ -150,18 +150,20 @@ void twin_reduction::foldTWIN(redu_vcc &reduVCC) {
   std::vector<std::vector<NodeID>> &adj_list = reduVCC.adj_list;
 
   reduVCC.removeVertex(v);
-  reduVCC.fold_node[v] = true;
+  reduVCC.fold_status[v] = true;
   reduVCC.removeVertex(u);
-  reduVCC.fold_node[u] = true;
+  reduVCC.fold_status[u] = true;
 
   merge_neighborhoods(reduVCC, disjoint, N_x, y, x);
   merge_neighborhoods(reduVCC, disjoint, N_w, y, w);
 
 
   reduVCC.removeVertex(w);
-  reduVCC.fold_node[w] = true;
+  reduVCC.fold_status[w] = true;
   reduVCC.removeVertex(x);
-  reduVCC.fold_node[x] = true;
+  reduVCC.fold_status[x] = true;
+
+  reduVCC.fold_node[y] = true;
 
 }
 
@@ -210,6 +212,9 @@ void twin_reduction::unfoldTWIN(redu_vcc &reduVCC,
                                 NodeID &a, NodeID &b, NodeID &c) {
 
   partial_clique.push_back(a);
+  if (reduVCC.merge_node[a]) {
+    for (NodeID n : reduVCC.nodes_merged[a]) partial_clique.push_back(n);
+  }
   reduVCC.replaceClique(cliqueID, partial_clique);
 
   std::vector<NodeID> new_clique1 {v, b};
@@ -251,17 +256,19 @@ void twin_reduction::unfold( redu_vcc &reduVCC){
 void twin_reduction::unreduce( redu_vcc &reduVCC){
 
     reduVCC.addVertex(v);
-    reduVCC.fold_node[v] = false;
+    reduVCC.fold_status[v] = false;
     reduVCC.addVertex(u);
-    reduVCC.fold_node[u] = false;
+    reduVCC.fold_status[u] = false;
     reduVCC.addVertex(w);
-    reduVCC.fold_node[w] = false;
+    reduVCC.fold_status[w] = false;
     reduVCC.addVertex(x);
-    reduVCC.fold_node[x] = false;
+    reduVCC.fold_status[x] = false;
+
+    reduVCC.fold_node[y] = false;
 
     if (remove_type) {
       reduVCC.addVertex(y);
-      reduVCC.fold_node[y] = false;
+      reduVCC.fold_status[y] = false;
       reduVCC.pop_clique(clique1);
       reduVCC.pop_clique(clique2);
       return;

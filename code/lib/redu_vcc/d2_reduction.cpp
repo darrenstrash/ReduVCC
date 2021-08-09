@@ -67,7 +67,8 @@ void d2_reduction::foldD2(redu_vcc &reduVCC) {
 
     for (NodeID x : adj_list[w]) {scratch1[x] = false;}
     reduVCC.removeVertex(u);
-    reduVCC.fold_node[u] = true;
+    reduVCC.fold_status[u] = true;
+    reduVCC.fold_node[w] = true;
 }
 
 void d2_reduction::reduce(redu_vcc &reduVCC,
@@ -85,7 +86,7 @@ void d2_reduction::reduce(redu_vcc &reduVCC,
   // std::cout << reduVCC.node_status[w] << std::endl;
 
   reduVCC.removeVertex(v);
-  reduVCC.fold_node[v] = true;
+  reduVCC.fold_status[v] = true;
 
   // N_u = reduVCC.curr_adj_list(u);
   foldD2(reduVCC);
@@ -138,9 +139,22 @@ void d2_reduction::unfold( redu_vcc &reduVCC) {
           break;
       }
   }
+  if (reduVCC.merge_node[x]) {
+    std::cout << "d2 fold node is a merged node"  << std::endl;
+    for (NodeID u : reduVCC.nodes_merged[x]) fold_clique.push_back(u);
+  }
+
   // reduVCC.printVectorSet(fold_clique);
   reduVCC.replaceClique(fold_cliqueID, fold_clique);
 
+  if (reduVCC.merge_node[v] || reduVCC.merge_node[y]) {
+    std::cout << "d2 new clique contains merge node" << std::endl;
+    // reduVCC.printAdjList(v);
+    // reduVCC.printAdjList(y);
+    // for (NodeID a : reduVCC.nodes_merged[v]) reduVCC.printAdjList(a);
+    // for (NodeID a : reduVCC.nodes_merged[y]) reduVCC.printAdjList(a);
+
+  }
   std::vector<NodeID> new_clique {v, y};
   reduVCC.addCliqueToCover(new_clique);
   // reduVCC.printVectorSet(new_clique);
@@ -165,7 +179,8 @@ void d2_reduction::unreduce( redu_vcc &reduVCC){
     }
 
     reduVCC.addVertex(v);
-    reduVCC.fold_node[v] = false;
+    reduVCC.fold_status[v] = false;
     reduVCC.addVertex(u);
-    reduVCC.fold_node[u] = false;
+    reduVCC.fold_status[u] = false;
+    reduVCC.fold_node[w] = false;
 }

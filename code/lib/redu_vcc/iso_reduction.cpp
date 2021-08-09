@@ -70,11 +70,11 @@ void iso_reduction::reduce(redu_vcc &reduVCC,
   reduVCC.addClique(clique);
   reduVCC.removeVertexSet(clique);
 
-  std::cout << "[";
-  for (NodeID a : clique) {
-    std::cout << a << ", ";
-  }
-  std::cout << "] ";
+  // std::cout << "[";
+  // for (NodeID a : clique) {
+  //   std::cout << a << ", ";
+  // }
+  // std::cout << "] ";
 
 }
 
