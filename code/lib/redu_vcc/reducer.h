@@ -24,23 +24,35 @@ class reducer {
   private:
     std::vector<reduction*> reduction_stack;
 
+    unsigned int iso_limit;
+
 
   public:
-    redu_vcc reduVCC;
-
-    reducer(graph_access &G);
+    reducer();
+    reducer(unsigned int iso_lim);
     virtual ~reducer() {};
 
-    void analyzeGraph(std::string &filename, graph_access &G, timer &t);
+    unsigned int num_reductions;
+    unsigned int num_attempts;
+    unsigned int num_cliques;
+    unsigned int num_fold_cliques;
 
-    void solveKernel(graph_access &G, PartitionConfig &partition_config, timer &t);
-    void unwindReductions(graph_access &G);
 
-    void bruteISO(graph_access &G);
-    void bruteD2(graph_access &G);
-    void bruteTWIN(graph_access &G);
-    void bruteDOM(graph_access &G);
-    void bruteCROWN(graph_access &G);
+    // construct C from C'
+    void unwindReductions(redu_vcc &reduVCC);
+    // undo num reductions, constructing G from G'
+    void undoReductions(redu_vcc &reduVCC);
+
+    void bruteISO(redu_vcc &reduVCC, std::vector<unsigned int> &iso_degree);
+    void bruteD2(redu_vcc &reduVCC);
+    void bruteTWIN(redu_vcc &reduVCC);
+    void bruteDOM(redu_vcc &reduVCC, std::vector<unsigned int> &dom_degree);
+    void bruteCROWN(redu_vcc &reduVCC);
+
+    void exhaustive_reductions(redu_vcc &reduVCC,
+                               std::vector<unsigned int> &iso_degree, std::vector<unsigned int> &d2_degree);
+    void cascading_reductions(redu_vcc &reduVCC, vertex_queue *queue,
+                              std::vector<unsigned int> &iso_degree, std::vector<unsigned int> &d2_degree);
 
 };
 

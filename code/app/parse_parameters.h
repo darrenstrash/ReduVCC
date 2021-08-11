@@ -22,9 +22,11 @@ int parse_parameters(int argn, char **argv,
 
         const char *progname = argv[0];
 
-        struct arg_int *user_mis                             = arg_int0(NULL, "mis", NULL, "MIS for Chalupa.");
+        struct arg_int *user_mis              = arg_int0(NULL, "mis", NULL, "Mis number for chalupa.");
+        struct arg_str *mis_file                            = arg_str0(NULL, "mis_file", NULL, "MIS file for Chalupa.");
         struct arg_int *user_solver_time_limit               = arg_int0(NULL, "solver_time_limit", NULL, "Time Limit for Chalupa.");
         struct arg_str *user_run_type                        = arg_str0(NULL, "run_type", NULL, "Chalupa only or reductions then Chalupa.");
+        struct arg_int *user_iso_limit                       = arg_int0(NULL, "iso_limit", NULL, "Limit on iso deg.");
 
         // Setup argtable parameters.
         struct arg_lit *help                                 = arg_lit0(NULL, "help","Print help.");
@@ -167,7 +169,7 @@ int parse_parameters(int argn, char **argv,
 
         // Define argtable.
         void* argtable[] = {
-                help, filename, user_seed, user_mis, user_solver_time_limit, user_run_type,
+                help, filename, user_seed, user_mis, mis_file, user_solver_time_limit, user_run_type, user_iso_limit,
 #ifdef MODE_DEVEL
                 k, graph_weighted, imbalance, edge_rating_tiebreaking,
                 matching_type, edge_rating, rate_first_level_inner_outer, first_level_random_matching,
@@ -787,7 +789,11 @@ int parse_parameters(int argn, char **argv,
         }
 
         if (user_mis->count > 0) {
-                partition_config.mis = user_mis->ival[0];
+            partition_config.mis = user_mis->ival[0];
+        }
+
+        if (mis_file->count > 0) {
+                partition_config.mis_file = mis_file->sval[0];
         }
 
         if (user_solver_time_limit->count > 0) {
@@ -796,6 +802,10 @@ int parse_parameters(int argn, char **argv,
 
         if (user_run_type->count > 0){
             partition_config.run_type = user_run_type->sval[0];
+        }
+
+        if (user_iso_limit-> count > 0) {
+          partition_config.iso_limit = (unsigned int) user_iso_limit->ival[0];
         }
 
         if (fm_search_limit->count > 0) {

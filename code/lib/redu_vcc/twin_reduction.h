@@ -10,6 +10,7 @@
 
 #include "data_structure/graph_access.h"
 #include "redu_vcc.h"
+#include "vertex_queue.h"
 #include "reduction.h"
 
 class twin_reduction: public reduction {
@@ -21,9 +22,13 @@ class twin_reduction: public reduction {
     std::vector<NodeID> N_w; // neighborhood of w before fold, excluding v
     std::vector<NodeID> N_x; // neighborhood of x before fold, excluding v
 
-    bool remove_type;
+    std::vector<NodeID> disjoint; // vertices in N_w and N_x not in N_y
 
-    bool removeType (std::vector<std::vector<NodeID>> &adj_list);
+    bool remove_type;
+    std::vector<NodeID> clique1;
+    std::vector<NodeID> clique2;
+
+    bool removeType (redu_vcc &reduce);
     void removeTWIN (redu_vcc &reduVCC);
     void foldTWIN(redu_vcc &reduVCC);
 
@@ -39,12 +44,16 @@ class twin_reduction: public reduction {
 
 
     static bool validTWIN(redu_vcc &reduVCC, NodeID &v, NodeID &u);
-    static void assignNodes(std::vector<std::vector<NodeID>> &adj_list, NodeID &v, NodeID &w, NodeID &x, NodeID &y);
-    static bool twinFound( std::vector<std::vector<NodeID>> &adj_list,  NodeID &v, NodeID &u, NodeID &w, NodeID &x, NodeID &y);
+    static void assignNodes(redu_vcc &reduVCC, NodeID &v, NodeID &w, NodeID &x, NodeID &y);
+    static bool twinFound( redu_vcc &reduVCC,  NodeID &v, NodeID &u, NodeID &w, NodeID &x, NodeID &y);
     static bool validNeighbors(redu_vcc &reduVCC, NodeID &v, NodeID &u, NodeID &w, NodeID &x, NodeID &y);
 
-    void reduce(graph_access &G, redu_vcc &reduVCC, NodeID &node_v, NodeID &node_u );
-    void unreduce(graph_access &G, redu_vcc &reduVCC);
+    void reduce( redu_vcc &reduVCC,
+                NodeID &node_v, NodeID &node_u );
+    void reduce( redu_vcc &reduVCC, vertex_queue *queue,
+                NodeID &node_v, NodeID &node_u );
+    void unreduce( redu_vcc &reduVCC);
+    void unfold( redu_vcc &reduVCC);
 
 };
 
