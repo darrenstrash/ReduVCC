@@ -1,6 +1,8 @@
 #ifndef _GRAPH_H_
 #define _GRAPH_H_
 
+#include <vector>
+
 #include "Utility.h"
 #include "redu_vcc/redu_vcc.h"
 
@@ -28,6 +30,9 @@ public:
 
 	void read_graph() ;
 	void read_graph(redu_vcc &reduVCC) ;
+
+    void read_graph(const std::vector<std::vector<ui>> & adj_list);
+    void read_graph(graph_access &G);
 	void degree_one_kernal_and_remove_max_degree() ;
 	void degree_two_kernal_and_remove_max_degree_with_contraction() ;
 	ui degree_two_kernal_and_remove_max_degree_without_contraction() ;
@@ -35,6 +40,8 @@ public:
 
 	void greedy() ;
 	void greedy_dynamic() ;
+
+    ui near_linear_kernel_and_offset(std::vector<std::vector<ui>> &kernel, std::vector<ui> &new_to_old_id, std::vector<bool> &in_initial_is, std::size_t &offset);
 
 private:
 	int general_swap(char *is, char *fixed = NULL) ;

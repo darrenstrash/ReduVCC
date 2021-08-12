@@ -1,5 +1,7 @@
 #include "Utility.h"
 #include "Graph.h"
+#include "data_structure/graph_access.h"
+#include <unordered_map>
 
 Graph::Graph(const char *_dir) {
 	dir = string(_dir);
@@ -8,6 +10,7 @@ Graph::Graph(const char *_dir) {
 
 	pstart = NULL;
 	edges = NULL;
+    to_map = NULL;
 }
 
 Graph::Graph() {
@@ -15,6 +18,7 @@ Graph::Graph() {
 
 	pstart = NULL;
 	edges = NULL;
+    to_map = NULL;
 }
 
 Graph::~Graph() {
@@ -187,6 +191,58 @@ void Graph::read_graph(redu_vcc &reduVCC) {
 // 	fclose(f);
 //
 // 	delete[] degree;
+}
+
+void Graph::read_graph(const vector<vector<NodeID>> & adj_list) {
+	n = adj_list.size();
+
+	for (ui v = 0; v < n; v++) {
+		for (ui u : adj_list[v]) {
+			m++;
+		}
+	}
+
+	if(pstart == NULL) pstart = new ui[n+1];
+	if(edges == NULL) edges = new ui[m];
+
+	// ui *buf = new ui[n];
+
+	pstart[0] = 0;
+
+	ui i = 0;
+	for(ui v = 0; v < n; v++) {
+		ui j = 0;
+		for (ui u : adj_list[v]) {
+			edges[pstart[i] + j] = u;
+			j++;
+		}
+		pstart[i+1] = pstart[i] + j;
+		i++;
+	}
+}
+
+void Graph::read_graph(graph_access &G) {
+	n = G.number_of_nodes();
+    m = G.number_of_edges();
+
+	if(pstart == NULL) pstart = new ui[n+1];
+	if(edges == NULL) edges = new ui[m];
+
+	// ui *buf = new ui[n];
+
+	pstart[0] = 0;
+
+	ui i = 0;
+    forall_nodes(G, v) {
+		ui j = 0;
+        forall_out_edges(G, e, v) {
+            NodeID u = G.getEdgeTarget(e);
+			edges[pstart[i] + j] = u;
+			j++;
+		} endfor
+		pstart[i+1] = pstart[i] + j;
+		i++;
+	} endfor
 }
 
 void Graph::check_is(const char *is, int count) {
@@ -2344,6 +2400,500 @@ ui Graph::degree_two_kernal_dominate_lp_and_remove_max_degree_without_contractio
 #endif
 	return res;
 }
+
+ui Graph::near_linear_kernel_and_offset(vector<vector<ui>> &kernel, std::vector<ui> &new_to_old_id, std::vector<bool> & in_initial_is, std::size_t &offset) {
+#ifndef NDEBUG
+	ui *tmp_edges = new ui[m];
+	for(ui i = 0;i < m;i ++) tmp_edges[i] = edges[i];
+	ui *tmp_pstart = new ui[n+1];
+	for(ui i = 0;i <= n;i ++) tmp_pstart[i] = pstart[i];
+#endif
+
+#ifdef _LINUX_
+	struct timeval start, end1, end;
+	gettimeofday(&start, NULL);
+#endif
+
+	char *is = new char[n];
+	for(ui i = 0;i < n;i ++) is[i] = 1;
+	char *adj = new char[n];
+	memset(adj, 0, sizeof(char)*n);
+
+	int res = 0;
+	vector<ui> degree_ones, degree_twos;
+	int *degree = new int[n];
+	for(ui i = 0;i < n;i ++) {
+		degree[i] = pstart[i+1]-pstart[i];
+		if(degree[i] == 0) ++ res;
+		else if(degree[i] == 1) degree_ones.pb(i);
+		else if(degree[i] == 2) degree_twos.pb(i);
+	}
+
+	vector<pair<ui,ui> > S;
+	vector<pair<pair<ui,ui>, ui> > modified_edges;
+    new_to_old_id.resize(n);
+    std::unordered_map<ui, ui> kernel_id_map;
+
+	res += initial_dominance_and_degree_two_remove(degree_ones, degree_twos, is, degree, adj, S);
+
+#ifdef _LINUX_
+	struct timeval end_t1;
+	gettimeofday(&end_t1, NULL);
+#endif
+
+#ifndef NDEBUG
+	int new_n = 0;
+	for(ui i = 0;i < n;i ++) {
+		//if(is[i]&&degree[i] == 1) printf("WA degree one exist!\n");
+		if(is[i]&&degree[i] > 0) ++ new_n;
+	}
+	printf("initial dominance and degree two remove: %d -> %d\n", n, new_n);
+#endif
+
+	ui *ids = new ui[n];
+	ui ids_n = 0;
+
+	ui new_m = 0;
+	for(ui i = 0;i < n;i ++) {
+		ui tmp = pstart[i];
+		pstart[i] = new_m;
+		if(!is[i]||degree[i] <= 0) continue;
+
+		ids[ids_n ++] = i;
+		for(ui j = tmp;j < pstart[i+1];j ++) if(is[edges[j]]) {
+			assert(degree[edges[j]] > 0);
+			edges[new_m ++] = edges[j];
+		}
+	}
+	pstart[n] = new_m;
+
+	if(ids_n > 0) res += lp_reduction(ids, ids_n, is, degree);
+
+#ifdef _LINUX_
+	struct timeval end_t2;
+	gettimeofday(&end_t2, NULL);
+#endif
+
+#ifndef NDEBUG
+	int new_n2 = 0;
+	for(ui i = 0;i < n;i ++) {
+		if(is[i]&&degree[i] > 0) ++ new_n2;
+	}
+	printf("lp reduction: %d -> %d\n", new_n, new_n2);
+#endif
+
+	assert(degree_ones.empty()&&degree_twos.empty());
+	for(ui i = 0;i < ids_n;i ++) if(is[ids[i]]&&degree[ids[i]] > 0) {
+		if(degree[ids[i]] == 1) degree_ones.pb(ids[i]);
+		else if(degree[ids[i]] == 2) degree_twos.pb(ids[i]);
+	}
+
+	res += remove_degree_one_two(degree_ones, degree_twos, is, degree, S);
+
+	delete[] ids; ids = NULL;
+
+	new_m = 0;
+	for(ui i = 0;i < n;i ++) {
+		ui tmp = pstart[i];
+		pstart[i] = new_m;
+		if(!is[i]||degree[i] <= 0) continue;
+
+		for(ui j = tmp;j < pstart[i+1];j ++) if(is[edges[j]]) {
+			assert(degree[edges[j]] > 0);
+			edges[new_m ++] = edges[j];
+		}
+	}
+	pstart[n] = new_m;
+
+	ui *pend = new ui[n];
+	int max_dd = 0;
+	for(ui i = 0;i < n;i ++) {
+		pend[i] = pstart[i+1];
+		if(pend[i] - pstart[i] > max_dd) max_dd = pend[i] - pstart[i];
+	}
+	//printf("max_d: %d, edges: %u\n", max_dd, new_m/2);
+
+	int delete_tri = 0;
+	ui *tri = NULL;
+	if(new_m <= m/2) tri = edges+new_m;
+	else {
+		tri = new ui[pstart[n]];
+		delete_tri = 1;
+	}
+	char *dominate = new char[n];
+	memset(dominate, 0, sizeof(char)*n);
+	vector<ui> dominated;
+
+	res += compute_triangle_counts(tri, pend, adj, is, degree, dominate, dominated);
+
+#ifdef _LINUX_
+	struct timeval end_t3;
+	gettimeofday(&end_t3, NULL);
+
+	long long mtime11, seconds11, useconds11;
+	seconds11 = end_t1.tv_sec - start.tv_sec;
+	useconds11 = end_t1.tv_usec - start.tv_usec;
+	mtime11 = seconds11*1000000 + useconds11;
+	//printf("time1: %lld,", mtime11);
+	seconds11 = end_t2.tv_sec - end_t1.tv_sec;
+	useconds11 = end_t2.tv_usec - end_t1.tv_usec;
+	mtime11 = seconds11*1000000 + useconds11;
+	//printf(" time2: %lld,", mtime11);
+	seconds11 = end_t3.tv_sec - end_t2.tv_sec;
+	useconds11 = end_t3.tv_usec - end_t2.tv_usec;
+	mtime11 = seconds11*1000000 + useconds11;
+	//printf(" time3: %lld\n", mtime11);
+#endif
+
+#ifndef NDEBUG
+	for(ui i = 0;i < n;i ++) if(is[i]&&!dominate[i]) {
+		for(ui j = pstart[i];j < pstart[i+1];j ++) if(is[edges[j]]&&degree[edges[j]] == 1) {
+			printf("WA degree one not dominate!\n");
+		}
+	}
+#endif
+
+	int *bin_head = new int[ids_n];
+	int *bin_next = new int[n];
+	memset(bin_head, -1, sizeof(int)*ids_n);
+
+	assert(degree_twos.empty());
+	int max_d = 0;
+	for(ui i = 0;i < n;i ++) if(is[i]&&degree[i] > 0) {
+		bin_next[i] = bin_head[degree[i]];
+		bin_head[degree[i]] = i;
+
+		if(degree[i] == 2) degree_twos.pb(i);
+		if(degree[i] > max_d) max_d = degree[i];
+	}
+
+	char *fixed = new char[n];
+	memset(fixed, 0, sizeof(char)*n);
+
+	int kernal_size = 0, inexact = 0, first_time = 1, S_size = (int)S.size();
+	int kernal_edges = 0;
+	while(!dominated.empty()||!degree_twos.empty()||max_d >= 3) {
+		while(!dominated.empty()||!degree_twos.empty()) {
+			while(!dominated.empty()) {
+				ui u = dominated.back();
+				dominated.pop_back();
+				if(!is[u]||degree[u] == 0) continue;
+
+				if(!dominated_check(u, pend, is, tri, degree)) dominate[u] = 0;
+				else res += delete_vertex(u, pend, is, degree_twos, tri, adj, degree, dominate, dominated);
+			}
+
+			while(!degree_twos.empty()&&dominated.empty()) {
+				ui u = degree_twos.back();
+				degree_twos.pop_back();
+				if(!is[u]||degree[u] != 2) continue;
+
+				shrink(u, pend[u], is, tri);
+				assert(pend[u] == pstart[u] + 2);
+				ui u1 = edges[pstart[u]], u2 = edges[pstart[u]+1];
+
+				ui pre = u, cnt = 1;
+				while(u1 != u&&degree[u1] == 2) {
+					++ cnt;
+					shrink(u1, pend[u1], is, tri);
+					assert(pend[u1] == pstart[u1] + 2);
+					int tmp = u1;
+					if(edges[pstart[u1]] != pre) u1 = edges[pstart[u1]];
+					else u1 = edges[pstart[u1]+1];
+					pre = tmp;
+				}
+
+#ifndef NDEBUG
+				if(u1 != u&&degree[u1] <= 2) {
+					printf("%d u1(%d) degree_u1(%d) WAxx!\n", pre, u1, degree[u1]);
+					printf("%d:", u1);
+					for(ui k = pstart[u1];k < pend[u1];k ++) if(edges[k] != n&&is[edges[k]]) {
+						printf(" %d(tri:%d,dominate:%d)", edges[k], tri[k], dominate[edges[k]]);
+					}
+					printf("\n");
+				}
+#endif
+				if(u1 == u) {
+					res += delete_vertex(u, pend, is, degree_twos, tri, adj, degree, dominate, dominated);
+					assert(!dominated.empty());
+					continue;
+				}
+
+				pre = u;
+				while(degree[u2] == 2) {
+					++ cnt;
+					shrink(u2, pend[u2], is, tri);
+					assert(pend[u2] == pstart[u2] + 2);
+					int tmp = u2;
+					if(edges[pstart[u2]] != pre) u2 = edges[pstart[u2]];
+					else u2 = edges[pstart[u2]+1];
+					pre = tmp;
+				}
+				if(u1 == u2) {
+					res += delete_vertex(u1, pend, is, degree_twos, tri, adj, degree, dominate, dominated);
+					assert(!dominated.empty());
+					continue;
+				}
+
+				if(cnt%2 == 1) {
+					if(exist_edge(u1,u2, pend)) {
+						res += delete_vertex(u1, pend, is, degree_twos, tri, adj, degree, dominate, dominated);
+						res += delete_vertex(u2, pend, is, degree_twos, tri, adj, degree, dominate, dominated);
+						assert(!dominated.empty());
+					}
+					else if(cnt > 1) {
+						ui idx = pstart[pre];
+						if(edges[idx] == u2) ++ idx;
+						assert(degree[pre] == 2&&tri[idx] == 0);
+						u = edges[idx];
+						edges[idx] = u1;
+						if(!first_time) modified_edges.pb(mp(mp(pre,u), u1));
+
+						u2 = pre;
+						while(u != u1) {
+							is[u] = 0;
+							int tmp = u;
+							if(edges[pstart[u]] == pre) u = edges[pstart[u]+1];
+							else u = edges[pstart[u]];
+							pre = tmp;
+							S.pb(mp(pre,u));
+						}
+						idx = edge_rewire(u1, pend, pre, u2);
+						assert(tri[idx] == 0);
+						if(!first_time) modified_edges.pb(mp(mp(u1,pre),u2));
+					}
+				}
+				else {
+					ui v2 = pre, v1 = pre;
+					pre = u2;
+					while(v1 != u1) {
+						is[v1] = 0;
+						int tmp = v1;
+						if(edges[pstart[v1]] == pre) v1 = edges[pstart[v1]+1];
+						else v1 = edges[pstart[v1]];
+						pre = tmp;
+						S.pb(mp(pre,v1));
+					}
+					v1 = pre;
+					if(exist_edge(u1, u2, pend)) {
+						if((-- degree[u1]) == 2) degree_twos.pb(u1);
+						if((-- degree[u2]) == 2) degree_twos.pb(u2);
+
+						assert(degree[u1] > 1&&degree[u2] > 1);
+
+						for(ui k = pstart[u1];k < pend[u1];k ++) {
+							if(is[edges[k]]&&!dominate[edges[k]]&&tri[k]+1 == degree[u1]) {
+								dominate[edges[k]] = 1;
+								dominated.pb(edges[k]);
+							}
+						}
+						for(ui k = pstart[u2];k < pend[u2];k ++) {
+							if(is[edges[k]]&&!dominate[edges[k]]&&tri[k]+1 == degree[u2]) {
+								dominate[edges[k]] = 1;
+								dominated.pb(edges[k]);
+							}
+						}
+					}
+					else {
+						ui idx = edge_rewire(u1, pend, v1, u2);
+						assert(tri[idx] == 0);
+						idx = edge_rewire(u2, pend, v2, u1);
+						assert(tri[idx] == 0);
+
+						if(!first_time) {
+							modified_edges.pb(mp(mp(u1,v1),u2));
+							modified_edges.pb(mp(mp(u2,v2),u1));
+						}
+
+						update_triangle(u1, u2, pend, is, adj, tri, degree, dominate, dominated);
+					}
+				}
+			}
+		}
+
+		if(first_time) {
+			first_time = 0;
+			S_size = (int)S.size();
+            std::cout << "making map..." << std::endl;
+            std::vector<ui> empty;
+			for(ui k = 0;k < n;k ++) {
+				if(is[k]&&degree[k] > 0) {
+                    if (kernel_id_map.find(k) == kernel_id_map.end()) {
+                        kernel_id_map[k] = kernel.size();
+                        new_to_old_id[kernel.size()] = k;
+                        kernel.push_back(empty);
+                        //std::cout << "Adding k=" << k << " to map" << std::endl;
+                    }
+					++ kernal_size;
+					for(ui j = pstart[k];j < pend[k];j ++) {
+                        if(is[edges[j]]) {
+                            ++kernal_edges;
+                            if (kernel_id_map.find(edges[j]) == kernel_id_map.end()) {
+                                kernel_id_map[edges[j]] = kernel.size();
+                                new_to_old_id[kernel.size()] = edges[j];
+                                kernel.push_back(empty);
+                        //std::cout << "Adding edges[j]=" << edges[j] << " to map" << std::endl;
+                            }
+                            kernel[kernel_id_map[k]].push_back(kernel_id_map[edges[j]]);
+                        }
+                    }
+				}
+				else fixed[k] = 1;
+			}
+            offset = res;
+		}
+
+		while(dominated.empty()&&degree_twos.empty()) {
+			while(max_d >= 3&&bin_head[max_d] == -1) -- max_d;
+			if(max_d < 3) break;
+
+			int v = -1;
+			for(v = bin_head[max_d];v != -1;) {
+				int tmp = bin_next[v];
+				if(is[v]&&degree[v] > 0) {
+					if(degree[v] < max_d) {
+						bin_next[v] = bin_head[degree[v]];
+						bin_head[degree[v]] = v;
+					}
+					else {
+						S.pb(mp(v,n)); ++ inexact;
+						res += delete_vertex(v, pend, is, degree_twos, tri, adj, degree, dominate, dominated);
+
+						bin_head[max_d] = tmp;
+						break;
+					}
+				}
+				v = tmp;
+			}
+			if(v == -1) bin_head[max_d] = -1;
+		}
+	}
+
+	ui UB = 0;
+
+	for(int i = S.size()-1;i >= 0;i --) {
+		ui u1 = S[i].first, u2 = S[i].second;
+		assert(is[u1] == 0);
+
+		if(u2 != n) {
+			if(!is[u2]) {
+				is[u1] = 1;
+#ifndef NDEBUG
+				for(ui j = tmp_pstart[u1];j < tmp_pstart[u1+1];j ++) if(is[tmp_edges[j]]) {
+					printf("WA conflict1!\n");
+				}
+#endif
+				++ res;
+			}
+			continue;
+		}
+
+		int ok = 1;
+		for(ui j = pstart[u1];j < pstart[u1+1];j ++) if(is[edges[j]]) {
+			ok = 0;
+			break;
+		}
+		if(ok) {
+			is[u1] = 1;
+			++ res;
+
+#ifndef NDEBUG
+			for(ui j = tmp_pstart[u1];j < tmp_pstart[u1+1];j ++) if(is[tmp_edges[j]]) {
+				printf("WA conflict2!\n");
+			}
+#endif
+		}
+		else ++ UB;
+	}
+
+	// printf("Degree_two_dominate_lp MIS: %d (kernal (|V|,|E|): (%d,%d), inexact reduction: %d, UB: %d)\n", res, kernal_size, kernal_edges, inexact, res+UB);
+
+	delete[] bin_head;
+	delete[] bin_next;
+	delete[] degree;
+
+	delete[] pend;
+	if(delete_tri) delete[] tri;
+	delete[] dominate;
+	delete[] adj;
+
+    printf("DS: in kernel, near linear MIS is: %d\n", res - offset);
+
+#ifdef _LINUX_
+	gettimeofday(&end1, NULL);
+
+	long long mtime1, seconds1, useconds1;
+	seconds1 = end1.tv_sec - start.tv_sec;
+	useconds1 = end1.tv_usec - start.tv_usec;
+	mtime1 = seconds1*1000000 + useconds1;
+#endif
+
+
+	for(int i = (int)modified_edges.size()-1;i >= 0;i --) {
+		ui u = modified_edges[i].first.first, u1 = modified_edges[i].first.second, u2 = modified_edges[i].second;
+		for(ui j = pstart[u];j < pstart[u+1];j ++) if(edges[j] == u2) {
+			edges[j] = u1;
+			break;
+		}
+	}
+
+    // TODO/DS: enumerate over ids in the map instead of vertices
+    std::size_t num_kernel_is_vertices = 0;
+    std::size_t num_other_is_vertices = 0;
+    in_initial_is.resize(kernel_id_map.size(), false);
+    for (ui vertex = 0; vertex < n; vertex++) {
+        if (is[vertex] && kernel_id_map.find(vertex) != kernel_id_map.end()) {
+            in_initial_is[kernel_id_map[vertex]] = true;
+            num_kernel_is_vertices++;
+        } else if (is[vertex]) {
+            num_other_is_vertices++;
+        }
+    }
+
+    offset = num_other_is_vertices;
+
+    printf("DS: counted kernel near linear MIS as: %lu\n", num_kernel_is_vertices);
+    printf("DS: counted other MIS vertices as: %lu\n", num_other_is_vertices);
+    printf("DS:           should match offset: %lu\n", offset);
+
+	/*
+	if(inexact) {
+		res = ARW(is, fixed, mtime1, time_limit);
+		for(int i = S_size-1;i >= 0;i --) {
+			ui u1 = S[i].first, u2 = S[i].second;
+
+			if(!is[u2]) is[u1] = 1;
+			else is[u1] = 0;
+		}
+	}
+	*/
+
+#ifndef NDEBUG
+	compute_upperbound(is, fixed);
+	swap(edges, tmp_edges);
+	delete[] tmp_edges;
+	swap(pstart, tmp_pstart);
+	delete[] tmp_pstart;
+
+	check_is(is, res);
+#endif
+
+	delete[] is;
+	delete[] fixed;
+
+#ifdef _LINUX_
+	gettimeofday(&end, NULL);
+
+	long long mtime, seconds, useconds;
+	seconds = end.tv_sec - start.tv_sec;
+	useconds = end.tv_usec - start.tv_usec;
+	mtime = seconds*1000000 + useconds;
+
+	// printf("Process time: %lld, Swap time: %lld, Total time: %lld\n", mtime1, mtime-mtime1, mtime);
+#endif
+	return res;
+}
+
 
 int Graph::delete_vertex(ui v, char *is, int *degree, int *head, SigEdge *es, int *bin_head, int *bin_next, int *bin_pre, vector<ui> &degree_ones, vector<ui> &degree_twos) {
 	is[v] = 0;
