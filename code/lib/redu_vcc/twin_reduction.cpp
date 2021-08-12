@@ -9,7 +9,7 @@
 void twin_reduction::assignNodes(redu_vcc &reduVCC, NodeID &v, NodeID &w, NodeID &x, NodeID &y) {
   // assigns NodeID w to the neighbor of v with the LEAST neighbors
 
-std::vector<NodeID> N_v = reduVCC.curr_adj_list(v);
+std::vector<NodeID> const & N_v = reduVCC.curr_adj_list(v);
 
   NodeID a = N_v[0];
   NodeID b = N_v[1];

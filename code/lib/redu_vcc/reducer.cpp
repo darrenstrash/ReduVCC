@@ -27,8 +27,14 @@ void reducer::unwindReductions(redu_vcc &reduVCC) {
     // std::cout << reduVCC.next_cliqueID << std::endl;
 }
 
-void reducer::undoReductions(redu_vcc &reduVCC) {
+// if timing final unwind (Chalupa or ILS)
+void reducer::unwindReductions(redu_vcc &reduVCC, double &time_to_solution) {
+    timer unwind_timer;
+    unwindReductions(reduVCC);
+    time_to_solution += unwind_timer.elapsed();
+}
 
+void reducer::undoReductions(redu_vcc &reduVCC) {
   while (reduction_stack.size() != 0) {
         reduction *pReduction = reduction_stack.back();
         reduction_stack.pop_back();
@@ -52,7 +58,7 @@ void reducer::bruteISO(redu_vcc &reduVCC, std::vector<unsigned int> &iso_degree)
 
   bool vertexReduced = true;
 
-  while (vertexReduced){
+  //while (vertexReduced){
       vertexReduced = false;
 
       for (NodeID v = 0; v < reduVCC.num_nodes; v++) {
@@ -78,14 +84,14 @@ void reducer::bruteISO(redu_vcc &reduVCC, std::vector<unsigned int> &iso_degree)
        }
       // } endfor
 
- }
+ //}
 }
 
 void reducer::bruteD2(redu_vcc &reduVCC) {
 
   bool vertexReduced = true;
 
-  while (vertexReduced){
+  //while (vertexReduced){
       vertexReduced = false;
 
       for (NodeID v = 0; v < reduVCC.num_nodes; v++) {
@@ -110,14 +116,14 @@ void reducer::bruteD2(redu_vcc &reduVCC) {
        }
       // } endfor
 
- }
+ //}
 }
 
 void reducer::bruteTWIN(redu_vcc &reduVCC) {
 
   bool vertexReduced = true;
 
-  while (vertexReduced){
+  //while (vertexReduced){
       vertexReduced = false;
 
       for (NodeID v = 0; v < reduVCC.num_nodes; v++) {
@@ -144,14 +150,14 @@ void reducer::bruteTWIN(redu_vcc &reduVCC) {
        }
       // } endfor
 
- }
+ //}
 }
 
 void reducer::bruteDOM(redu_vcc &reduVCC, std::vector<unsigned int> &dom_degree) {
 
   bool vertexReduced = true;
 
-  while (vertexReduced){
+  //while (vertexReduced){
       vertexReduced = false;
 
       for (NodeID v = 0; v < reduVCC.num_nodes; v++) {
@@ -178,7 +184,7 @@ void reducer::bruteDOM(redu_vcc &reduVCC, std::vector<unsigned int> &dom_degree)
        }
       // } endfor
 
- }
+ //}
 
 }
 
@@ -304,4 +310,8 @@ void reducer::cascading_reductions(redu_vcc &reduVCC, vertex_queue *queue,
     else { delete pReduction; }
     num_attempts++;
     }
+}
+
+std::size_t reducer::get_cover_size_offset() const {
+    return num_cliques + num_fold_cliques;
 }

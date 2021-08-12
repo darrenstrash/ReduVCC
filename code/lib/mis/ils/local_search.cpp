@@ -44,7 +44,7 @@ void local_search::preprocess_graph(graph_access & G) {
     neighbors.resize(G.getMaxDegree());
 }
 
-void local_search::preprocess_graph_with_candidates(graph_access & G, std::vector<NodeID> cand, unsigned int cand_size) {
+void local_search::preprocess_graph_with_candidates(graph_access & G, std::vector<NodeID> const &cand, unsigned int cand_size) {
     perm.construct(G); 
     candidates.init(G.number_of_nodes());
     insert_candidates(G, cand, cand_size);
@@ -248,7 +248,7 @@ void local_search::direct_improvement(graph_access & G, bool forced, NodeID forc
     }
 }
 
-void local_search::insert_candidates(graph_access & G, std::vector<NodeID> cand, unsigned int num_cand) {
+void local_search::insert_candidates(graph_access & G, std::vector<NodeID> const &cand, unsigned int num_cand) {
     for (unsigned int i = 0; i < num_cand; ++i) {
         if (!candidates.contains(cand[i])) {
             candidates.insert(cand[i]);

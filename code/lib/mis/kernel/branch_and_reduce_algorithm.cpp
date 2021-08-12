@@ -1610,21 +1610,25 @@ bool branch_and_reduce_algorithm::decompose(timer & t, double time_limit) {
 bool branch_and_reduce_algorithm::reduce() {
     int oldn = rn;
     for (;;) {
+        std::cout << "reduce to -> " << rn << std::endl;
         if (REDUCTION >= 0) deg1Reduction();
         // if (n > 100 && n * SHRINK >= rn && !outputLP && decompose()) return true;
         if (REDUCTION >= 0 && REDUCTION < 2 && dominateReduction()) continue;
-        if (REDUCTION >= 2 && unconfinedReduction()) continue;
-        if (REDUCTION >= 1 && lpReduction()) continue;
+        if (REDUCTION >= 2 && unconfinedReduction()) ;
+        if (REDUCTION >= 1 && lpReduction()) ;
         if (REDUCTION >= 3) {
             int r = packingReduction();
             if (r < 0) return true;
-            if (r > 0) continue;
+            if (r > 0) ;
         }
-        if (REDUCTION >= 1 && fold2Reduction()) continue;
-        if (REDUCTION >= 2 && twinReduction()) continue;
-        if (REDUCTION >= 2 && funnelReduction()) continue;
-        if (REDUCTION >= 2 && deskReduction()) continue;
-        break;
+        if (REDUCTION >= 1 && fold2Reduction()) ;
+        if (REDUCTION >= 2 && twinReduction()) ;
+        if (REDUCTION >= 2 && funnelReduction()) ;
+        if (REDUCTION >= 2 && deskReduction()) ;
+        if (oldn == rn) {
+            break;
+        }
+        oldn = rn;
     }
     if (debug >= 2 && depth <= maxDepth && oldn != rn) fprintf(stderr, "%sreduce: %d -> %d\n", debugString().c_str(), oldn, rn);
 ////    else if (debug >= 2 && depth <= maxDepth) fprintf(stderr, "%sreduce: %d -> %d\n", debugString().c_str(), oldn, rn);
@@ -1958,6 +1962,9 @@ void branch_and_reduce_algorithm::convert_adj_lists(graph_access & G, std::vecto
     // Number of edges
     int m = 0;
 
+    reverse_mapping.clear();
+    reverse_mapping.resize(node_count);
+
     // Nodes -> Range
     std::vector<NodeID> mapping(adj.size(), UINT_MAX);
 
@@ -2016,3 +2023,13 @@ void branch_and_reduce_algorithm::convert_adj_lists(graph_access & G, std::vecto
 #endif // DEBUG
 }
 
+std::size_t branch_and_reduce_algorithm::get_is_offset() const {
+    std::size_t is_vertices = 0;
+    std::size_t folded_vertices = 0;
+
+    for (int const i : x) {
+        if (i == 0) is_vertices++;
+        if (i == 2) folded_vertices++;
+    }
+    return is_vertices + folded_vertices / 2;
+}

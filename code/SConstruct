@@ -100,8 +100,8 @@ if "clang" in env['CC'] or "clang" in env['CXX']:
           env.Append(CXXFLAGS = ' -DNDEBUG -funroll-loops -Wall -O3 -std=c++11')
           env.Append(CCFLAGS  = '-O3  -DNDEBUG -DKAFFPAOUTPUT  -std=c++11')
         else:
-          env.Append(CXXFLAGS = ' -DNDEBUG -Wall -funroll-loops -O3 -std=c++11')
-          env.Append(CCFLAGS  = '-O3  -DNDEBUG -funroll-loops -std=c++11 ')
+          env.Append(CXXFLAGS = ' -g -DDEBUG -Wall -funroll-loops -O0 -std=c++11')
+          env.Append(CCFLAGS  = ' -g -O0 -DDEBUG -funroll-loops -std=c++11 ')
           if SYSTEM != 'Darwin':
                 env.Append(CXXFLAGS = '-march=native')
                 env.Append(CCFLAGS  = '-march=native')
@@ -115,8 +115,8 @@ else:
           env.Append(CXXFLAGS = ' -DNDEBUG -funroll-loops -Wall -fno-stack-limit -O3 -std=c++11 -fpermissive')
           env.Append(CCFLAGS  = '-O3  -DNDEBUG -DKAFFPAOUTPUT  -std=c++11 -fpermissive')
         else:
-          env.Append(CXXFLAGS = ' -DNDEBUG -Wall -funroll-loops  -fno-stack-limit -O3 -std=c++11')
-          env.Append(CCFLAGS  = '-O3  -DNDEBUG -funroll-loops -std=c++11 ')
+          env.Append(CXXFLAGS = ' -g -DDEBUG -Wall -funroll-loops  -fno-stack-limit -O0 -std=c++11 -fpermissive')
+          env.Append(CCFLAGS  = ' -g -O0  -DNDEBUG -funroll-loops -std=c++11 -fpermissive')
           if SYSTEM != 'Darwin':
                 env.Append(CXXFLAGS = '-march=native')
                 env.Append(CCFLAGS  = '-march=native')

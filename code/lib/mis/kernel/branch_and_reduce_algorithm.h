@@ -180,6 +180,8 @@ public:
 
     void convert_adj_lists(graph_access & G, std::vector<NodeID> & reverse_mapping) const;
 
+std::size_t get_is_offset() const;
+
 #if 0
 }
 #endif // 0

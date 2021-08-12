@@ -27,6 +27,7 @@ int parse_parameters(int argn, char **argv,
         struct arg_int *user_solver_time_limit               = arg_int0(NULL, "solver_time_limit", NULL, "Time Limit for Chalupa.");
         struct arg_str *user_run_type                        = arg_str0(NULL, "run_type", NULL, "Chalupa only or reductions then Chalupa.");
         struct arg_int *user_iso_limit                       = arg_int0(NULL, "iso_limit", NULL, "Limit on iso deg.");
+        struct arg_int *user_decompose_limit                       = arg_int0(NULL, "decompose_limit", NULL, "Limit on size of subgraph to decompose.");
 
         // Setup argtable parameters.
         struct arg_lit *help                                 = arg_lit0(NULL, "help","Print help.");
@@ -169,7 +170,7 @@ int parse_parameters(int argn, char **argv,
 
         // Define argtable.
         void* argtable[] = {
-                help, filename, user_seed, user_mis, mis_file, user_solver_time_limit, user_run_type, user_iso_limit,
+                help, filename, user_seed, user_mis, mis_file, user_solver_time_limit, user_run_type, user_iso_limit, user_decompose_limit, 
 #ifdef MODE_DEVEL
                 k, graph_weighted, imbalance, edge_rating_tiebreaking,
                 matching_type, edge_rating, rate_first_level_inner_outer, first_level_random_matching,
@@ -807,6 +808,11 @@ int parse_parameters(int argn, char **argv,
         if (user_iso_limit-> count > 0) {
           partition_config.iso_limit = (unsigned int) user_iso_limit->ival[0];
         }
+
+        if (user_decompose_limit-> count > 0) {
+          partition_config.decompose_limit = (unsigned int) user_decompose_limit->ival[0];
+        }
+
 
         if (fm_search_limit->count > 0) {
                 partition_config.fm_search_limit = fm_search_limit->ival[0];

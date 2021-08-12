@@ -39,6 +39,7 @@ class reducer {
 
 
     // construct C from C'
+    void unwindReductions(redu_vcc &reduVCC, double &time_to_solution);
     void unwindReductions(redu_vcc &reduVCC);
     // undo num reductions, constructing G from G'
     void undoReductions(redu_vcc &reduVCC);
@@ -53,6 +54,8 @@ class reducer {
                                std::vector<unsigned int> &iso_degree, std::vector<unsigned int> &d2_degree);
     void cascading_reductions(redu_vcc &reduVCC, vertex_queue *queue,
                               std::vector<unsigned int> &iso_degree, std::vector<unsigned int> &d2_degree);
+
+    std::size_t get_cover_size_offset() const;
 
 };
 

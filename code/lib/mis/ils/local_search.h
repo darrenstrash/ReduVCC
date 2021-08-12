@@ -60,7 +60,7 @@ class local_search {
          * @param cand Candidate list.
          * @param cand_size Size of the candidate list.
          */
-        void preprocess_graph_with_candidates(graph_access & G, std::vector<NodeID> cand, unsigned int cand_size);
+        void preprocess_graph_with_candidates(graph_access & G, std::vector<NodeID> const &cand, unsigned int cand_size);
 
         /**
          * Forcefully insert a given amount of random nodes into the solution.
@@ -110,7 +110,7 @@ class local_search {
          * @param cand List of candidates to be added.
          * @param num_cand Number of candidates to be added.
          */
-        void insert_candidates(graph_access & G, std::vector<NodeID> cand, unsigned int num_cand);
+        void insert_candidates(graph_access & G, std::vector<NodeID> const &cand, unsigned int num_cand);
 
         /**
          * Print the current state of the permutation without details

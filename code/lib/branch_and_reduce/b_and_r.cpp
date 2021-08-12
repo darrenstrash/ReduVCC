@@ -350,7 +350,7 @@ bool branch_and_reduce::decompose(redu_vcc &reduVCC, PartitionConfig &partition_
   decompose_count += children.size();
 
   for (redu_vcc &child : children) {
-    if (t.elapsed() > partition_config.solver_time_limit) return;
+    if (t.elapsed() > partition_config.solver_time_limit) return false;
 
     // solve child
     // std::cout << "next child" << std::endl;
@@ -372,7 +372,7 @@ bool branch_and_reduce::decompose(redu_vcc &reduVCC, PartitionConfig &partition_
 
   }
 
-  if (t.elapsed() > partition_config.solver_time_limit) return;
+  if (t.elapsed() > partition_config.solver_time_limit) return false;
   // std::cout << "cover size: " << cover_size << std::endl;
 
   // check clique cover size
@@ -380,7 +380,7 @@ bool branch_and_reduce::decompose(redu_vcc &reduVCC, PartitionConfig &partition_
     // for each child, add cliques to cover
 
 
-    std::cout << "smaller cover: " << curr_cover_size << ", " << reduVCC.clique_cover.size() << std::endl;
+    //std::cout << "smaller cover: " << curr_cover_size << ", " << reduVCC.clique_cover.size() << std::endl;
     reduVCC.build_cover();
     // std::cout << "builds?" << std::endl;
     for (redu_vcc &child : children) child.addCliquesToParent(reduVCC);
@@ -410,7 +410,7 @@ void branch_and_reduce::bandr( redu_vcc &reduVCC, unsigned int num_fold_cliques,
     // check if we have a better solution
     if (reduVCC.clique_cover.size() == 0 || curr_cover_size < reduVCC.clique_cover.size()) {
       // build current parital cover
-      std::cout << "smaller cover: " << curr_cover_size << ", " << reduVCC.clique_cover.size() << std::endl;
+      //std::cout << "smaller cover: " << curr_cover_size << ", " << reduVCC.clique_cover.size() << std::endl;
       reduVCC.build_cover();
 
       // unwind reductions to get full cover
