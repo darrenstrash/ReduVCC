@@ -71,6 +71,7 @@ void redu_vcc::init() {
   // assign status of nodes
   node_status.assign(num_nodes, true);
   fold_node.assign(num_nodes, false);
+  merge_node.assign(num_nodes, false);
   remaining_nodes = num_nodes;
   // allocate for graph cover
   node_clique.resize(num_nodes);
@@ -119,10 +120,10 @@ std::vector<NodeID> redu_vcc::find_component( std::vector<bool> &visited_nodes, 
   // if (v == 1138517) std::cout << "HERE" << std::endl;
   queue_size++;
 
-  // std::cout << "ready for queue" << std::endl;
+  std::cout << "ready for queue" << std::endl;
 
   while (!queue.size() == 0) {
-    // std::cout << queue.size() << ", " << queue_size << std::endl;
+    std::cout << queue.size() << ", " << queue_size << std::endl;
     v = queue.front();
     queue.erase(queue.begin());
     queue_size--;
@@ -143,7 +144,7 @@ std::vector<NodeID> redu_vcc::find_component( std::vector<bool> &visited_nodes, 
     // std::cout << std::endl;
   }
 
-  // std::cout << "comp found" << std::endl;
+  std::cout << "comp found" << std::endl;
 
   // for (NodeID a : current_nodes) {
   //   std::cout << a << ", ";
@@ -204,6 +205,7 @@ void redu_vcc::addCliquesToParent(redu_vcc &parent) {
     for (NodeID &v : clique) {
       NodeID old_v = self_to_parent[v];
       parent_clique.push_back(old_v);
+      if (old_v == 7545 || old_v == 8089 || old_v == 76212) std::cout << "comes from child" << std::endl;
     }
 
     std::sort(parent_clique.begin(), parent_clique.end());
@@ -221,8 +223,9 @@ void redu_vcc::build_cover(){
 
   for (NodeID v = 0; v < num_nodes; v++) {
   // forall_nodes(G, v) {
-    if (fold_node[v]) { continue; } // if node in fold, skip
-    if (node_status[v]) { continue; } // if node still in graph, skip
+    if (fold_node[v]) continue; // if node in fold, skip
+    if (merge_node[v]) continue; // if node in merge, skip
+    if (node_status[v]) continue; // if node still in graph, skip
 
     unsigned int cliqueID = node_clique[v];
     clique_cover[cliqueID].push_back(v);
@@ -282,6 +285,13 @@ void redu_vcc::validateCover(graph_access &G) {
     //
     // std::cout << std::endl;
   }
+
+  forall_nodes(G, v) {
+    if (temp_status[v]) {
+      std::cout << "Uncovered vertex: " << v << std::endl;
+      return;
+    }
+  } endfor
 }
 
 void redu_vcc::assignMaps() {

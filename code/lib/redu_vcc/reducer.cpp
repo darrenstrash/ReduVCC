@@ -213,17 +213,26 @@ void reducer::exhaustive_reductions(redu_vcc &reduVCC,
   while (new_reduced) {
     // std::cout << curr_reductions << std::endl;
     new_reduced = false;
+    std::cout << "begin iso";
     bruteISO(reduVCC, iso_degree);
+    std::cout << "begin d2";
     bruteD2(reduVCC);
+    std::cout << "begin twin";
     bruteTWIN(reduVCC);
+    std::cout << "begin dom";
     bruteDOM(reduVCC, dom_degree);
+    std::cout << "begin crown";
     bruteCROWN(reduVCC);
+    std::cout << std::endl;
 
     if (num_reductions > curr_reductions) {
       curr_reductions = num_reductions;
       new_reduced = true;
     }
+    std::cout << "end while" << std::endl;
   }
+
+  std::cout << "end brute" << std::endl;
 
 }
 
