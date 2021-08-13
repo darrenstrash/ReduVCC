@@ -50,7 +50,7 @@ private:
   bool edge_decompose(redu_vcc &reduVCC, PartitionConfig &partition_config, timer &t,
                                    unsigned int curr_cover_size);
 
-  void buildcover_edge ( redu_vcc &reduVCC ); 
+  void buildcover_edge ( redu_vcc &reduVCC );
 
   public:
 
@@ -82,6 +82,8 @@ private:
     void edge_bandr( redu_vcc &reduVCC, unsigned int num_fold_cliques,
                      vertex_queue *queue, PartitionConfig &partition_config, timer &t,
                      NodeID curr_node );
+
+    bool check_adj(redu_vcc &reduVCC);
 
 
 

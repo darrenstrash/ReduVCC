@@ -120,10 +120,10 @@ std::vector<NodeID> redu_vcc::find_component( std::vector<bool> &visited_nodes, 
   // if (v == 1138517) std::cout << "HERE" << std::endl;
   queue_size++;
 
-  std::cout << "ready for queue" << std::endl;
+  // std::cout << "ready for queue" << std::endl;
 
   while (!queue.size() == 0) {
-    std::cout << queue.size() << ", " << queue_size << std::endl;
+    // std::cout << queue.size() << ", " << queue_size << std::endl;
     v = queue.front();
     queue.erase(queue.begin());
     queue_size--;
@@ -144,7 +144,7 @@ std::vector<NodeID> redu_vcc::find_component( std::vector<bool> &visited_nodes, 
     // std::cout << std::endl;
   }
 
-  std::cout << "comp found" << std::endl;
+  // std::cout << "comp found" << std::endl;
 
   // for (NodeID a : current_nodes) {
   //   std::cout << a << ", ";
@@ -199,17 +199,19 @@ std::vector<redu_vcc> redu_vcc::decompose() {
 
 void redu_vcc::addCliquesToParent(redu_vcc &parent) {
 
+  // std::cout << "adding cliques to parent" << std::endl;
+
   for (std::vector<NodeID> &clique : clique_cover) {
     std::vector<NodeID> parent_clique;
 
     for (NodeID &v : clique) {
       NodeID old_v = self_to_parent[v];
       parent_clique.push_back(old_v);
-      if (old_v == 7545 || old_v == 8089 || old_v == 76212) std::cout << "comes from child" << std::endl;
     }
 
     std::sort(parent_clique.begin(), parent_clique.end());
     parent.addCliqueToCover(parent_clique);
+    // parent.addVertexSet(parent_clique);
   }
 }
 
@@ -335,6 +337,7 @@ void redu_vcc::buildKernel() {
         kernel_edges++;
     }
     std::sort(adj.begin(), adj.end());
+    if (new_v >= kernel_adj_list.size()) std::cout << "invalid write build kernel" << std::endl;
     kernel_adj_list[new_v] = adj;
   }
 }
@@ -373,6 +376,8 @@ void redu_vcc::addCrownCliques(std::vector<std::vector<NodeID>> &crown_cliques, 
 
       // printVectorSet(clique);
       addClique(clique);
+      // std::cout << "crown clique: ";
+      // printVectorSet(clique);
       removeVertexSet(clique);
 
       crown_cliques.push_back(clique);
@@ -540,7 +545,9 @@ void redu_vcc::printAdjList(NodeID v) {
 void redu_vcc::printNeighborhood(NodeID v) {
 
   printAdjList(v);
-  for (NodeID u : adj_list[v]) { std::cout << "  "; printAdjList(u); }
+  for (NodeID u : adj_list[v]) {
+    if (!node_status[u]) continue;
+    std::cout << "  "; printAdjList(u); }
 }
 
 void redu_vcc::printVectorSet(std::vector<NodeID> S){

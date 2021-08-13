@@ -26,7 +26,7 @@ private:
 
 
   // mapping from current graph to parent graph
-  std::vector<NodeID> self_to_parent;
+  // std::vector<NodeID> self_to_parent;
 
   // generate adj_list from G
   void generateAdjList(graph_access &G);
@@ -43,6 +43,8 @@ private:
 
 
 public:
+
+  std::vector<NodeID> self_to_parent;
 
   unsigned int num_nodes;
   std::vector<std::vector<NodeID>> adj_list;

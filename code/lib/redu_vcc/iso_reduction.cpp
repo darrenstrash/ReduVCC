@@ -13,10 +13,10 @@ bool iso_reduction::validNeighbor(redu_vcc &reduVCC, NodeID &v, NodeID &u){
     unsigned int j = 0;
 
     while (i < adj_list[v].size()) {
+      if (j == adj_list[u].size()){return false;}
+
         NodeID x = adj_list[v][i];
         NodeID y = adj_list[u][j];
-
-        if (j == adj_list[u].size()){return false;}
 
         if (!reduVCC.node_status[x]) { i++; continue; }
         if (!reduVCC.node_status[y]) { j++; continue; }
@@ -36,7 +36,7 @@ bool iso_reduction::validISO(redu_vcc &reduVCC, unsigned int &deg_limit, NodeID 
 
     if (deg_limit != 0 && reduVCC.adj_size(v) > deg_limit) return false;
     // std::cout << reduVCC.adj_size(v) << std::endl;
-
+    if (v >= reduVCC.node_status.size()) std::cout << "Invalid v" << std::endl;
     for (NodeID u : reduVCC.adj_list[v]) {
         if (!reduVCC.node_status[u]) { continue; }
 
@@ -67,6 +67,8 @@ void iso_reduction::reduce(redu_vcc &reduVCC,
 
   reduVCC.addClique(clique);
   reduVCC.removeVertexSet(clique);
+  // std::cout << "iso clique: ";
+  // reduVCC.printVectorSet(clique);
 
 }
 
