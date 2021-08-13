@@ -104,7 +104,7 @@ redu_vcc::redu_vcc(redu_vcc *parent, std::vector<NodeID> &child_nodes) {
   init();
 }
 
-std::vector<NodeID> redu_vcc::find_component( std::vector<bool> &visited_nodes, unsigned int &visit_remaining) {
+std::vector<NodeID> redu_vcc::find_component(std::vector<bool> &visited_nodes, unsigned int &visit_remaining) {
 
   std::vector<NodeID> current_nodes;
   std::vector<NodeID> queue;
@@ -256,7 +256,7 @@ bool redu_vcc::cliqueInG(graph_access &G, std::vector<NodeID> &clique) {
   return true;
 }
 
-void redu_vcc::validateCover(graph_access &G) {
+bool redu_vcc::validateCover(graph_access &G) {
 
   std::vector<bool> temp_status;
   temp_status.assign(G.number_of_nodes(), true);
@@ -268,7 +268,7 @@ void redu_vcc::validateCover(graph_access &G) {
       // std::cout << v << ", ";
       if (temp_status[v] == false) {
         std::cout << "Overlap" << std::endl;
-        return;
+        return false;
       }
       else { temp_status[v] = false; }
     }
@@ -278,10 +278,18 @@ void redu_vcc::validateCover(graph_access &G) {
     if (!cliqueInG(G, clique)) {
       printVectorSet(clique);
       std::cout << "Invalid clique" << std::endl;
-      return; }
+      return false; }
     //
     // std::cout << std::endl;
   }
+
+  for (NodeID v = 0; v < G.number_of_nodes(); v++) {
+    if (temp_status[v]) {
+        std::cout << "Uncovered vertex " << v << ", possibly more..." << std::endl;
+        return false;
+    }
+  }
+  return true;
 }
 
 void redu_vcc::assignMaps() {
@@ -578,7 +586,7 @@ redu_vcc::redu_vcc(graph_access &G, PartitionConfig &partition_config) : redu_vc
 };
 
 
-void redu_vcc::solveKernel(PartitionConfig &partition_config, timer &t) {
+void redu_vcc::solveKernel(PartitionConfig &partition_config, timer &total_timer, double &time_to_solution, std::size_t clique_cover_offset) {
 
   if (remaining_nodes == 0) { return; }
 
@@ -586,20 +594,21 @@ void redu_vcc::solveKernel(PartitionConfig &partition_config, timer &t) {
 
   cli *cli_instance;
   cli_instance = new cli(partition_config.seed, partition_config.mis);
-  cli_instance->start_cli(kernel_adj_list, remaining_nodes, kernel_edges, t.elapsed(), partition_config.solver_time_limit);
+  cli_instance->start_cli(kernel_adj_list, remaining_nodes, kernel_edges, total_timer, time_to_solution, partition_config.solver_time_limit, clique_cover_offset);
+
+  timer reconstruct_timer;
 
   if (cli_instance->clique_cover.size() != 0){
       addKernelCliques(cli_instance->clique_cover);
-  }
-  else {
+  } else {
       std::cout << "Chalupa's algorithm unable to solve in given time." << std::endl;
   }
+  time_to_solution += reconstruct_timer.elapsed();
 
-  delete(cli_instance);
-
+  delete cli_instance;
 }
 
-void redu_vcc::analyzeGraph(std::string &filename, graph_access &G, timer &t){
+void redu_vcc::analyzeGraph(std::string &filename, graph_access &G, timer &t, bool const validate_cover) {
 
     std::cout << filename << ", ";
 
@@ -612,6 +621,7 @@ void redu_vcc::analyzeGraph(std::string &filename, graph_access &G, timer &t){
 
     std::cout << clique_cover.size() << std::endl;
 
-    validateCover(G);
+    if (validate_cover)
+        validateCover(G);
 
 }

@@ -107,15 +107,15 @@ public:
   void replaceClique(unsigned int cliqueID, std::vector<NodeID> new_clique);
 
   void build_cover();
-  void validateCover(graph_access &G);
-  void analyzeGraph(std::string &filename, graph_access &G, timer &t);
+  bool validateCover(graph_access &G);
+  void analyzeGraph(std::string &filename, graph_access &G, timer &t, bool const validate_cover = true);
 
   // mis methods
   void getMIS(std::string file);
 
   // integer kernel methods
   void buildKernel();
-  void solveKernel(PartitionConfig &partition_config, timer &t);
+  void solveKernel(PartitionConfig &partition_config, timer &t, double &time_to_solution, std::size_t clique_cover_offset);
   void addKernelCliques(std::vector<std::vector<int>> &clique_set);
 
   void addCrownCliques(std::vector<std::vector<NodeID>> &crown_cliques, std::vector<std::vector<int>> &clique_set);

@@ -46,8 +46,7 @@ ils::~ils() {
     reset();
 }
 
-void ils::perform_ils(MISConfig & config, graph_access & G, unsigned int iteration_limit) {
-	
+void ils::perform_ils(MISConfig & config, graph_access & G, unsigned int iteration_limit, double time_offset, std::size_t print_size_offset, std::size_t stop_size) {
     reset();
     // Init operation log
     operation_log::instance()->init(G.number_of_nodes());
@@ -84,11 +83,24 @@ void ils::perform_ils(MISConfig & config, graph_access & G, unsigned int iterati
     force_list->init(G.number_of_nodes());
 
     unsigned int iterations = 0;
-    while (iterations < iteration_limit) {
+    size_t mapped_solution_size = 
+        (print_size_offset > 0) ? print_size_offset - best_solution.solution_size
+                                : best_solution.solution_size;
+
+    last_update_time = t.elapsed();
+    last_total_update_time = time_offset + last_update_time;
+    if (print_size_offset == 0) {
+        std::cout << perm->get_solution_size() << " [ils: " << last_update_time << ", total: " << last_total_update_time << "]\n";
+    } else {
+        std::cout << print_size_offset - perm->get_solution_size() << " [ils: " << last_update_time << ", total: " << last_total_update_time << "]\n";
+    }
+
+    while (iterations < iteration_limit && mapped_solution_size != stop_size) {
         iterations++;
         // Stop if the time limit was passed
-        if (t.elapsed() > config.time_limit) break;
-        // if (iterations % 10000 == 0) std::cout << perm->get_solution_size() << " [" << t.elapsed() << "]" << std::endl;
+        if (time_offset + t.elapsed() > config.time_limit) break;
+        //if (iterations % 10000 == 0) 
+        //    std::cout << perm->get_solution_size() << " [" << t.elapsed() << "]" << std::endl;
 
         plateau--;
         if (plateau < 0) plateau = 0;
@@ -184,6 +196,14 @@ void ils::perform_ils(MISConfig & config, graph_access & G, unsigned int iterati
         // if (!pop.is_mis(config, G, best_solution)) printf("No MIS in %d\n", i);
         // else printf("Is MIS in %d\n", i);
         if (solution_after > best_solution.solution_size) {
+            last_update_time = t.elapsed();
+            last_total_update_time = time_offset + last_update_time;
+            if (print_size_offset == 0) {
+                std::cout << perm->get_solution_size() << " [ils: " << last_update_time << ", total: " << last_total_update_time << "]\n";
+            } else {
+                std::cout << print_size_offset - perm->get_solution_size() << " [ils: " << last_update_time << ", total: " << last_total_update_time << "]\n";
+            }
+
             forall_nodes(G, node) {
                 best_solution.solution[node] = G.getPartitionIndex(node);
             } endfor
@@ -227,6 +247,13 @@ void ils::perform_ils(MISConfig & config, graph_access & G, unsigned int iterati
                         local.direct_improvement(G, true, x);
                         // Improvement found?
                         if (perm->get_solution_size() > best_solution.solution_size) {
+                            last_update_time = t.elapsed();
+                            last_total_update_time = time_offset + last_update_time;
+                            if (print_size_offset == 0) {
+                                std::cout << perm->get_solution_size() << " [ils: " << last_update_time << ", total: " << last_total_update_time << "]\n";
+                            } else {
+                                std::cout << print_size_offset - perm->get_solution_size() << " [ils: " << last_update_time << ", total: " << last_total_update_time << "]\n";
+                            }
                             forall_nodes(G, node) {
                                 best_solution.solution[node] = G.getPartitionIndex(node);
                             } endfor
@@ -255,6 +282,10 @@ void ils::perform_ils(MISConfig & config, graph_access & G, unsigned int iterati
 
         ASSERT_TRUE(pop.is_mis(config, G, best_solution));
         ASSERT_TRUE(perm->check_consistency(G));
+
+        mapped_solution_size = 
+            (print_size_offset > 0) ? print_size_offset - best_solution.solution_size
+                                    : best_solution.solution_size;
     }
 
     forall_nodes(G, node) {
@@ -264,7 +295,11 @@ void ils::perform_ils(MISConfig & config, graph_access & G, unsigned int iterati
 
 
     solution_size = best_solution.solution_size;
-    //std::cout << best_solution.solution_size << std::endl;
+
+    mapped_solution_size = 
+        (print_size_offset > 0) ? print_size_offset - best_solution.solution_size
+                                : best_solution.solution_size;
+    std::cout << "best_solution=" << mapped_solution_size << std::endl;
 }
 
 void ils::force(MISConfig & config, graph_access & G, NodeID v, candidate_list *force_list) {
@@ -321,3 +356,18 @@ void ils::reset() {
     }
 }
 
+std::size_t ils::get_best_solution_size() const {
+    return best_solution.solution_size;
+}
+
+double ils::get_last_update_time() const {
+    return last_update_time;
+}
+
+double ils::get_last_total_update_time() const {
+    return last_total_update_time;
+}
+
+NodeID * ils::get_best_solution() const {
+    return best_solution.solution;
+}

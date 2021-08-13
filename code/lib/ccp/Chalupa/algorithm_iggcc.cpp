@@ -86,11 +86,8 @@ long algorithm_iggcc::greedy_indset(graph G, long permutation_indset[])
     return indset_size;
 }
 
-bool algorithm_iggcc::iggcc_ccp(graph G, refer *result, refer *indset_size, refer *initial_indset, refer initial_indset_size, double t_elapsed, int t_limit, int mis)
+bool algorithm_iggcc::iggcc_ccp(graph G, refer *result, refer *indset_size, refer *initial_indset, refer initial_indset_size, timer &total_timer, double &time_to_solution, int t_limit, int mis, std::size_t clique_cover_offset)
 {
-    
-    timer timer_s;
-    
     unsigned long long t,t_max,indset_it,t_stag,t_stag_max;
     long remainder;
     long q,r,s,aux,w;
@@ -177,10 +174,11 @@ bool algorithm_iggcc::iggcc_ccp(graph G, refer *result, refer *indset_size, refe
     //    while (t_stag < t_stag_max && fitness_indset < colors_count)
     
     printf("\nTime\t\tVCC\tIS\n");
-    printf("%f\t%ld\t%ld\n", timer_s.elapsed() + t_elapsed, colors_count, fitness_indset);
+    time_to_solution = total_timer.elapsed();
+    printf("%f\t%ld\t%ld\n", time_to_solution, clique_cover_offset + colors_count, clique_cover_offset + fitness_indset);
 //    while (timer_s.elapsed() + t_elapsed < 3600 && fitness_indset < colors_count)
 //    while (timer_s.elapsed() + t_elapsed < 3600 && 19 < colors_count)
-    while (timer_s.elapsed() + t_elapsed < t_limit && mis < colors_count)
+    while (total_timer.elapsed() < t_limit && mis < colors_count)
     {
         colors_count_old = colors_count;
 
@@ -245,7 +243,8 @@ bool algorithm_iggcc::iggcc_ccp(graph G, refer *result, refer *indset_size, refe
         }
         
         if (colors_count_old != colors_count){
-            printf("%f\t%ld\t%ld\n", timer_s.elapsed() + t_elapsed, colors_count, fitness_indset);
+            time_to_solution = total_timer.elapsed();
+            printf("%f\t%ld\t%ld\n", time_to_solution, clique_cover_offset + colors_count, clique_cover_offset + fitness_indset);
         }
 
         // reordering the classes
@@ -405,7 +404,7 @@ bool algorithm_iggcc::iggcc_ccp(graph G, refer *result, refer *indset_size, refe
         t++;
     }
     
-    printf("%f\t%ld\t%ld\n", timer_s.elapsed() + t_elapsed, colors_count, fitness_indset);
+    //printf("%f\t%ld\t%ld\n", timer_s.elapsed() + t_elapsed, colors_count, fitness_indset);
 
     printf(" [iterations: %llu][independent set: %ld]\n",t,fitness_indset);
     *indset_size = fitness_indset;

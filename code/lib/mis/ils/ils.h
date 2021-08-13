@@ -25,6 +25,7 @@
 #define _ILS_H_
 
 #include <vector>
+#include <climits> // for ULONG_MAX
 
 #include "timer.h"
 #include "mis/mis_config.h"
@@ -56,13 +57,20 @@ class ils {
          * @param G Graph representation.
          * @param iteration_limit Maximum number of iterations.
          */
-        void perform_ils(MISConfig & config, graph_access & G, unsigned int iteration_limit = 0);
+        void perform_ils(MISConfig & config, graph_access & G, unsigned int iteration_limit = 0, double time_offset = 0.0, std::size_t print_size_offset= 0, std::size_t stop_size = ULONG_MAX);
+
+        std::size_t get_best_solution_size() const;
 
         /** 
          * Reset the ILS.
          * Clears the force-list and best solution.
          */
         void reset();
+
+        double get_last_update_time() const;
+        double get_last_total_update_time() const;
+
+        NodeID * get_best_solution() const;
 
     private:
         // Array for storing the last time a node was forced in the solution.
@@ -83,6 +91,8 @@ class ils {
         local_search local;
         // Timer for measuring the time taken for the ILS.
         timer t;
+        double last_update_time;
+        double last_total_update_time;
 
         // ILS config
         unsigned int plateau_down;

@@ -32,7 +32,7 @@ typedef struct GRAPH_DATA
 } graph_data;
 typedef graph_data *graph;
 
-void make_graph(std::vector<std::vector<int>> adj_list, unsigned int num_v, unsigned long num_e);
+void make_graph(std::vector<std::vector<int>> const &adj_list, unsigned int num_v, unsigned long num_e);
 void input_graph(FILE *source);
 // dealokujeme potrebnu pamat
 void free_graph();

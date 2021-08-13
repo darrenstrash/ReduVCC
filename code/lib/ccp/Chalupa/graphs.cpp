@@ -43,7 +43,7 @@ graph get_graph()
     return G;
 }
 
-void make_graph(std::vector<std::vector<int>> adj_list, unsigned int num_v, unsigned long num_e)
+void make_graph(std::vector<std::vector<int>> const &adj_list, unsigned int num_v, unsigned long num_e)
 {
     
     refer v,w;
