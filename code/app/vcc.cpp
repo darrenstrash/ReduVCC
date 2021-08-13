@@ -78,52 +78,77 @@ int main(int argn, char **argv) {
     timer t;
     graph_io::readGraphWeighted(G, graph_filename);
 
+
+
+    /* run types:
+        - chalupa
+        - redu
+        - reduVCC
+        - bnr
+        - edge_bnr
+
+      reduce types
+        - exhaustive
+        - cascading
+
+      mis types
+        - reduMIS
+        - ils
+        - sigmod_linear
+        - sigmod_nearlinear
+
+      time limit
+    */
     timer s;
 
-    redu_vcc reduVCC;
-    branch_and_reduce B(G, reduVCC, partition_config);
-    vertex_queue *queue = nullptr;
-    if (partition_config.run_type == "edge") { B.edge_bandr(reduVCC, 0, queue, partition_config, s, 0); }
-    else { B.bandr(reduVCC, 0, queue, partition_config, s); }
-
-    B.analyzeGraph(graph_filename, G, reduVCC, s);
-
-
-
-    // if (partition_config.run_type == "Redu") {
-    //     redu_vcc reduVCC(G);
-    //     std::vector<unsigned int> iso_degree;
-    //     iso_degree.assign(G.number_of_nodes(), 0);
-    //     std::vector<unsigned int> dom_degree;
-    //     dom_degree.assign(G.number_of_nodes(), 0);
-    //     reducer R;
-    //     R.exhaustive_reductions(reduVCC, iso_degree, dom_degree);
-    //     reduVCC.analyzeGraph(graph_filename, G, s);
-    //     return 0;
-    // }
-    // if (partition_config.run_type == "ReduVCC") {
-    //     redu_vcc reduVCC(G);
-    //     std::vector<unsigned int> iso_degree;
-    //     iso_degree.assign(G.number_of_nodes(), 0);
-    //     std::vector<unsigned int> dom_degree;
-    //     dom_degree.assign(G.number_of_nodes(), 0);
-    //     reducer R;
-    //     R.exhaustive_reductions(reduVCC, iso_degree, dom_degree);
-    //     reduVCC.analyzeGraph(graph_filename, G, s);
-    //     reduVCC.build_cover();
-    //     reduVCC.solveKernel(partition_config, s);
-    //     R.unwindReductions(reduVCC);
-    //     reduVCC.analyzeGraph(graph_filename, G, s);
-    //     return 0;
-    // }
-    //
     // redu_vcc reduVCC;
     // branch_and_reduce B(G, reduVCC, partition_config);
-    //
     // vertex_queue *queue = nullptr;
-    // if (partition_config.run_type == "cascading") queue = new vertex_queue(reduVCC);
-    // B.bandr(reduVCC, 0, queue, partition_config, s);
+    // queue = new vertex_queue(reduVCC);
+    // if (partition_config.run_type == "edge_bnr") { B.edge_bandr(reduVCC, 0, queue, partition_config, s, 0); }
+    // else { B.bandr(reduVCC, 0, queue, partition_config, s); }
+    //
     // B.analyzeGraph(graph_filename, G, reduVCC, s);
+
+
+
+    if (partition_config.run_type == "Redu") {
+        redu_vcc reduVCC(G);
+        std::vector<unsigned int> iso_degree;
+        iso_degree.assign(G.number_of_nodes(), 0);
+        std::vector<unsigned int> dom_degree;
+        dom_degree.assign(G.number_of_nodes(), 0);
+        reducer R;
+        R.exhaustive_reductions(reduVCC, iso_degree, dom_degree);
+        reduVCC.analyzeGraph(graph_filename, G, s);
+        return 0;
+    }
+    if (partition_config.run_type == "ReduVCC") {
+        redu_vcc reduVCC(G);
+        std::vector<unsigned int> iso_degree;
+        iso_degree.assign(G.number_of_nodes(), 0);
+        std::vector<unsigned int> dom_degree;
+        dom_degree.assign(G.number_of_nodes(), 0);
+        reducer R;
+        R.exhaustive_reductions(reduVCC, iso_degree, dom_degree);
+        reduVCC.analyzeGraph(graph_filename, G, s);
+        reduVCC.build_cover();
+        reduVCC.solveKernel(partition_config, s);
+        R.unwindReductions(reduVCC);
+        reduVCC.analyzeGraph(graph_filename, G, s);
+        return 0;
+    }
+    //
+    redu_vcc reduVCC;
+    branch_and_reduce B(G, reduVCC, partition_config);
+
+    vertex_queue *queue = nullptr;
+    if (partition_config.redu_type == "cascading") queue = new vertex_queue(reduVCC);
+    if (partition_config.run_type == "edge_bnr") { B.edge_bandr(reduVCC, 0, queue, partition_config, s, 0); }
+    else { B.bandr(reduVCC, 0, queue, partition_config, s); }
+    B.analyzeGraph(graph_filename, G, reduVCC, s);
+
+    std::cout << reduVCC.clique_cover.size() << " " << s.elapsed() << " " << B.branch_count << " " << B.prune_count << " " << B.decompose_count << std::endl;
 
     // branch_and_reduce Bra(G, partition_config);
     // std::cout << "here" << std::endl;

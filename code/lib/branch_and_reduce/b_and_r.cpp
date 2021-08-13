@@ -6,34 +6,37 @@
 
 void branch_and_reduce::construct_run(PartitionConfig &partition_config) {
 
-  redu_type = "exhaustive";
-  prune_type = "none";
-  next_node_type = "none";
-  enum_type = "none";
-
   if (partition_config.run_type == "brute") return;
+  redu_type = partition_config.run_type;
+  prune_type = partition_config.prune_type;
+  if (partition_config.run_type == "edge_bnr") return;
 
   next_node_type = "small_deg";
-  if (partition_config.run_type == "small_deg") return;
-  enum_type = "sort_enum";
-  if (partition_config.run_type == "sort_enum") return;
-  prune_type = "ReduMIS";
-  if (partition_config.run_type == "ReduMIS") return;
-  redu_type = "cascading";
-  if (partition_config.run_type == "cascading") return;
-  prune_type = "KaMIS";
-  if (partition_config.run_type == "KaMIS") return;
-  prune_type = "SigMIS_nearlinear";
-  if (partition_config.run_type == "SigMIS_nearlinear") return;
-  prune_type = "SigMIS_linear";
-  if (partition_config.run_type == "SigMIS_linear") return;
+  enum_type = "sorted_enum";
+
+  // if (partition_config.run_type == "brute") return;
+  //
+  // next_node_type = "small_deg";
+  // if (partition_config.run_type == "small_deg") return;
+  // enum_type = "sort_enum";
+  // if (partition_config.run_type == "sort_enum") return;
+  // prune_type = "ReduMIS";
+  // if (partition_config.run_type == "ReduMIS") return;
+  // redu_type = "cascading";
+  // if (partition_config.run_type == "cascading") return;
+  // prune_type = "KaMIS";
+  // if (partition_config.run_type == "KaMIS") return;
+  // prune_type = "SigMIS_nearlinear";
+  // if (partition_config.run_type == "SigMIS_nearlinear") return;
+  // prune_type = "SigMIS_linear";
+  // if (partition_config.run_type == "SigMIS_linear") return;
 }
 
 branch_and_reduce::branch_and_reduce(graph_access &G, redu_vcc &reduVCC, PartitionConfig &partition_config) {
 
   construct_run(partition_config);
 
-  if (prune_type == "ReduMIS") reduVCC = redu_vcc(G, partition_config);
+  if (prune_type == "reduMIS") reduVCC = redu_vcc(G, partition_config);
   else reduVCC = redu_vcc(G);
 
   branch_count = 0;
@@ -240,7 +243,7 @@ bool branch_and_reduce::prune(redu_vcc &reduVCC, unsigned int &curr_cover_size) 
     if (prune_type == "none") {
       return false;
     }
-    // else if (prune_type == "KaMIS") {
+    // else if (prune_type == "ils") {
     //   // geneate MIS of kernel using ILS
     //   graph_access G_p;
     //   graph_io::readGraphKernel(G_p, reduVCC);
@@ -253,7 +256,7 @@ bool branch_and_reduce::prune(redu_vcc &reduVCC, unsigned int &curr_cover_size) 
     //
     //   estimated_cover_size = curr_cover_size + new_ils.solution_size;
     // }
-    else if (prune_type == "SigMIS_linear") {
+    else if (prune_type == "sigmod_linear") {
       // geneate MIS of kernel using Sigmod MIS
       Graph mis_G;
       // std::cout << "begin graph trans" << std::endl;
@@ -264,7 +267,7 @@ bool branch_and_reduce::prune(redu_vcc &reduVCC, unsigned int &curr_cover_size) 
       // std::cout << "mis computed" << std::endl;
       estimated_cover_size = curr_cover_size + res_mis;
     }
-    else if (prune_type == "SigMIS_nearlinear") {
+    else if (prune_type == "sigmod_nearlinear") {
       // geneate MIS of kernel using Sigmod MIS
       Graph mis_G;
       mis_G.read_graph(reduVCC);
@@ -496,6 +499,7 @@ bool branch_and_reduce::edge_decompose(redu_vcc &reduVCC, PartitionConfig &parti
     // std::cout << "next child " << child.num_nodes << std::endl;
     branch_and_reduce B_child(child, partition_config);
     vertex_queue *queue = nullptr;
+    if (partition_config.run_type == "cascading") queue = new vertex_queue(child);
     // std::cout << "child map: [";
     // for (unsigned int i = 0; i < child.self_to_parent.size(); i++) {
     //   std::cout << "(" << i << ", " << child.new_to_old_map[i] << "), ";
@@ -736,6 +740,12 @@ edge_stack.push_back(edge);
 
 // branch on edge
 vertex_queue *new_queue = nullptr;
+if (redu_type != "exhaustive") {
+  new_queue = new vertex_queue(reduVCC);
+  new_queue->push(curr_node);
+  for (NodeID a : N_curr) if (reduVCC.node_status[a]) new_queue->push(a);
+  new_queue->adjust_queue(reduVCC, edge_node);
+}
 // std::cout << "edge branch" << std::endl;
 branch_count++;
 edge_bandr(reduVCC, num_fold_cliques, new_queue, partition_config, t, curr_node);
@@ -788,7 +798,13 @@ for (unsigned int i = 0; i < reduVCC.adj_list[edge_node].size(); i++) {
 // std::cout << "remove edge: " << curr_node << ", " << edge_node << std::endl;
 
 vertex_queue *new_queue2 = nullptr;
+if (redu_type != "exhaustive") {
+  new_queue2 = new vertex_queue(reduVCC);
+  new_queue2->push(curr_node);
+  new_queue2->push(edge_node);
+}
 // branch on no edge
+branch_count++;
 edge_bandr(reduVCC, num_fold_cliques, new_queue2, partition_config, t, curr_node);
 
 reduVCC.adj_list[curr_node].push_back(edge_node);

@@ -22,12 +22,15 @@ int parse_parameters(int argn, char **argv,
 
         const char *progname = argv[0];
 
-        struct arg_int *user_mis              = arg_int0(NULL, "mis", NULL, "Mis number for chalupa.");
-        struct arg_str *mis_file                            = arg_str0(NULL, "mis_file", NULL, "MIS file for Chalupa.");
-        struct arg_int *user_solver_time_limit               = arg_int0(NULL, "solver_time_limit", NULL, "Time Limit for Chalupa.");
-        struct arg_str *user_run_type                        = arg_str0(NULL, "run_type", NULL, "Chalupa only or reductions then Chalupa.");
+        struct arg_str *user_run_type                        = arg_str0(NULL, "run_type", NULL, "Options: chalupa, redu, reduVCC, bnr, edge_bnr");
+        struct arg_str *user_prune_type                       = arg_str0(NULL, "prune_type", NULL, "Options: reduMIS, ils, sigmod_linear, sigmod_nearlinear");
+        struct arg_str *user_redu_type                       = arg_str0(NULL, "redu_type", NULL, "Options: exhaustive, cascading");
         struct arg_int *user_iso_limit                       = arg_int0(NULL, "iso_limit", NULL, "Limit on iso deg.");
         struct arg_int *user_decomp_limit                    = arg_int0(NULL, "decomp_limit", NULL, "Limit on decomposition minimum");
+
+        struct arg_int *user_mis                            = arg_int0(NULL, "mis", NULL, "MIS number used in some cases in Chalupa solver.");
+        struct arg_str *mis_file                            = arg_str0(NULL, "mis_file", NULL, "location of file containing MIS (bool list) for Chalupa solver");
+        struct arg_int *user_solver_time_limit               = arg_int0(NULL, "solver_time_limit", NULL, "Time Limit for Chalupa.");
 
         // Setup argtable parameters.
         struct arg_lit *help                                 = arg_lit0(NULL, "help","Print help.");
@@ -170,7 +173,7 @@ int parse_parameters(int argn, char **argv,
 
         // Define argtable.
         void* argtable[] = {
-                help, filename, user_seed, user_mis, mis_file, user_solver_time_limit, user_run_type, user_iso_limit, user_decomp_limit,
+                help, filename, user_seed, user_run_type, user_prune_type, user_redu_type, user_iso_limit, user_decomp_limit, user_mis, mis_file, user_solver_time_limit,
 #ifdef MODE_DEVEL
                 k, graph_weighted, imbalance, edge_rating_tiebreaking,
                 matching_type, edge_rating, rate_first_level_inner_outer, first_level_random_matching,
@@ -803,15 +806,23 @@ int parse_parameters(int argn, char **argv,
 
         if (user_run_type->count > 0){
             partition_config.run_type = user_run_type->sval[0];
-        }
+        } else partition_config.prune_type = "bnr";
+
+        if (user_prune_type->count > 0){
+            partition_config.prune_type = user_prune_type->sval[0];
+        } else partition_config.prune_type = "sigmod_linear";
+
+        if (user_redu_type->count > 0){
+            partition_config.redu_type = user_redu_type->sval[0];
+        } else partition_config.redu_type = "cascading";
 
         if (user_iso_limit-> count > 0) {
           partition_config.iso_limit = (unsigned int) user_iso_limit->ival[0];
-        }
+        } else partition_config.iso_limit = 0;
 
         if (user_decomp_limit-> count > 0) {
           partition_config.decompose_limit = (unsigned int) user_decomp_limit->ival[0];
-        }
+        } else partition_config.decompose_limit = 0;
 
         if (fm_search_limit->count > 0) {
                 partition_config.fm_search_limit = fm_search_limit->ival[0];
