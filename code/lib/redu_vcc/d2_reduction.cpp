@@ -46,6 +46,7 @@ bool d2_reduction::validD2(redu_vcc &reduVCC, NodeID &v){
 
 void d2_reduction::foldD2(redu_vcc &reduVCC) {
 
+
     std::vector<std::vector<NodeID>> &adj_list = reduVCC.adj_list;
     std::vector<bool> &scratch1 = reduVCC.scratch1;
 
@@ -66,9 +67,11 @@ void d2_reduction::foldD2(redu_vcc &reduVCC) {
     std::sort(adj_list[w].begin(), adj_list[w].end());
 
     for (NodeID x : adj_list[w]) {scratch1[x] = false;}
+    // for (bool val : reduVCC.scratch1) {
+    //   if (val) std::cout << "scratch 1 uncleared" << std::endl;
+    // }
     reduVCC.removeVertex(u);
-    reduVCC.fold_status[u] = true;
-    reduVCC.fold_node[w] = true;
+    reduVCC.fold_node[u] = true;
 }
 
 void d2_reduction::reduce(redu_vcc &reduVCC,
@@ -85,11 +88,17 @@ void d2_reduction::reduce(redu_vcc &reduVCC,
   // std::cout << u << ", " << w << std::endl;
   // std::cout << reduVCC.node_status[w] << std::endl;
 
+  // std::cout << "pre d2 fold: " << std::endl;
+  // std::cout << "v: " << v << std::endl;
+  // reduVCC.printNeighborhood(u);
+  // reduVCC.printNeighborhood(w);
+
   reduVCC.removeVertex(v);
-  reduVCC.fold_status[v] = true;
+  reduVCC.fold_node[v] = true;
 
   // N_u = reduVCC.curr_adj_list(u);
   foldD2(reduVCC);
+  // std::cout << "post d2 fold: " << std::endl;
   // reduVCC.printAdjList(w);
   // std::cout << std::endl;
 
@@ -111,6 +120,11 @@ void d2_reduction::unfold( redu_vcc &reduVCC) {
   unsigned int fold_cliqueID = reduVCC.solve_node_clique[w];
   std::vector<NodeID> fold_clique = reduVCC.clique_cover[fold_cliqueID];
 
+  // std::cout << "d2 fold clique: ";
+  // reduVCC.printVectorSet(fold_clique);
+  // std::cout << "N_u: ";
+  // reduVCC.printVectorSet(N_u);
+
   NodeID x = u;   // vertex x will be connected "externally" -- outside [v,u,w] or no connection
   NodeID y = w;   // vertex y will be connected to v
 
@@ -119,16 +133,25 @@ void d2_reduction::unfold( redu_vcc &reduVCC) {
   // tests to see if fold_clique \subset N_u
   for (NodeID a : N_u) {scratch1[a] = true;}
   for (NodeID a : fold_clique) {
+      // std::cout << a << ", " << scratch1[a]<< std::endl;
       if (a == w){
           continue;
       }
+      if (scratch1[a]) continue;
+
+      x = w; y = u;
+      break;
       // \exists a \in fold_clique, a \notin N_u
-      if (!scratch1[a]) {
-          // fold_clique \subset N_w
-          x = w; y = u;
-      }
+      // if (!scratch1[a]) {
+      //     std::cout << "keep fold clique" << std::endl;
+      //     // fold_clique \subset N_w
+      //     x = w; y = u;
+      // }
   }
   for (NodeID a : N_u) {scratch1[a] = false;}
+  // for (bool val : reduVCC.scratch1) {
+  //   if (val) std::cout << "scratch 1 uncleared" << std::endl;
+  // }
 
 
   for (unsigned int i = 0; i < fold_clique.size(); i++){
@@ -139,24 +162,13 @@ void d2_reduction::unfold( redu_vcc &reduVCC) {
           break;
       }
   }
-  if (reduVCC.merge_node[x]) {
-    std::cout << "d2 fold node is a merged node"  << std::endl;
-    for (NodeID u : reduVCC.nodes_merged[x]) fold_clique.push_back(u);
-  }
-
+  // std::cout << "d2 unfold clique: ";
   // reduVCC.printVectorSet(fold_clique);
   reduVCC.replaceClique(fold_cliqueID, fold_clique);
 
-  if (reduVCC.merge_node[v] || reduVCC.merge_node[y]) {
-    std::cout << "d2 new clique contains merge node" << std::endl;
-    // reduVCC.printAdjList(v);
-    // reduVCC.printAdjList(y);
-    // for (NodeID a : reduVCC.nodes_merged[v]) reduVCC.printAdjList(a);
-    // for (NodeID a : reduVCC.nodes_merged[y]) reduVCC.printAdjList(a);
-
-  }
   std::vector<NodeID> new_clique {v, y};
   reduVCC.addCliqueToCover(new_clique);
+  // std::cout << "d2 new clique: ";
   // reduVCC.printVectorSet(new_clique);
 
 }
@@ -179,8 +191,7 @@ void d2_reduction::unreduce( redu_vcc &reduVCC){
     }
 
     reduVCC.addVertex(v);
-    reduVCC.fold_status[v] = false;
+    reduVCC.fold_node[v] = false;
     reduVCC.addVertex(u);
-    reduVCC.fold_status[u] = false;
-    reduVCC.fold_node[w] = false;
+    reduVCC.fold_node[u] = false;
 }

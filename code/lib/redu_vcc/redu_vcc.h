@@ -26,7 +26,7 @@ private:
 
 
   // mapping from current graph to parent graph
-  std::vector<NodeID> self_to_parent;
+  // std::vector<NodeID> self_to_parent;
 
   // generate adj_list from G
   void generateAdjList(graph_access &G);
@@ -44,18 +44,15 @@ private:
 
 public:
 
+  std::vector<NodeID> self_to_parent;
+
   unsigned int num_nodes;
   std::vector<std::vector<NodeID>> adj_list;
 
   std::vector<bool> node_status;  // marks nodes status in G
+  std::vector<bool> fold_node;   // marks nodes removed in a fold
+  std::vector<bool> merge_node;   // marks nodes removed in a merge
   unsigned int remaining_nodes;
-
-  std::vector<bool> fold_node; // marks nodes that are folds
-  std::vector<bool> fold_status;   // marks nodes removed in a fold
-
-  std::vector<bool> merge_node; // marks node if it is a merged clique
-  std::vector<bool> merge_status; // marks if a node has been collapsed into a merge node
-  std::vector<std::vector<NodeID>> nodes_merged; // sets of nodes merged
 
   std::vector<std::vector<NodeID>> clique_cover;
 
@@ -92,8 +89,6 @@ public:
   void addVertex(NodeID v);
   void removeVertexSet(std::vector<NodeID> &S);
   void addVertexSet(std::vector<NodeID> &S);
-
-  void insertVertex(NodeID v, NodeID u);
 
   unsigned int adj_size(NodeID v);
   std::vector<NodeID> curr_adj_list(NodeID v);

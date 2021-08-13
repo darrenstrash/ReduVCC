@@ -14,10 +14,6 @@
 #include "reduction.h"
 
 class iso_reduction: public reduction {
-private:
-
-  bool contains_merge;
-  NodeID merged_node;
 
   public:
     NodeID v;

@@ -85,7 +85,7 @@ void dom_reduction::reduce(  redu_vcc &reduVCC,
   deg = reduVCC.adj_size(v);
 
   reduVCC.removeVertex(v);
-  reduVCC.fold_status[v] = true;
+  reduVCC.fold_node[v] = true;
 
   // std::cout << "success" << std::endl;
 }
@@ -105,13 +105,10 @@ void dom_reduction::unfold( redu_vcc &reduVCC){
   std::vector<NodeID> fold_clique = reduVCC.clique_cover[fold_cliqueID];
 
   fold_clique.push_back(v);
-  if (reduVCC.merge_node[v]) {
-    for (NodeID u : reduVCC.nodes_merged[v]) fold_clique.push_back(u);
-  }
   reduVCC.replaceClique(fold_cliqueID, fold_clique);
 }
 
 void dom_reduction::unreduce( redu_vcc &reduVCC){
   reduVCC.addVertex(v);
-  reduVCC.fold_status[v] = false;
+  reduVCC.fold_node[v] = false;
 }
