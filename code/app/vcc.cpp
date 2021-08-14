@@ -142,11 +142,25 @@ int main(int argn, char **argv) {
     redu_vcc reduVCC;
     branch_and_reduce B(G, reduVCC, partition_config);
 
+
+    bool finished = false;
+
     vertex_queue *queue = nullptr;
     if (partition_config.redu_type == "cascading") queue = new vertex_queue(reduVCC);
-    if (partition_config.run_type == "edge_bnr") { B.edge_bandr(reduVCC, 0, queue, partition_config, s, 0); }
-    else { B.bandr(reduVCC, 0, queue, partition_config, s); }
+    if (partition_config.run_type == "edge_bnr") { finished = B.edge_bandr(reduVCC, 0, queue, partition_config, s, 0); }
+    else { finished = B.bandr(reduVCC, 0, queue, partition_config, s); }
+    double total_time = s.elapsed();
     B.analyzeGraph(graph_filename, G, reduVCC, s);
+
+    std::cout << "BEGIN_OUTPUT_FOR_TABLES" << std::endl;
+    std::cout << "run_type=" << partition_config.run_type << std::endl;
+    std::cout << "input_graph_vertices=" << G.number_of_nodes() << std::endl;
+    std::cout << "input_graph_edges=" << G.number_of_edges() / 2 << std::endl;
+    std::cout << "total_time_to_best=" << total_time << std::endl;
+    std::cout << "clique_cover_size=" << reduVCC.clique_cover.size() << std::endl;
+    std::cout << "verified_cover=" << (reduVCC.validateCover(G) ? "passed" : "failed") << std::endl;
+    std::cout << "optimal=" << (finished ? "yes" : "unknown") << std::endl;
+
 
     // std::cout << reduVCC.clique_cover.size() << " " << s.elapsed() << " " << B.branch_count << " " << B.prune_count << " " << B.decompose_count << std::endl;
 

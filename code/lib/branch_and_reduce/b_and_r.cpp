@@ -364,7 +364,8 @@ bool branch_and_reduce::decompose(redu_vcc &reduVCC, PartitionConfig &partition_
     vertex_queue *queue = nullptr;
     if (partition_config.run_type == "cascading") queue = new vertex_queue(child);
     // child.printAdjList();
-    B_child.bandr(child, 0, queue, partition_config, t);
+    if (!B_child.bandr(child, 0, queue, partition_config, t))
+        return false;
     // std::cout << child.clique_cover.size() << std::endl;
     cover_size += child.clique_cover.size();
 
@@ -398,11 +399,11 @@ bool branch_and_reduce::decompose(redu_vcc &reduVCC, PartitionConfig &partition_
   return true;
 }
 
-void branch_and_reduce::bandr( redu_vcc &reduVCC, unsigned int num_fold_cliques,
+bool branch_and_reduce::bandr( redu_vcc &reduVCC, unsigned int num_fold_cliques,
                                vertex_queue *queue,
                                PartitionConfig &partition_config, timer &t) {
 
-  if (t.elapsed() > partition_config.solver_time_limit) return;
+  if (t.elapsed() > partition_config.solver_time_limit) return false;
 
   reducer R(partition_config.iso_limit);
   reduce(reduVCC, R, num_fold_cliques, queue);
@@ -425,18 +426,18 @@ void branch_and_reduce::bandr( redu_vcc &reduVCC, unsigned int num_fold_cliques,
 
     // undo branch's reductions and return
     R.undoReductions(reduVCC); reducer_stack.pop_back();
-    return;
+    return true;
   }
 
 
   if (prune(reduVCC, curr_cover_size)) {
     R.undoReductions(reduVCC); reducer_stack.pop_back();
-    return;
+    return true;
   }
 
   if (reduVCC.remaining_nodes > partition_config.decompose_limit && decompose(reduVCC, partition_config, t, curr_cover_size)) {
     R.undoReductions(reduVCC); reducer_stack.pop_back();
-    return;
+    return true;
   }
 
 
@@ -463,7 +464,8 @@ void branch_and_reduce::bandr( redu_vcc &reduVCC, unsigned int num_fold_cliques,
     // std::cout << "branch" << std::endl;
     // branch
     branch_count++;
-    bandr(reduVCC, num_fold_cliques, new_queue, partition_config, t);
+    if (!bandr(reduVCC, num_fold_cliques, new_queue, partition_config, t))
+        return false;
 
     // pop branched on clique
     reduVCC.pop_clique(clique);
@@ -472,6 +474,7 @@ void branch_and_reduce::bandr( redu_vcc &reduVCC, unsigned int num_fold_cliques,
   }
   // undo number of reductions from reduce
   R.undoReductions(reduVCC); reducer_stack.pop_back();
+  return true;
 }
 
 bool branch_and_reduce::edge_decompose(redu_vcc &reduVCC, PartitionConfig &partition_config, timer &t,
@@ -508,7 +511,8 @@ bool branch_and_reduce::edge_decompose(redu_vcc &reduVCC, PartitionConfig &parti
     // if (partition_config.run_type == "cascading") queue = new vertex_queue(child);
     // child.printAdjList();
     // std::cout << "new child branch" << std::endl;
-    B_child.edge_bandr(child, 0, queue, partition_config, t, 0);
+    if (!B_child.edge_bandr(child, 0, queue, partition_config, t, 0))
+        return false;
     // if (child.num_nodes != child.remaining_nodes) std::cout << "unmatched nodes sizes" << std::endl;
     // std::cout << child.clique_cover.size() << std::endl;
     cover_size += child.clique_cover.size();
@@ -621,11 +625,11 @@ bool branch_and_reduce::check_adj(redu_vcc &reduVCC) {
   return true;
 }
 
-void branch_and_reduce::edge_bandr( redu_vcc &reduVCC, unsigned int num_fold_cliques,
+bool branch_and_reduce::edge_bandr( redu_vcc &reduVCC, unsigned int num_fold_cliques,
                                     vertex_queue *queue, PartitionConfig &partition_config, timer &t,
                                     NodeID curr_node ) {
 
-  if (t.elapsed() > partition_config.solver_time_limit) return;
+  if (t.elapsed() > partition_config.solver_time_limit) return false;
 
   reducer R(partition_config.iso_limit);
   // std::cout << "begin reducting" << std::endl;
@@ -656,14 +660,14 @@ void branch_and_reduce::edge_bandr( redu_vcc &reduVCC, unsigned int num_fold_cli
     // undo branch's reductions and return
     R.undoReductions(reduVCC); reducer_stack.pop_back();
     // std::cout << "returns from build" << std::endl;
-    return;
+    return true;
   }
 
   // std::cout << "begin prune" << std::endl;
   if (prune(reduVCC, curr_cover_size)) {
     // std::cout << "pruning" << std::endl;
     R.undoReductions(reduVCC); reducer_stack.pop_back();
-    return;
+    return true;
   }
 
   // std::cout << "check for decompose" << std::endl;
@@ -672,7 +676,7 @@ void branch_and_reduce::edge_bandr( redu_vcc &reduVCC, unsigned int num_fold_cli
     // std::cout << "undoing" << std::endl;;
     // std::cout << reduVCC.remaining_nodes << std::endl;
     R.undoReductions(reduVCC); reducer_stack.pop_back();
-    return;
+    return true;
   }
 
 
@@ -748,7 +752,7 @@ if (redu_type != "exhaustive") {
 }
 // std::cout << "edge branch" << std::endl;
 branch_count++;
-edge_bandr(reduVCC, num_fold_cliques, new_queue, partition_config, t, curr_node);
+if (!edge_bandr(reduVCC, num_fold_cliques, new_queue, partition_config, t, curr_node)) return false;
 
 // std::cout << "branch " << branch_num << std::endl;
 // std::cout << "pre unmerge: " << std::endl;
@@ -805,7 +809,7 @@ if (redu_type != "exhaustive") {
 }
 // branch on no edge
 branch_count++;
-edge_bandr(reduVCC, num_fold_cliques, new_queue2, partition_config, t, curr_node);
+if (!edge_bandr(reduVCC, num_fold_cliques, new_queue2, partition_config, t, curr_node)) return false;
 
 reduVCC.adj_list[curr_node].push_back(edge_node);
 std::sort(reduVCC.adj_list[curr_node].begin(), reduVCC.adj_list[curr_node].end());
@@ -815,4 +819,5 @@ std::sort(reduVCC.adj_list[edge_node].begin(), reduVCC.adj_list[edge_node].end()
 edge_stack.pop_back();
 
   R.undoReductions(reduVCC); reducer_stack.pop_back();
+  return true;
 }

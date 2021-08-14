@@ -110,7 +110,7 @@ public:
   void replaceClique(unsigned int cliqueID, std::vector<NodeID> new_clique);
 
   void build_cover();
-  void validateCover(graph_access &G);
+  bool validateCover(graph_access &G);
   void analyzeGraph(std::string &filename, graph_access &G, timer &t);
 
   // mis methods

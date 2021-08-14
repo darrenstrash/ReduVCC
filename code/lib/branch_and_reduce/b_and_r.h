@@ -76,10 +76,10 @@ private:
 
     // std::vector<std::vector<NodeID>> sorted_enumerate(redu_vcc &reduVCC, NodeID x, std::vector<bool> &indset);
 
-    void bandr( redu_vcc &reduVCC, unsigned int num_fold_cliques,
+    bool bandr( redu_vcc &reduVCC, unsigned int num_fold_cliques,
                 vertex_queue *queue, PartitionConfig &partition_config, timer &t);
 
-    void edge_bandr( redu_vcc &reduVCC, unsigned int num_fold_cliques,
+    bool edge_bandr( redu_vcc &reduVCC, unsigned int num_fold_cliques,
                      vertex_queue *queue, PartitionConfig &partition_config, timer &t,
                      NodeID curr_node );
 

@@ -52,7 +52,7 @@ void reducer::bruteISO(redu_vcc &reduVCC, std::vector<unsigned int> &iso_degree)
 
   bool vertexReduced = true;
 
-  while (vertexReduced){
+////  while (vertexReduced){
       vertexReduced = false;
 
       for (NodeID v = 0; v < reduVCC.num_nodes; v++) {
@@ -75,7 +75,7 @@ void reducer::bruteISO(redu_vcc &reduVCC, std::vector<unsigned int> &iso_degree)
               iso_degree[pReduction->deg]++;
          }
          num_attempts++;
-       }
+////       }
       // } endfor
 
  }
@@ -85,7 +85,7 @@ void reducer::bruteD2(redu_vcc &reduVCC) {
 
   bool vertexReduced = true;
 
-  while (vertexReduced){
+////  while (vertexReduced){
       vertexReduced = false;
 
       for (NodeID v = 0; v < reduVCC.num_nodes; v++) {
@@ -107,7 +107,7 @@ void reducer::bruteD2(redu_vcc &reduVCC) {
 
          }
          if (reduVCC.adj_size(v) == 2) num_attempts++;
-       }
+////       }
       // } endfor
 
  }
@@ -117,7 +117,7 @@ void reducer::bruteTWIN(redu_vcc &reduVCC) {
 
   bool vertexReduced = true;
 
-  while (vertexReduced){
+////  while (vertexReduced){
       vertexReduced = false;
 
       for (NodeID v = 0; v < reduVCC.num_nodes; v++) {
@@ -141,7 +141,7 @@ void reducer::bruteTWIN(redu_vcc &reduVCC) {
 
          }
          if (reduVCC.adj_size(v) == 3) num_attempts++;
-       }
+////       }
       // } endfor
 
  }
@@ -151,7 +151,7 @@ void reducer::bruteDOM(redu_vcc &reduVCC, std::vector<unsigned int> &dom_degree)
 
   bool vertexReduced = true;
 
-  while (vertexReduced){
+////  while (vertexReduced){
       vertexReduced = false;
 
       for (NodeID v = 0; v < reduVCC.num_nodes; v++) {
@@ -176,7 +176,7 @@ void reducer::bruteDOM(redu_vcc &reduVCC, std::vector<unsigned int> &dom_degree)
 
          }
          num_attempts++;
-       }
+////       }
       // } endfor
 
  }

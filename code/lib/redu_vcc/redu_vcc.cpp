@@ -261,7 +261,7 @@ bool redu_vcc::cliqueInG(graph_access &G, std::vector<NodeID> &clique) {
   return true;
 }
 
-void redu_vcc::validateCover(graph_access &G) {
+bool redu_vcc::validateCover(graph_access &G) {
 
   std::vector<bool> temp_status;
   temp_status.assign(G.number_of_nodes(), true);
@@ -273,7 +273,7 @@ void redu_vcc::validateCover(graph_access &G) {
       // std::cout << v << ", ";
       if (temp_status[v] == false) {
         std::cout << "Overlap" << std::endl;
-        return;
+        return false;
       }
       else { temp_status[v] = false; }
     }
@@ -283,17 +283,18 @@ void redu_vcc::validateCover(graph_access &G) {
     if (!cliqueInG(G, clique)) {
       printVectorSet(clique);
       std::cout << "Invalid clique" << std::endl;
-      return; }
+      return false; }
     //
     // std::cout << std::endl;
   }
 
-  forall_nodes(G, v) {
+  for (NodeID v = 0; v < G.number_of_nodes(); v++) {
     if (temp_status[v]) {
-      std::cout << "Uncovered vertex: " << v << std::endl;
-      return;
+        std::cout << "Uncovered vertex " << v << ", possibly more..." << std::endl;
+        return false;
     }
-  } endfor
+  }
+  return true;
 }
 
 void redu_vcc::assignMaps() {
