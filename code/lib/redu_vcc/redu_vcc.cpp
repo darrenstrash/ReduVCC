@@ -258,11 +258,10 @@ bool redu_vcc::cliqueInG(graph_access &G, std::vector<NodeID> &clique) {
 
 bool redu_vcc::validateCover(graph_access &G) {
 
-  std::vector<bool> temp_status;
-  temp_status.assign(G.number_of_nodes(), true);
+  std::vector<bool> temp_status(G.number_of_nodes(), true);
 
   for (std::vector<NodeID> clique : clique_cover ) {
-    if (clique.size() == 0) { std::cout << "Null clique" << std::endl; return; }
+    if (clique.size() == 0) { std::cout << "Null clique" << std::endl; return false; }
 
     for (NodeID v : clique) {
       // std::cout << v << ", ";
@@ -344,8 +343,10 @@ void redu_vcc::addKernelCliques(std::vector<std::vector<int>> &clique_set){
 
       for (unsigned int j = 0; j < clique_set[i].size(); j++){
           int v = clique_set[i][j];
+////          assert(new_to_old_map.find(v) != new_to_old_map.end());
           NodeID old_v = new_to_old_map[v];
 
+////          assert (old_v < solve_node_clique.size());
           solve_node_clique[old_v] = false;
           clique.push_back(old_v);
       }
@@ -353,6 +354,22 @@ void redu_vcc::addKernelCliques(std::vector<std::vector<int>> &clique_set){
 
       addCliqueToCover(clique);
   }
+
+////#ifdef DEBUG
+////  // check that covering kernel
+////  std::vector<bool> vertex_covered(kernel_adj_list.size(), false);
+////  for (auto clique : clique_set) {
+////    for (auto v : clique) {
+////        vertex_covered[v] = true;
+////    }
+////  }
+////  for (NodeID v = 0; v < kernel_adj_list.size(); v++) {
+////    if (!vertex_covered[v]) {
+////        std::cout << "Vertex " << v << " is not covered!" << std::endl;
+////        assert(false);
+////    }
+////  }
+//////#endif
 }
 
 void redu_vcc::addCrownCliques(std::vector<std::vector<NodeID>> &crown_cliques, std::vector<std::vector<int>> &clique_set) {
@@ -443,6 +460,7 @@ void redu_vcc::addCliqueToCover(std::vector<NodeID> &clique) {
   // adds clique so solve node structure
 
   for (NodeID u : clique) {
+////    assert(u < solve_node_clique.size());
     solve_node_clique[u] = next_solvecliqueID;
   }
   clique_cover.push_back(clique);

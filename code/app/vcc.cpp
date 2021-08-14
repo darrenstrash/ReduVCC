@@ -183,7 +183,7 @@ void transform_is_to_clique_cover(
         std::size_t const num_vertices_original_graph,
         NodeID *solution_is,
         std::size_t const num_cliques,
-        std::vector<std::vector<NodeID>> &clique_cover) {
+        std::vector<std::vector<int>> &clique_cover) {
 
     std::cout << "Reconstructing clique cover..." << std::endl;
     clique_cover.clear();
@@ -199,7 +199,7 @@ void transform_is_to_clique_cover(
             if (vertex_to_clique_id.find(std::get<0>(edge)) 
                     == vertex_to_clique_id.end()) {
                 vertex_to_clique_id[std::get<0>(edge)] = clique_cover.size();
-                clique_cover.push_back(std::vector<NodeID>{std::get<0>(edge)});
+                clique_cover.push_back(std::vector<int>{std::get<0>(edge)});
                 covered[std::get<0>(edge)] = true;
             }
             clique_cover[vertex_to_clique_id[std::get<0>(edge)]].push_back(std::get<1>(edge));
@@ -210,7 +210,7 @@ void transform_is_to_clique_cover(
     for (NodeID v = 0; v < num_vertices_original_graph; v++) {
         if (!covered[v]) {
             //std::cout << "DS: Vertex " << v << " is uncovered...covering with singleton" << std::endl;
-            clique_cover.emplace_back(std::vector<NodeID>{v});
+            clique_cover.emplace_back(std::vector<int>{v});
         }
     }
     std::cout << "clique_cover has size: " << clique_cover.size() << std::endl;
@@ -503,11 +503,11 @@ int main(int argn, char **argv) {
         //graph_access new_new_graph;
         //graph_io::readGraphWeighted(new_new_graph, "transformed-sorted.graph");
 
+        timer ils_timer;
         greedy_mis greedy;
         greedy.initial_partition(partition_config.seed, new_graph);
 
         std::cout << "Preparing ILS..." << std::endl;
-        timer ils_timer;
         MISConfig ils_config;
         ils_config.seed = partition_config.seed;
         ils_config.time_limit = partition_config.solver_time_limit;
@@ -629,6 +629,11 @@ int main(int argn, char **argv) {
         dom_degree.assign(G.number_of_nodes(), 0);
         reducer R;
         R.exhaustive_reductions(oldVCC, iso_degree, dom_degree);
+        oldVCC.build_cover();
+
+        std::size_t const cover_size_offset = R.get_cover_size_offset();
+        std::cout << "cover_size_offset=" << cover_size_offset << std::endl;
+
         oldVCC.analyzeGraph(graph_filename, G, s, false /* don't check cover */);
 
         double vcc_reduction_time = vcc_reductions_timer.elapsed();
@@ -648,106 +653,12 @@ int main(int argn, char **argv) {
 
         kernel_graph.finish_construction();
 
-        redu_vcc reduVCC(kernel_graph);
-
         timer transformation_timer;
-
-        // Step 1: acyclic orientation
-        std::vector<NodeID> order;
-        order.reserve(G.number_of_nodes());
-        for (NodeID node = 0; node < kernel_graph.number_of_nodes(); node++) {
-            order.push_back(node);
-        }
-
-        // Step 2: line graph
-        std::unordered_set<std::pair<NodeID,NodeID>> neighbor_hash;
-        forall_nodes(kernel_graph, v) {
-            forall_out_edges(kernel_graph, e, v) {
-                NodeID u = kernel_graph.getEdgeTarget(e);
-                neighbor_hash.insert(std::pair<NodeID,NodeID>(u,v));
-                neighbor_hash.insert(std::pair<NodeID,NodeID>(v,u));
-            } endfor
-        } endfor
-
-        std::unordered_map<std::pair<NodeID, NodeID>, NodeID> edge_to_vertex;
+        graph_access transformed_graph;
         std::vector<std::pair<NodeID, NodeID>> vertex_to_edge;
-        std::vector<std::vector<NodeID>> edge_to_edges;
-
-        std::vector<NodeID> const empty;
-
-        std::cout << "Making filtered line graph..." << std::endl;
-        forall_nodes(kernel_graph, v) {
-            forall_out_edges(kernel_graph, e, v) {
-                NodeID u = kernel_graph.getEdgeTarget(e);
-                std::pair<NodeID,NodeID> node_pair(u, v);
-                if (order[v] < order[u]) {
-                    node_pair = std::pair<NodeID,NodeID>(v, u);
-                }
-                if (edge_to_vertex.find(node_pair) == edge_to_vertex.end()) {
-                    vertex_to_edge.push_back(node_pair);
-                    edge_to_vertex[node_pair] = vertex_to_edge.size() - 1;
-                    edge_to_edges.push_back(empty);
-                }
-            } endfor
-
-            forall_out_edges(kernel_graph, e1, v) {
-                NodeID u = kernel_graph.getEdgeTarget(e1);
-                std::pair<NodeID,NodeID> first_pair(v, u);
-                if (order[u] < order[v]) 
-                    first_pair = std::pair<NodeID,NodeID>(u, v);
-
-                forall_out_edges(kernel_graph, e2, v) {
-                    NodeID w = kernel_graph.getEdgeTarget(e2);
-                    if (w <= u) continue;
-                    std::pair<NodeID,NodeID> second_pair(v, w);
-                    if (order[w] < order[v]) {
-                        second_pair = std::pair<NodeID,NodeID>(w, v);
-                    }
-
-                    // Step 3: filter triples, TODO/DS: appears to work
-                    if (std::get<0>(first_pair) == std::get<0>(second_pair) && 
-                        (neighbor_hash.find(std::pair<NodeID,NodeID>(std::get<1>(first_pair),std::get<1>(second_pair))) != neighbor_hash.end()) && 
-                        (neighbor_hash.find(std::pair<NodeID,NodeID>(std::get<1>(second_pair),std::get<1>(first_pair))) != neighbor_hash.end())) continue;
-
-                    
-                    edge_to_edges[edge_to_vertex[first_pair]].push_back(edge_to_vertex[second_pair]);
-                    edge_to_edges[edge_to_vertex[second_pair]].push_back(edge_to_vertex[first_pair]);
-
-                } endfor
-            } endfor
-        } endfor
-
-
-        // Step 3: trim triples (integrated above)
-
-        std::size_t cover_size_offset = R.get_cover_size_offset();
-        std::cout << "cover_size_offset=" << cover_size_offset << std::endl;
-
-        std::size_t num_edges = 0;
-        for (std::vector<NodeID> & neighbors : edge_to_edges) {
-            std::sort(neighbors.begin(), neighbors.end());
-            num_edges += neighbors.size();
-        }
+        transform_graph(kernel_graph, transformed_graph, vertex_to_edge);
 
         double transformation_time = transformation_timer.elapsed();
-
-        num_edges /= 2;
-
-        graph_access new_graph;
-        new_graph.start_construction(edge_to_edges.size(), 2 * num_edges);
-        for (NodeID v = 0; v < edge_to_edges.size(); v++) {
-            NodeID shadow_node = new_graph.new_node();
-            new_graph.setPartitionIndex(shadow_node, 0);
-            new_graph.setNodeWeight(shadow_node, 1);
-            for (NodeID const neighbor : edge_to_edges[v]) {
-                EdgeID shadow_edge = new_graph.new_edge(shadow_node, neighbor);
-                new_graph.setEdgeWeight(shadow_edge, 1);
-            }
-        }
-
-        new_graph.finish_construction();
-
-        //std::cout << "Writing out transformed graph..." << std::endl;
         //graph_io::writeGraph(new_graph, "transformed.graph");
 
         // Step 4: Compute MIS
@@ -755,14 +666,15 @@ int main(int argn, char **argv) {
         {
         std::cout << "Making copy of transformed graph..." << std::endl;
         std::vector<std::vector<int>> line_copy;
-        line_copy.reserve(edge_to_edges.size());
-        for (std::vector<NodeID> const neighbors : edge_to_edges) {
-            std::vector<int> int_neighbors(neighbors.size());
-            for (std::size_t index = 0; index < neighbors.size(); index++) {
-                int_neighbors[index] = neighbors[index];
-            }
+        line_copy.reserve(transformed_graph.number_of_nodes());
+        forall_nodes(transformed_graph, v) {
+            std::vector<int> int_neighbors(transformed_graph.getNodeDegree(v));
+            forall_out_edges(transformed_graph, e, v) {
+                NodeID u = transformed_graph.getEdgeTarget(e);
+                int_neighbors.push_back(u);
+            } endfor
             line_copy.emplace_back(int_neighbors);
-        }
+        } endfor
 
         timer mis_reductions;
 
@@ -788,8 +700,8 @@ int main(int argn, char **argv) {
         std::vector<bool> in_initial_is;
 
         timer peeling_timer;
-        std::vector<NodeID> new_to_old_id_unused;
-        unsigned int res_mis = mis_G.near_linear_kernel_and_offset(kernel, new_to_old_id_unused, in_initial_is, offset);
+        std::vector<NodeID> new_to_old_id;
+        unsigned int res_mis = mis_G.near_linear_kernel_and_offset(kernel, new_to_old_id, in_initial_is, offset);
         double peeling_time = peeling_timer.elapsed();
         std::cout << "Done with reducing-peeling..." << endl;
         assert(offset == 0);
@@ -821,22 +733,55 @@ int main(int argn, char **argv) {
         //std::cout << "Writing out post-peeling graph peeled.graph" << std::endl;
         //graph_io::writeGraph(peeled_graph, "peeled.graph");
 
-        std::size_t const ils_print_offset = kernel_graph.number_of_nodes() + cover_size_offset - mis_bnr.get_is_offset() - offset;
+
+////        cout << "cover_size_offset=" << cover_size_offset << std::endl;
+////        cout << "kernel_graph_number_of_nodes=" << kernel_graph.number_of_nodes() << std::endl;
+////        cout << "mis_bnr.get_is_offset=" << mis_bnr.get_is_offset() << std::endl;
+////        cout << "offset=" << offset << std::endl;
 
         timer ils_timer;
-        MISConfig ils_config;
-        ils_config.seed = partition_config.seed;
-        ils_config.time_limit = partition_config.solver_time_limit;
-        ils_config.force_cand = 4;
-        ils_config.ils_iterations = UINT_MAX;
         ils ils_instance;
-        std::cout << "Performing ILS..." << std::endl;
-        ils_instance.perform_ils(ils_config, peeled_graph, ils_config.ils_iterations, total_timer.elapsed(), ils_print_offset, partition_config.mis);
+        std::size_t const ils_print_offset = cover_size_offset + kernel_graph.number_of_nodes() - (mis_bnr.get_is_offset() + offset /* from peeling **/);
+        run_ils(ils_instance, partition_config, peeled_graph, total_timer, ils_print_offset);
         double time_for_ils = ils_timer.elapsed();
         cout << "ILS Running time: " << time_for_ils << std::endl;
-        cout << "Total Running time (beginning to end): " << total_timer.elapsed() << std::endl;
 
         std::size_t const ils_cover = kernel_graph.number_of_nodes() - (ils_instance.get_best_solution_size() + mis_bnr.get_is_offset() + offset);
+
+        double time_to_unwind = 0.0;
+        // reconstruct is / cover
+        {
+            timer unwind_timer;
+            std::vector<bool> full_is(line_copy.size(), false);
+            for (NodeID v = 0; v < peeled_graph.number_of_nodes(); v++) {
+                if (ils_instance.get_best_solution()[v] == 1)
+                    full_is[reverse_mapping[new_to_old_id[v]]] = true;
+            }
+            std::cout << "Unwinding MIS reductions..." << std::endl;
+            mis_bnr.extend_finer_is(full_is);
+            NodeID *solution_is = new NodeID[line_copy.size()];
+            for (NodeID v = 0; v < line_copy.size(); v++) {
+                solution_is[v] = full_is[v] ? 1 : 0;
+            }
+
+            std::vector<std::vector<int>> clique_cover;
+            std::cout << "Transforming IS to VCC..." << std::endl;
+            transform_is_to_clique_cover(transformed_graph, vertex_to_edge,
+                kernel_graph.number_of_nodes(), solution_is, ils_cover, clique_cover);
+////            std::cout << "Adding " << clique_cover.size() << " kernel cliques..." << std::endl;
+            oldVCC.addKernelCliques(clique_cover);
+            std::cout << "Unwinding VCC reductions..." << std::endl;
+            R.unwindReductions(oldVCC);
+            std::cout << "Done unwinding..." << std::endl;
+            oldVCC.analyzeGraph(graph_filename, G, s, false /* don't check cover */);
+            time_to_unwind = unwind_timer.elapsed();
+        }
+
+        double const time_to_best = ils_instance.get_last_total_update_time() + time_to_unwind;
+
+
+        cout << "Total Running time (beginning to end): " << total_timer.elapsed() << std::endl;
+
 
         std::cout << "Transform (Exhaustive+Peeling+ILS) Upper Bound = " << ils_cover + cover_size_offset << std::endl;
 
@@ -846,19 +791,21 @@ int main(int argn, char **argv) {
         std::cout << "run_type=" << partition_config.run_type << std::endl;
         std::cout << "vcc_reduction_time=" << vcc_reduction_time << std::endl;
         std::cout << "transformation_time=" << transformation_time << std::endl;
-        std::cout << "transformed_graph_vertices=" << edge_to_edges.size() << std::endl;
-        std::cout << "transformed_graph_edges=" << num_edges << std::endl;
+        std::cout << "transformed_graph_vertices=" << transformed_graph.number_of_nodes() << std::endl;
+        std::cout << "transformed_graph_edges=" << transformed_graph.number_of_edges() / 2 << std::endl;
         std::cout << "mis_reduction_time=" << mis_reduction_time << std::endl;
         std::cout << "reduced_transformed_graph_vertices=" << full_kernel.number_of_nodes() << std::endl;
         std::cout << "reduced_transformed_graph_edges=" << full_kernel.number_of_edges() / 2 << std::endl;
         std::cout << "peeling_time=" << peeling_time << std::endl;
         std::cout << "ils_time_to_best=" << ils_instance.get_last_update_time() << std::endl;
-        std::cout << "total_time_to_best=" << ils_instance.get_last_total_update_time() << std::endl;
+        std::cout << "total_time_to_best=" << time_to_best << std::endl;
+        std::cout << "time_to_best_without_unwind=" << time_to_best - time_to_unwind << std::endl;
         std::cout << "clique_cover_size=" << clique_cover_size << std::endl;
-        std::cout << "verified_cover=no" << std::endl;
+        std::cout << "verified_cover=" << (oldVCC.validateCover(G) ? "passed" : "failed") << std::endl;
         std::cout << "optimal=" << (clique_cover_size == partition_config.mis ? "yes":"unknown") << std::endl;
         }
 
+/*
         if (false) // Exhaustive MIS Reductions + ILS
         {
         std::cout << "Making copy of transformed graph..." << std::endl;
@@ -1038,6 +985,7 @@ int main(int argn, char **argv) {
         std::cout << "Done!" << std::endl;
         }
         } // other options
+*/
         return 0;
     } else if (partition_config.run_type == "test") {
 
@@ -1066,7 +1014,7 @@ int main(int argn, char **argv) {
 
         std::cout << "Transform (ILS) Upper Bound = " << ils_cover << std::endl;
 
-        std::vector<std::vector<NodeID>> clique_cover;
+        std::vector<std::vector<int>> clique_cover;
         size_t const num_cliques = G.number_of_nodes() - ils_instance.get_best_solution_size();
 
         transform_is_to_clique_cover(transformed_graph,

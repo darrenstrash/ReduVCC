@@ -101,6 +101,7 @@ void dom_reduction::unfold( redu_vcc &reduVCC){
   std::vector<std::vector<NodeID>> &adj_list = reduVCC.adj_list;
   std::vector<bool> &scratch1 = reduVCC.scratch1;
 
+////  assert(u < reduVCC.solve_node_clique.size());
   unsigned int fold_cliqueID = reduVCC.solve_node_clique[u];
   std::vector<NodeID> fold_clique = reduVCC.clique_cover[fold_cliqueID];
 
