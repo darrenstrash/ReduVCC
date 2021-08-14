@@ -19,6 +19,8 @@
 #include "definitions.h"
 #include "data_structure/graph_access.h"
 
+#include "redu_vcc/redu_vcc.h"
+
 class graph_io {
         public:
                 graph_io();
@@ -26,6 +28,9 @@ class graph_io {
 
                 static
                 int readGraphWeighted(graph_access & G, const std::string & filename);
+
+		static 
+		int readGraphKernel(graph_access &G, redu_vcc &reduVCC);
 
                 static
                 int writeGraphWeighted(graph_access & G, const std::string & filename);

@@ -191,6 +191,67 @@ int graph_io::readGraphWeighted(graph_access & G, const std::string & filename) 
 }
 
 
+int graph_io::readGraphKernel(graph_access &G, redu_vcc &reduVCC) {
+	long nmbNodes = (long) reduVCC.remaining_nodes;
+	long nmbEdges = 0;
+
+	NodeID next_node = 0;
+	std::vector<NodeID> node_mapping;
+	node_mapping.resize(reduVCC.adj_list.size());
+
+	for (unsigned int i = 0; i < reduVCC.adj_list.size(); i++){
+		if (!reduVCC.node_status[i]) continue;
+		node_mapping[i] = next_node; next_node++;
+		for (NodeID u : reduVCC.adj_list[i]){
+			if (reduVCC.node_status[u]) nmbEdges++;
+		}
+	}
+
+	G.start_construction(nmbNodes, nmbEdges);
+
+	NodeID node_counter = 0;
+	EdgeID edge_counter = 0;
+	long long total_nodeweight = 0;
+
+	for (unsigned int i = 0; i < reduVCC.adj_list.size(); i++) {
+		if (!reduVCC.node_status[i]) continue;
+
+		NodeID node = G.new_node(); node_counter++;
+		G.setPartitionIndex(node, 0);
+
+		NodeWeight weight = 1;
+
+		G.setNodeWeight(node, weight);
+
+		NodeID target;
+		
+		for (NodeID u : reduVCC.adj_list[i]) {
+			if (!reduVCC.node_status[u]) continue; 
+			NodeID target = node_mapping[u];
+
+			if (node == target) {
+				std::cerr << "The kernel graph contains self-loops. This is not supported";
+			}
+			
+			EdgeWeight edge_weight = 1;
+			edge_counter++;
+			EdgeID e = G.new_edge(node, target);
+
+			G.setEdgeWeight(e, edge_weight);
+		}
+	}
+
+	if (edge_counter != (EdgeID) nmbEdges) {
+		std::cerr << "number of specified edges mismatch" << std::endl;
+		std::cerr << edge_counter << " " << nmbEdges << std::endl;
+		exit(0);
+	}
+
+	G.finish_construction();
+	return 0;
+		
+}
+
 void graph_io::writePartition(graph_access & G, const std::string & filename) {
         std::ofstream f(filename.c_str());
         std::cout << "writing partition to " << filename << " ... " << std::endl;
