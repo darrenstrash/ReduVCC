@@ -112,7 +112,7 @@ int main(int argn, char **argv) {
 
 
 
-    if (partition_config.run_type == "Redu") {
+    if (partition_config.run_type == "redu") {
         redu_vcc reduVCC(G);
         std::vector<unsigned int> iso_degree;
         iso_degree.assign(G.number_of_nodes(), 0);
@@ -121,9 +121,11 @@ int main(int argn, char **argv) {
         reducer R;
         R.exhaustive_reductions(reduVCC, iso_degree, dom_degree);
         reduVCC.analyzeGraph(graph_filename, G, s);
+        std::cout << "reduced cover size: " << reduVCC.next_cliqueID + R.num_fold_cliques << std::endl;
+        if(partition_config.writeKernel) reduVCC.writeKernel(partition_config.kernel_loc);
         return 0;
     }
-    if (partition_config.run_type == "ReduVCC") {
+    if (partition_config.run_type == "reduVCC") {
         redu_vcc reduVCC(G);
         std::vector<unsigned int> iso_degree;
         iso_degree.assign(G.number_of_nodes(), 0);

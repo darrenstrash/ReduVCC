@@ -21,6 +21,9 @@ struct PartitionConfig
         std::string run_type;
         std::string prune_type;
         std::string redu_type;
+        bool writeKernel;
+        std::string kernel_loc;
+
         unsigned int iso_limit;
         unsigned int decompose_limit;
 

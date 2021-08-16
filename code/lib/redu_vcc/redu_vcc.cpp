@@ -8,6 +8,8 @@
 #include <sstream>
 #include <stdio.h>
 #include <string.h>
+#include <iostream>
+#include <fstream>
 
 #include "redu_vcc.h"
 
@@ -630,6 +632,26 @@ void redu_vcc::analyzeGraph(std::string &filename, graph_access &G, timer &t){
 
     std::cout << clique_cover.size() << std::endl;
 
-    validateCover(G);
+    if (remaining_nodes == 0) validateCover(G);
+
+}
+
+
+void redu_vcc::writeKernel(std::string &output_location) {
+
+  buildKernel();
+
+  std::ofstream f;
+  f.open(output_location);
+  f << remaining_nodes << " " << kernel_edges / 2 << " 0\n";
+  for (NodeID v = 0; v < remaining_nodes; v++) {
+    for (unsigned int i = 0; i < kernel_adj_list[v].size(); i++) {
+      NodeID u = kernel_adj_list[v][i] + 1;
+      f << u;
+      if (i < kernel_adj_list[v].size() - 1) f << " ";
+    }
+    f << "\n";
+  }
+  f.close();
 
 }

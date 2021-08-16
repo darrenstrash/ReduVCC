@@ -123,6 +123,7 @@ public:
 
   void addCrownCliques(std::vector<std::vector<NodeID>> &crown_cliques, std::vector<std::vector<int>> &clique_set);
 
+  void writeKernel(std::string &output_location);
 
   //
 

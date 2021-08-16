@@ -27,6 +27,8 @@ int parse_parameters(int argn, char **argv,
         struct arg_str *user_redu_type                       = arg_str0(NULL, "redu_type", NULL, "Options: exhaustive, cascading");
         struct arg_int *user_iso_limit                       = arg_int0(NULL, "iso_limit", NULL, "Limit on iso deg.");
         struct arg_int *user_decomp_limit                    = arg_int0(NULL, "decomp_limit", NULL, "Limit on decomposition minimum");
+        struct arg_lit *user_writeKernel                     = arg_lit0(NULL, "writeKernel","Write kernel to .dimacs graph.");
+        struct arg_str *user_kernel_loc                     = arg_str0(NULL, "kernel_loc", NULL, "Location to write kernel graph to.");
 
         struct arg_int *user_mis                            = arg_int0(NULL, "mis", NULL, "MIS number used in some cases in Chalupa solver.");
         struct arg_str *mis_file                            = arg_str0(NULL, "mis_file", NULL, "location of file containing MIS (bool list) for Chalupa solver");
@@ -173,7 +175,7 @@ int parse_parameters(int argn, char **argv,
 
         // Define argtable.
         void* argtable[] = {
-                help, filename, user_seed, user_run_type, user_prune_type, user_redu_type, user_iso_limit, user_decomp_limit, user_mis, mis_file, user_solver_time_limit,
+                help, filename, user_seed, user_run_type, user_prune_type, user_redu_type, user_iso_limit, user_decomp_limit, user_writeKernel, user_kernel_loc, user_mis, mis_file, user_solver_time_limit,
 #ifdef MODE_DEVEL
                 k, graph_weighted, imbalance, edge_rating_tiebreaking,
                 matching_type, edge_rating, rate_first_level_inner_outer, first_level_random_matching,
@@ -806,7 +808,7 @@ int parse_parameters(int argn, char **argv,
 
         if (user_run_type->count > 0){
             partition_config.run_type = user_run_type->sval[0];
-        } else partition_config.prune_type = "bnr";
+        } else partition_config.run_type = "bnr";
 
         if (user_prune_type->count > 0){
             partition_config.prune_type = user_prune_type->sval[0];
@@ -815,6 +817,11 @@ int parse_parameters(int argn, char **argv,
         if (user_redu_type->count > 0){
             partition_config.redu_type = user_redu_type->sval[0];
         } else partition_config.redu_type = "cascading";
+
+        if (user_writeKernel->count > 0) { partition_config.writeKernel = true; }
+        else partition_config.writeKernel = false;
+
+        if (user_kernel_loc->count > 0) { partition_config.kernel_loc = user_kernel_loc->sval[0]; }
 
         if (user_iso_limit-> count > 0) {
           partition_config.iso_limit = (unsigned int) user_iso_limit->ival[0];
