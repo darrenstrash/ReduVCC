@@ -387,7 +387,7 @@ bool branch_and_reduce::decompose(redu_vcc &reduVCC, PartitionConfig &partition_
     // for each child, add cliques to cover
 
 
-    std::cout << "smaller cover: " << curr_cover_size << ", " << reduVCC.clique_cover.size() << std::endl;
+    //std::cout << "smaller cover: " << curr_cover_size << ", " << reduVCC.clique_cover.size() << std::endl;
     reduVCC.build_cover();
     // std::cout << "builds?" << std::endl;
     for (redu_vcc &child : children) child.addCliquesToParent(reduVCC);

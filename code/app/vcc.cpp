@@ -157,6 +157,9 @@ int main(int argn, char **argv) {
     std::cout << "input_graph_vertices=" << G.number_of_nodes() << std::endl;
     std::cout << "input_graph_edges=" << G.number_of_edges() / 2 << std::endl;
     std::cout << "total_time_to_best=" << total_time << std::endl;
+    std::cout << "branch_count=" << B.branch_count << std::endl;
+    std::cout << "prune_count=" << B.prune_count << endl;
+    std::cout << "decompose_count=" << B.decompose_count << std::endl;
     std::cout << "clique_cover_size=" << reduVCC.clique_cover.size() << std::endl;
     std::cout << "verified_cover=" << (reduVCC.validateCover(G) ? "passed" : "failed") << std::endl;
     std::cout << "optimal=" << (finished ? "yes" : "unknown") << std::endl;
