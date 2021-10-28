@@ -3,8 +3,8 @@
 # *
 # * Source of KaHIP -- Karlsruhe High Quality Partitioning.
 # *****************************************************************************/
-
-
+#
+#
 # The main SConscript file for the code.
 #
 # We simply import the main environment and then define the targets.  This
@@ -12,12 +12,12 @@
 # the code.
 import platform
 import sys
-
+#
 # Get the current platform.
 SYSTEM = platform.uname()[0]
-
+#
 Import('env')
-
+#
 # Build a library from the code in lib/.
 libkaffpa_files = [   'lib/data_structure/graph_hierarchy.cpp',
                       'lib/algorithms/strongly_connected_components.cpp',
@@ -71,19 +71,30 @@ libkaffpa_files = [   'lib/data_structure/graph_hierarchy.cpp',
                       'lib/partition/uncoarsening/refinement/kway_graph_refinement/kway_graph_refinement.cpp',
                       'lib/partition/uncoarsening/refinement/kway_graph_refinement/kway_graph_refinement_core.cpp',
                       'lib/partition/uncoarsening/refinement/kway_graph_refinement/kway_graph_refinement_commons.cpp',
-                      'lib/partition/uncoarsening/refinement/cycle_improvements/augmented_Qgraph_fabric.cpp', 
-                      'lib/partition/uncoarsening/refinement/cycle_improvements/advanced_models.cpp', 
-                      'lib/partition/uncoarsening/refinement/kway_graph_refinement/multitry_kway_fm.cpp', 
-                      'lib/partition/uncoarsening/refinement/node_separators/greedy_ns_local_search.cpp', 
-                      'lib/partition/uncoarsening/refinement/node_separators/fm_ns_local_search.cpp', 
-                      'lib/partition/uncoarsening/refinement/node_separators/localized_fm_ns_local_search.cpp', 
+                      'lib/partition/uncoarsening/refinement/cycle_improvements/augmented_Qgraph_fabric.cpp',
+                      'lib/partition/uncoarsening/refinement/cycle_improvements/advanced_models.cpp',
+                      'lib/partition/uncoarsening/refinement/kway_graph_refinement/multitry_kway_fm.cpp',
+                      'lib/partition/uncoarsening/refinement/node_separators/greedy_ns_local_search.cpp',
+                      'lib/partition/uncoarsening/refinement/node_separators/fm_ns_local_search.cpp',
+                      'lib/partition/uncoarsening/refinement/node_separators/localized_fm_ns_local_search.cpp',
                       'lib/algorithms/cycle_search.cpp',
                       'lib/partition/uncoarsening/refinement/cycle_improvements/cycle_refinement.cpp',
                       'lib/partition/uncoarsening/refinement/tabu_search/tabu_search.cpp',
                       'extern/argtable3-3.0.3/argtable3.c',
                       'lib/mis/kernel/branch_and_reduce_algorithm.cpp',
                       'lib/mis/kernel/modified.cpp',
-                      'lib/ccp/Chalupa/algorithm_brelaz_ccp.cpp',
+                      'lib/mis/ils/ils.cpp',
+		      'lib/data_structure/mis_permutation.cpp',
+		      'lib/data_structure/candidate_list.cpp',
+		      'lib/data_structure/operation_log.cpp',
+		      'lib/mis/initial_mis/greedy_mis.cpp',
+		      'lib/mis/initial_mis/initial_mis.cpp',
+		      'lib/mis/evolutionary/population_mis.cpp',
+		      'lib/mis/initial_mis/random_mis.cpp',
+		      'lib/mis/initial_mis/greedy_vertex.cpp',
+		      'lib/data_structure/priority_queues/bucket_array.cpp',
+		      'lib/mis/ils/local_search.cpp',
+		      'lib/ccp/Chalupa/algorithm_brelaz_ccp.cpp',
                       'lib/ccp/Chalupa/algorithm_greedyindset.cpp',
                       'lib/ccp/Chalupa/algorithm_iggcc.cpp',
                       'lib/ccp/Chalupa/algorithm.cpp',
@@ -96,6 +107,7 @@ libkaffpa_files = [   'lib/data_structure/graph_hierarchy.cpp',
                       'lib/ccp/Chalupa/random_generator.cpp',
                       'lib/ccp/Chalupa/statistics.cpp',
                       'lib/ccp/Chalupa/vertex_label_function_refer.cpp',
+#
 		      'lib/redu_vcc/reducer.cpp',
 		      'lib/redu_vcc/redu_vcc.cpp',
 		      'lib/redu_vcc/iso_reduction.cpp',
@@ -104,8 +116,12 @@ libkaffpa_files = [   'lib/data_structure/graph_hierarchy.cpp',
 		      'lib/redu_vcc/dom_reduction.cpp',
 		      'lib/redu_vcc/crown_reduction.cpp',
 		      'lib/redu_vcc/reduction.cpp',
+		      'lib/branch_and_reduce/b_and_r.cpp',
+#
+                            'lib/sigmod_mis/Graph.cpp',
+                            'lib/sigmod_mis/Utility.cpp',
                       ]
-
+#
 libkaffpa_parallel_async  = ['lib/parallel_mh/parallel_mh_async.cpp',
                              'lib/parallel_mh/population.cpp',
                              'lib/parallel_mh/galinier_combine/gal_combine.cpp',
@@ -113,7 +129,7 @@ libkaffpa_parallel_async  = ['lib/parallel_mh/parallel_mh_async.cpp',
                              'lib/parallel_mh/exchange/exchanger.cpp',
                              'lib/tools/graph_communication.cpp',
                              'lib/tools/mpi_tools.cpp' ]
-
+#
 libmapping                = ['lib/mapping/local_search_mapping.cpp',
                              'lib/mapping/full_search_space.cpp',
                              'lib/mapping/full_search_space_pruned.cpp',
@@ -122,73 +138,73 @@ libmapping                = ['lib/mapping/local_search_mapping.cpp',
                              'lib/mapping/construct_distance_matrix.cpp',
                              'lib/mapping/mapping_algorithms.cpp',
                              'lib/mapping/construct_mapping.cpp' ]
-
+#
 libspac_files = ['lib/spac/spac.cpp']
-
+#
 env['CXX'] = 'g++-9'
 env['CC'] = 'gcc-9'
-
+#
 if env['program'] == 'vcc':
         env.Append(CXXFLAGS = '-DMODE_KAFFPA')
         env.Append(CCFLAGS  = '-DMODE_KAFFPA')
         env.Program('vcc', ['app/vcc.cpp']+libkaffpa_files+libmapping, LIBS=['gomp'])
-
+#
 if env['program'] == 'kaffpa':
         env.Append(CXXFLAGS = '-DMODE_KAFFPA')
         env.Append(CCFLAGS  = '-DMODE_KAFFPA')
         env.Program('kaffpa', ['app/kaffpa.cpp']+libkaffpa_files+libmapping, LIBS=['gomp'])
-
+#
 if env['program'] == 'evaluator':
         env.Append(CXXFLAGS = '-DMODE_EVALUATOR')
         env.Append(CCFLAGS  = '-DMODE_EVALUATOR')
         env.Program('evaluator', ['app/evaluator.cpp']+libkaffpa_files, LIBS=['gomp'])
-
+#
 if env['program'] == 'node_separator':
         env.Append(CXXFLAGS = ' -DMODE_NODESEP')
         env.Append(CCFLAGS  = ' -DMODE_NODESEP')
         env.Program('node_separator', ['app/node_separator_ml.cpp']+libkaffpa_files, LIBS=['gomp'])
-
+#
 if env['program'] == 'label_propagation':
         env.Append(CXXFLAGS = '-DMODE_LABELPROPAGATION')
         env.Append(CCFLAGS  = '-DMODE_LABELPROPAGATION')
         env.Program('label_propagation', ['app/label_propagation.cpp']+libkaffpa_files, LIBS=['gomp'])
-
+#
 if env['program'] == 'partition_to_vertex_separator':
         env.Append(CXXFLAGS = '-DMODE_PARTITIONTOVERTEXSEPARATOR')
         env.Append(CCFLAGS  = '-DMODE_PARTITIONTOVERTEXSEPARATOR')
         env.Program('partition_to_vertex_separator', ['app/partition_to_vertex_separator.cpp']+libkaffpa_files, LIBS=['gomp'])
-
+#
 if env['program'] == 'interfacetest':
         env['CXX'] = 'mpicxx'
         env.Append(CXXFLAGS = '-DMODE_KAFFPA')
         env.Append(CCFLAGS  = '-DMODE_KAFFPA')
         env.Program('interface_test', ['app/interface_test.cpp','interface/kaHIP_interface.cpp']+libkaffpa_files, LIBS=['gomp'])
-
+#
 if env['program'] == 'improve_vertex_separator':
         env.Append(CXXFLAGS = '-DMODE_IMPROVEVERTEXSEPARATOR')
         env.Append(CCFLAGS  = '-DMODE_IMPROVEVERTEXSEPARATOR')
         env.Program('improve_vertex_separator', ['app/improve_vertex_separator.cpp']+libkaffpa_files, LIBS=['gomp'])
-
+#
 if env['program'] == 'kaffpaE':
         env.Append(CXXFLAGS = '-DMODE_KAFFPAE')
         env.Append(CCFLAGS  = '-DMODE_KAFFPAE')
-
+#
         if SYSTEM == 'Darwin':
                 env['CXX'] = 'openmpicxx'
         else:
                 env['CXX'] = 'mpicxx'
         env.Program('kaffpaE', ['app/kaffpaE.cpp']+libkaffpa_files+libkaffpa_parallel_async, LIBS=['gomp'])
-
+#
 if env['program'] == 'graphchecker':
         env.Append(CXXFLAGS = '-DMODE_GRAPHCHECKER')
         env.Append(CCFLAGS  = '-DMODE_GRAPHCHECKER')
         env.Program('graphchecker', ['app/graphchecker.cpp'], LIBS=['gomp'])
-
+#
 if env['program'] == 'library':
         env.Append(CXXFLAGS = '-fPIC')
         env.Append(CCFLAGS  = '-fPIC')
         SConscript('interface/SConscript',exports='env')
-
+#
 if env['program'] == 'spac':
         env.Append(CXXFLAGS = '-DMODE_KAFFPA')
         env.Append(CCFLAGS  = '-DMODE_KAFFPA')

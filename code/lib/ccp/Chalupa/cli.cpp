@@ -9,7 +9,7 @@ cli::cli(int s, int m)
     result_for_permutation = new refer[MAX_VERTICES];
     histogram              = new refer[MAX_VERTICES];
     sizes                  = new refer[MAX_VERTICES];
-    degree_distrib         = new long[MAX_VERTICES];
+////    degree_distrib         = new long[MAX_VERTICES];
 }
 
 cli::~cli() 
@@ -17,7 +17,7 @@ cli::~cli()
     delete[] result_for_permutation;
     delete[] histogram;
     delete[] sizes;
-    delete[] degree_distrib;
+////    delete[] degree_distrib;
 }
 
 void cli::sleep(unsigned long long milisec)
@@ -106,12 +106,10 @@ void cli::try_all_permutations()
     getchar();
 }
 
-int cli::start_cli(std::vector<std::vector<int>> adj_list, unsigned int num_v, unsigned long num_e, double elapsed, double limit)
+int cli::start_cli(std::vector<std::vector<int>> const &adj_list, unsigned int num_v, unsigned long num_e, timer &total_timer, double &time_to_solution, double limit, std::size_t clique_cover_offset)
 {
     
-    t_elapsed = elapsed;
     t_limit = limit;
-    timer t;
     
     // printf("reductions: %f\n", t_elapsed);
     
@@ -128,8 +126,8 @@ int cli::start_cli(std::vector<std::vector<int>> adj_list, unsigned int num_v, u
 
     // instance loaded from file
     choose_instance(adj_list, num_v, num_e);
-    compute_statistics();
-    choose_algorithm(t);
+////    compute_statistics();
+    choose_algorithm(total_timer, time_to_solution, clique_cover_offset);
     //try_all_permutations();
 
 
@@ -163,7 +161,7 @@ int cli::generate_instance()
     return 0;
 }
 
-int cli::choose_instance(std::vector<std::vector<int>> adj_list, unsigned int num_v, unsigned long num_e)
+int cli::choose_instance(std::vector<std::vector<int>> const &adj_list, unsigned int num_v, unsigned long num_e)
 {
 //    printf("File:");
 //    scanf("%s",&filename);
@@ -189,44 +187,44 @@ int cli::choose_instance(std::vector<std::vector<int>> adj_list, unsigned int nu
 
 int cli::compute_statistics()
 {
-    refer i, maxdeg;
+////    refer i, maxdeg;
 //    unsigned long triangles;
 
-    printf("Computing the basic statistics...\n");
+////    printf("Computing the basic statistics...\n");
 
-    min_deg = statistics::min_degree(G);
-    printf("Found min...\n");
-    max_deg = statistics::max_degree(G);
-    printf("Found max...\n");
-    avg_deg = statistics::average_degree(G);
-    printf("Found avg...\n");
-    stdev_deg = statistics::degree_stdev(G);
-    printf("Found stdev...\n");
+////    min_deg = statistics::min_degree(G);
+////    printf("Found min...\n");
+////    max_deg = statistics::max_degree(G);
+////    printf("Found max...\n");
+////    avg_deg = statistics::average_degree(G);
+////    printf("Found avg...\n");
+////    stdev_deg = statistics::degree_stdev(G);
+////    printf("Found stdev...\n");
 //    triangles = statistics::triangles(G);
 //    printf("Fount triangles...\n");
 
-    printf("G: %s\n",filename);
-    printf("|V| = %ld, |E| = %ld, d = %0.3lf\n",G->n,G->m,(double)(2*G->m)/(double)(G->n)/(double)(G->n-1));
-    printf("min degree = %ld, max degree = %ld\n",min_deg,max_deg);
-    printf("average degree = %0.3lf, degree stdev = %0.3lf\n",avg_deg,stdev_deg);
+////    printf("G: %s\n",filename);
+////    printf("|V| = %ld, |E| = %ld, d = %0.3lf\n",G->n,G->m,(double)(2*G->m)/(double)(G->n)/(double)(G->n-1));
+////    printf("min degree = %ld, max degree = %ld\n",min_deg,max_deg);
+////    printf("average degree = %0.3lf, degree stdev = %0.3lf\n",avg_deg,stdev_deg);
 //    printf("number of triangles = %lu\n",triangles);
 
-    printf("degree distribution: [");
-    maxdeg = statistics::degree_distribution(G, degree_distrib);
-    for (i=1;i<=maxdeg;i++)
-    {
-        printf("%ld", degree_distrib[i]);
-        if (i != maxdeg)
-        {
-            putchar(',');
-        }
-    }
-    printf("]\n");
+////    printf("degree distribution: [");
+////    maxdeg = statistics::degree_distribution(G, degree_distrib);
+////    for (i=1;i<=maxdeg;i++)
+////    {
+////        printf("%ld", degree_distrib[i]);
+////        if (i != maxdeg)
+////        {
+////            putchar(',');
+////        }
+////    }
+////    printf("]\n");
 
     return 0;
 }
 
-int cli::choose_algorithm(timer &t)
+int cli::choose_algorithm(timer &total_timer, double &time_to_solution, std::size_t clique_cover_offset)
 {
     long j;
     refer current_gcc;
@@ -234,8 +232,6 @@ int cli::choose_algorithm(timer &t)
     refer initial_indset_size;
 
     printf("Finding clique coverings using our heuristic...\n");
-
-//    timer.start();
 
     problem_ccp *ccp;
     refer *result;
@@ -269,7 +265,7 @@ int cli::choose_algorithm(timer &t)
         printf("\nThe algorithm found a an independent set of size %u.\n",indset_size);
 //        avg_time += timer.elapsed() / 1000;
         avg_gis += (double) (indset_size);
-        sleep(1000);
+        //sleep(1000);
 //        timer.restart();
 
 
@@ -309,7 +305,10 @@ int cli::choose_algorithm(timer &t)
 
         //do
         {
-            is_optimal = iggcc_ccp->iggcc_ccp(G,result,&indset_size,initial_indset,initial_indset_size, t.elapsed() + t_elapsed, t_limit, mis);
+            if (clique_cover_offset != 0) {
+                mis -= clique_cover_offset;
+            }
+            is_optimal = iggcc_ccp->iggcc_ccp(G,result,&indset_size,initial_indset,initial_indset_size, total_timer, time_to_solution, t_limit, mis, clique_cover_offset);
         }
         //while (! is_optimal && timer.elapsed() < 18000000);
 
@@ -338,21 +337,25 @@ int cli::choose_algorithm(timer &t)
 
     }
 //    FILE *f = fopen("solution.txt", "w");
-    for (i=1;i<=ccp->count_labels(G,result);i++)
-    {
-        std::vector<int> clique;
-        for (j=0;j<G->n;j++)
-        {
-            if (i == result[j])
-            {
-//                fprintf(f,"%u ",j+1);
-//                fprintf(f,"%u ", j);
-                clique.push_back(j);
-            }
-        }
-//        fprintf(f,"\n");
-        clique_cover.push_back(clique);
+    clique_cover.resize(ccp->count_labels(G,result));
+    for (j=0;j<G->n;j++) {
+        clique_cover[result[j] - 1].push_back(j);
     }
+////    for (i=1;i<=ccp->count_labels(G,result);i++)
+////    {
+////        std::vector<int> clique;
+////        for (j=0;j<G->n;j++)
+////        {
+////            if (i == result[j])
+////            {
+//////                fprintf(f,"%u ",j+1);
+//////                fprintf(f,"%u ", j);
+////                clique.push_back(j);
+////            }
+////        }
+//////        fprintf(f,"\n");
+////        clique_cover.emplace_back(clique);
+////    }
 //    fclose(f);
 
     avg_time /= MAX_ALGORITHM;
