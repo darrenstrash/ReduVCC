@@ -33,7 +33,6 @@ void redu_vcc::generateAdjList(redu_vcc *parent, std::vector<NodeID> &child_node
   // assign nodes in graph
   num_nodes = child_nodes.size();
 
-  // std::cout << "begin map" << std::endl;
   // mapping from parent to child
   std::vector<NodeID> parent_to_self;
   std::vector<bool> subgraph_node; // marks vertices that are subgraph nodes
@@ -50,8 +49,6 @@ void redu_vcc::generateAdjList(redu_vcc *parent, std::vector<NodeID> &child_node
     v++;
   }
 
-  // std::cout << "begin trans" << std::endl;
-
   for (NodeID u : child_nodes) {
     std::vector<NodeID> N_v;
     for (NodeID w : parent->adj_list[u]) {
@@ -63,7 +60,6 @@ void redu_vcc::generateAdjList(redu_vcc *parent, std::vector<NodeID> &child_node
     adj_list.push_back(N_v);
   }
 
-    // std::cout << "end" << std::endl;
 }
 
 void redu_vcc::init() {
@@ -105,6 +101,7 @@ redu_vcc::redu_vcc(redu_vcc *parent, std::vector<NodeID> &child_nodes) {
 }
 
 std::vector<NodeID> redu_vcc::find_component(std::vector<bool> &visited_nodes, unsigned int &visit_remaining) {
+  /* Finds a disconnected component */
 
   std::vector<NodeID> current_nodes;
   std::vector<NodeID> queue;
@@ -116,46 +113,28 @@ std::vector<NodeID> redu_vcc::find_component(std::vector<bool> &visited_nodes, u
   current_nodes.push_back(v);
 
   queue.push_back(v);
-  // if (v == 1138517) std::cout << "HERE" << std::endl;
   queue_size++;
 
-  // std::cout << "ready for queue" << std::endl;
-
   while (!queue.size() == 0) {
-    // std::cout << queue.size() << ", " << queue_size << std::endl;
     v = queue.front();
     queue.erase(queue.begin());
     queue_size--;
 
-    // std::cout << "queue front: " << v << std::endl;
-    // std::cout << " adj_size: " << adj_list[v].size() << std::endl;
-    // std::cout << "added to queue: ";
     for (NodeID u : adj_list[v]) {
       if (!visited_nodes[u]) {
         visited_nodes[u] = true; visit_remaining--;
         current_nodes.push_back(u);
-        // std::cout << u << ", ";
-        // if (u == 1138517) std::cout << "HERE" << std::endl;
         queue.push_back(u);
         queue_size++;
       }
     }
-    // std::cout << std::endl;
   }
-
-  // std::cout << "comp found" << std::endl;
-
-  // for (NodeID a : current_nodes) {
-  //   std::cout << a << ", ";
-  // }
-  // std::cout << std::endl;
 
   return current_nodes;
 }
 
 std::vector<redu_vcc> redu_vcc::decompose() {
-
-  // printAdjList();
+  /* Decomposes G in to disconnected components */
 
   std::vector<redu_vcc> children;
 
@@ -164,39 +143,26 @@ std::vector<redu_vcc> redu_vcc::decompose() {
   unsigned int visit_remaining = remaining_nodes;
 
   std::vector<NodeID> subgraph_nodes = find_component(visited_nodes, visit_remaining);
-  // std::cout << "num subgraph: "<< subgraph_nodes.size() << std::endl;
   if (visit_remaining == 0) {
-    // std::cout << "no comp" << std::endl;
     return children;
   }
 
-  // for (NodeID a : subgraph_nodes) {
-  //   std::cout << a << ", ";
-  // }
-  // std::cout << std::endl;
-
   redu_vcc child(this, subgraph_nodes);
   children.push_back(child);
-  // std::cout << "child created" << std::endl;
 
   while (visit_remaining > 0) {
     subgraph_nodes = find_component(visited_nodes, visit_remaining);
-    // for (NodeID a : subgraph_nodes) {
-    //   std::cout << a << ", ";
-    // }
-    // std::cout << std::endl;
-    // std::cout << subgraph_nodes.size() << std::endl;
+
     child = redu_vcc(this, subgraph_nodes);
     children.push_back(child);
   }
-
-  // std::cout << "all children" << std::endl;
 
   return children;
 
 }
 
 void redu_vcc::addCliquesToParent(redu_vcc &parent) {
+  /* Converts cliques from C' to C */
 
   for (std::vector<NodeID> &clique : clique_cover) {
     std::vector<NodeID> parent_clique;
@@ -220,14 +186,12 @@ void redu_vcc::build_cover(){
   clique_cover.assign(next_cliqueID, {});
 
   for (NodeID v = 0; v < num_nodes; v++) {
-  // forall_nodes(G, v) {
     if (fold_node[v]) { continue; } // if node in fold, skip
     if (node_status[v]) { continue; } // if node still in graph, skip
 
     unsigned int cliqueID = node_clique[v];
     clique_cover[cliqueID].push_back(v);
   }
-  // } endfor
 
   // prepare to solve, by setting solve node_clique mapping and next cliqueID
   solve_node_clique = node_clique;
@@ -264,7 +228,6 @@ bool redu_vcc::validateCover(graph_access &G) {
     if (clique.size() == 0) { std::cout << "Null clique" << std::endl; return false; }
 
     for (NodeID v : clique) {
-      // std::cout << v << ", ";
       if (temp_status[v] == false) {
         std::cout << "Overlap" << std::endl;
         return false;
@@ -272,14 +235,11 @@ bool redu_vcc::validateCover(graph_access &G) {
       else { temp_status[v] = false; }
     }
 
-    // std::cout << std::endl;
-
     if (!cliqueInG(G, clique)) {
       printVectorSet(clique);
       std::cout << "Invalid clique" << std::endl;
-      return false; }
-    //
-    // std::cout << std::endl;
+      return false;
+    }
   }
 
   for (NodeID v = 0; v < G.number_of_nodes(); v++) {
@@ -380,13 +340,10 @@ void redu_vcc::addCrownCliques(std::vector<std::vector<NodeID>> &crown_cliques, 
       for (unsigned int j = 0; j < clique_set[i].size(); j++){
           int v = clique_set[i][j];
           NodeID old_v = new_to_old_map[v];
-          // std::cout << old_v << std::endl;
-          // solve_node_clique[old_v] = false;
           clique.push_back(old_v);
       }
       std::sort(clique.begin(), clique.end());
 
-      // printVectorSet(clique);
       addClique(clique);
       removeVertexSet(clique);
 
@@ -435,17 +392,6 @@ void redu_vcc::addVertex(NodeID v) {
   if (!node_mis.empty() && node_mis[v]) curr_mis++;
 }
 
-// void redu_vcc::addClique(std::vector<NodeID> &clique) {
-//
-//   std::sort(clique.begin(), clique.end());
-//   clique_cover.push_back(clique);
-//   unsigned int cliqueID = clique_cover.size() - 1;
-//
-//   for (NodeID u : clique){
-//       node_clique[u] = cliqueID;
-//   }
-//
-// }
 
 void redu_vcc::addClique(std::vector<NodeID> &clique) {
 
@@ -468,14 +414,6 @@ void redu_vcc::addCliqueToCover(std::vector<NodeID> &clique) {
   // std::cout << next_solvecliqueID << std::endl;
 }
 
-
-
-// std::vector<NodeID> redu_vcc::pop_clique() {
-//
-//   std::vector<NodeID> clique = clique_cover.back();
-//   clique_cover.pop_back();
-//   return clique;
-// }
 
 void redu_vcc::pop_clique(std::vector<NodeID> &clique) {
 
@@ -519,10 +457,6 @@ void redu_vcc::addVertexSet(std::vector<NodeID> &S) {
   for (NodeID v : S) { addVertex(v); };
 }
 
-// void redu_vcc::clearScratch(std::vector<bool> &scratch) {
-//
-//   std::fill(scratch.begin(), scratch.end(), false);
-// }
 
 void redu_vcc::printAdjList() {
 
@@ -568,20 +502,6 @@ void redu_vcc::printVectorSet(std::vector<NodeID> S){
 }
 
 
-
-//
-// #include <algorithm>
-// #include <argtable3.h>
-// #include <iostream>
-// #include <fstream>
-// #include <math.h>
-// #include <regex.h>
-// #include <sstream>
-// #include <stdio.h>
-// #include <string.h>
-//
-// #include "redu_vcc.h"
-//
 void redu_vcc::getMIS(std::string file) {
   /* Generates node_mis mapping of minimum independent set from file */
 

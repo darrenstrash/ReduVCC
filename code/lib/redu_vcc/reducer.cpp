@@ -17,14 +17,9 @@ reducer::reducer(unsigned int iso_lim) : reducer() {
 
 
 void reducer::unwindReductions(redu_vcc &reduVCC) {
+  /* Construct C from C', by unfolding reductions */
 
-    for (unsigned int i = reduction_stack.size(); i > 0; i--) {
-
-        reduction_stack[i-1]->unfold(reduVCC);
-
-    }
-
-    // std::cout << reduVCC.next_cliqueID << std::endl;
+    for (unsigned int i = reduction_stack.size(); i > 0; i--) reduction_stack[i-1]->unfold(reduVCC);
 }
 
 // if timing final unwind (Chalupa or ILS)
@@ -35,6 +30,8 @@ void reducer::unwindReductions(redu_vcc &reduVCC, double &time_to_solution) {
 }
 
 void reducer::undoReductions(redu_vcc &reduVCC) {
+  /* Restores G from G', by undoing reductions */
+
   while (reduction_stack.size() != 0) {
         reduction *pReduction = reduction_stack.back();
         reduction_stack.pop_back();
@@ -43,18 +40,10 @@ void reducer::undoReductions(redu_vcc &reduVCC) {
 
         delete pReduction;
   }
-
-  // for (unsigned int i = 0; i < num; i++) {
-  //     reduction *pReduction = reduction_stack.back();
-  //     reduction_stack.pop_back();
-  //
-  //     pReduction->unreduce(G, reduVCC);
-  //
-  //     delete pReduction;
-  // }
 }
 
 void reducer::bruteISO(redu_vcc &reduVCC, std::vector<unsigned int> &iso_degree) {
+  /* Iterates through G and reduces isolated vertices */
 
   bool vertexReduced = true;
 
@@ -62,10 +51,9 @@ void reducer::bruteISO(redu_vcc &reduVCC, std::vector<unsigned int> &iso_degree)
       vertexReduced = false;
 
       for (NodeID v = 0; v < reduVCC.num_nodes; v++) {
-      // forall_nodes(G, v){
           NodeID u;
 
-          if (!reduVCC.node_status[v]) { continue;}
+          if (!reduVCC.node_status[v]) continue;
 
           if (iso_reduction::validISO(reduVCC, iso_limit, v)){
 
@@ -82,12 +70,12 @@ void reducer::bruteISO(redu_vcc &reduVCC, std::vector<unsigned int> &iso_degree)
          }
          num_attempts++;
        }
-      // } endfor
 
  //}
 }
 
 void reducer::bruteD2(redu_vcc &reduVCC) {
+  /* Iterates through G and reduces valid degree two vertices */
 
   bool vertexReduced = true;
 
@@ -95,7 +83,6 @@ void reducer::bruteD2(redu_vcc &reduVCC) {
       vertexReduced = false;
 
       for (NodeID v = 0; v < reduVCC.num_nodes; v++) {
-      // forall_nodes(G, v){
           NodeID u;
 
           if (!reduVCC.node_status[v]) { continue;}
@@ -114,12 +101,12 @@ void reducer::bruteD2(redu_vcc &reduVCC) {
          }
          if (reduVCC.adj_size(v) == 2) num_attempts++;
        }
-      // } endfor
 
  //}
 }
 
 void reducer::bruteTWIN(redu_vcc &reduVCC) {
+  /* Iterates through G and reduces valid twin vertices -- reduces both types of twins */
 
   bool vertexReduced = true;
 
@@ -127,14 +114,12 @@ void reducer::bruteTWIN(redu_vcc &reduVCC) {
       vertexReduced = false;
 
       for (NodeID v = 0; v < reduVCC.num_nodes; v++) {
-      // forall_nodes(G, v){
           NodeID u;
 
           if (!reduVCC.node_status[v]) { continue;}
 
           if (twin_reduction::validTWIN(reduVCC, v, u)){
 
-              // std::cout << "twin" << std::endl;
               vertexReduced = true;
               reduction *pReduction = nullptr;
               pReduction = new twin_reduction();
@@ -148,12 +133,12 @@ void reducer::bruteTWIN(redu_vcc &reduVCC) {
          }
          if (reduVCC.adj_size(v) == 3) num_attempts++;
        }
-      // } endfor
 
  //}
 }
 
 void reducer::bruteDOM(redu_vcc &reduVCC, std::vector<unsigned int> &dom_degree) {
+  /* Iterates through G and reduces valid dominating vertices */
 
   bool vertexReduced = true;
 
@@ -161,14 +146,12 @@ void reducer::bruteDOM(redu_vcc &reduVCC, std::vector<unsigned int> &dom_degree)
       vertexReduced = false;
 
       for (NodeID v = 0; v < reduVCC.num_nodes; v++) {
-      // forall_nodes(G, v){
           NodeID u;
 
           if (!reduVCC.node_status[v]) { continue;}
 
           if (dom_reduction::validDOM(reduVCC, v, u)){
 
-              // std::cout<< "valid dom" << std::endl;
               vertexReduced = true;
               reduction *pReduction = nullptr;
               pReduction = new dom_reduction();
@@ -182,13 +165,13 @@ void reducer::bruteDOM(redu_vcc &reduVCC, std::vector<unsigned int> &dom_degree)
          }
          num_attempts++;
        }
-      // } endfor
 
  //}
 
 }
 
 void reducer::bruteCROWN(redu_vcc &reduVCC) {
+  /* Reduces crown in G */
 
   NodeID v; NodeID u;
 
@@ -197,7 +180,6 @@ void reducer::bruteCROWN(redu_vcc &reduVCC) {
   reduction *pReduction = nullptr;
   pReduction = new crown_reduction();
   pReduction->reduce(reduVCC, v, u);
-  // reduction_stack.push_back(pReduction);
 
   if (pReduction->num_cliques > 0) {
     reduction_stack.push_back(pReduction);
@@ -212,12 +194,14 @@ void reducer::bruteCROWN(redu_vcc &reduVCC) {
 
 void reducer::exhaustive_reductions(redu_vcc &reduVCC,
                                     std::vector<unsigned int> &iso_degree, std::vector<unsigned int> &dom_degree){
+  /* Repeatedly iterates through G and applies all reductions until
+     there are no reducible vertices remaining */
 
   bool new_reduced = true;
   unsigned int curr_reductions = 0;
 
   while (new_reduced) {
-    // std::cout << curr_reductions << std::endl;
+
     new_reduced = false;
     bruteISO(reduVCC, iso_degree);
     bruteD2(reduVCC);
@@ -236,11 +220,13 @@ void reducer::exhaustive_reductions(redu_vcc &reduVCC,
 void reducer::cascading_reductions(redu_vcc &reduVCC, vertex_queue *queue,
                                    std::vector<unsigned int> &iso_degree, std::vector<unsigned int> &dom_degree){
 
+   /* Given a queue reduces all reducible vertices in G and adds changed
+      vertices to the queue */
+
   while(!queue->empty()) {
     while(!queue->empty()) {
       NodeID v = queue->pop();
       if (!reduVCC.node_status[v]) continue;
-      // std::cout << queue->size() << std::endl;
 
       NodeID u;
 
@@ -287,12 +273,6 @@ void reducer::cascading_reductions(redu_vcc &reduVCC, vertex_queue *queue,
       num_fold_cliques += pReduction->num_folded_cliques;
       reduction_stack.push_back(pReduction);
 
-      // if (pReduction->type.compare("iso")){
-      //   iso_degree[pReduction->deg]++;
-      // }
-      // if (pReduction->type.compare("dom")){
-      //   dom_degree[pReduction->deg]++;
-      // }
     }
 
     NodeID v; NodeID u;
@@ -305,7 +285,6 @@ void reducer::cascading_reductions(redu_vcc &reduVCC, vertex_queue *queue,
 
       num_reductions++;
       num_cliques += pReduction-> num_cliques;
-      // std::cout << "crown cliques: "<< pReduction->num_cliques << std::endl;;
     }
     else { delete pReduction; }
     num_attempts++;

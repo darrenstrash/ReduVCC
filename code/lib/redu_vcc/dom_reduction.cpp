@@ -36,18 +36,6 @@ bool dom_reduction::nodeDominates(redu_vcc &reduVCC, NodeID &v, NodeID &a){
       }
   }
 
-  std::vector<NodeID> adj_2 = reduVCC.curr_adj_list(a);
-std::vector<NodeID> adj_1  = reduVCC.curr_adj_list(v);
-adj_2.push_back(a);
-adj_1.push_back(v);
-// std::sort(adj_list[p].begin(), adj_list[p].end());
-// reduVCC.printVectorSet(adj_1);
-// reduVCC.printVectorSet(adj_2);
-
-  // if (!dom_reduction::isSubset(reduVCC, adj_2, adj_1)) std::cout << "error" << std::endl;
-  //
-  // reduVCC.printAdjList(v);
-  // reduVCC.printAdjList(a);
   return true;
 }
 
@@ -57,12 +45,10 @@ bool dom_reduction::validDOM(redu_vcc &reduVCC, NodeID &v, NodeID &u){
 
     std::vector<std::vector<NodeID>> &adj_list = reduVCC.adj_list;
 
-    // if (adj_list[v].size() <= 2) {return false;}
     if (reduVCC.adj_size(v) <= 2) return false;
 
     for (NodeID a : adj_list[v]) {
       if (!reduVCC.node_status[a]) continue;
-      // if (adj_list[v].size() < adj_list[a].size()) { continue; }
       if (reduVCC.adj_size(v) < reduVCC.adj_size(a)) continue;
 
       if (dom_reduction::nodeDominates(reduVCC, v, a)) {
@@ -87,7 +73,6 @@ void dom_reduction::reduce(  redu_vcc &reduVCC,
   reduVCC.removeVertex(v);
   reduVCC.fold_node[v] = true;
 
-  // std::cout << "success" << std::endl;
 }
 
 void dom_reduction::reduce(  redu_vcc &reduVCC, vertex_queue *queue,

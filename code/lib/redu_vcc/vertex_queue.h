@@ -1,7 +1,7 @@
 
 /******************************************************************************
  * vertex_queue.h
- * *
+ * * Vertex queue for cascading reductions
  *
  *****************************************************************************/
  #ifndef QUEUE
@@ -53,10 +53,6 @@ public:
       for (NodeID u : adj_list[v]) {
         if (!node_status[u]) continue;
         push(u);
-        // for (NodeID w : adj_list[u]){
-        //   if (!node_status[w]) continue;
-        //   push(w);
-        // }
       }
     };
 };

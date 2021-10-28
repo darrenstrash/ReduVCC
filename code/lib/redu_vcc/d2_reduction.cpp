@@ -77,20 +77,13 @@ void d2_reduction::reduce(redu_vcc &reduVCC,
 
   v = node_v;
   num_folded_cliques++;
-  // std::vector<std::vector<NodeID>> &adj_list = reduVCC.adj_list;
-  // reduVCC.printNeighborhood(v);
 
   d2_reduction::assignNodes(reduVCC, v, u, w);
-  // std::cout << u << ", " << w << std::endl;
-  // std::cout << reduVCC.node_status[w] << std::endl;
 
   reduVCC.removeVertex(v);
   reduVCC.fold_node[v] = true;
 
-  // N_u = reduVCC.curr_adj_list(u);
   foldD2(reduVCC);
-  // reduVCC.printAdjList(w);
-  // std::cout << std::endl;
 
 }
 
@@ -113,7 +106,6 @@ void d2_reduction::unfold( redu_vcc &reduVCC) {
   NodeID x = u;   // vertex x will be connected "externally" -- outside [v,u,w] or no connection
   NodeID y = w;   // vertex y will be connected to v
 
-  // bool w_in = false;
 
   // tests to see if fold_clique \subset N_u
   for (NodeID a : N_u) {scratch1[a] = true;}
@@ -138,13 +130,10 @@ void d2_reduction::unfold( redu_vcc &reduVCC) {
           break;
       }
   }
-  // reduVCC.printVectorSet(fold_clique);
   reduVCC.replaceClique(fold_cliqueID, fold_clique);
 
   std::vector<NodeID> new_clique {v, y};
   reduVCC.addCliqueToCover(new_clique);
-  // reduVCC.printVectorSet(new_clique);
-
 }
 
 void d2_reduction::unreduce( redu_vcc &reduVCC){

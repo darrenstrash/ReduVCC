@@ -1,7 +1,7 @@
 
 /******************************************************************************
  * reducer.h
- * *
+ * * Preforms various reductions on reduVCC
  *
  *****************************************************************************/
  #ifndef REDUCER
@@ -44,6 +44,7 @@ class reducer {
     // undo num reductions, constructing G from G'
     void undoReductions(redu_vcc &reduVCC);
 
+    // brute appliciation of individual reductions
     void bruteISO(redu_vcc &reduVCC, std::vector<unsigned int> &iso_degree);
     void bruteD2(redu_vcc &reduVCC);
     void bruteTWIN(redu_vcc &reduVCC);
