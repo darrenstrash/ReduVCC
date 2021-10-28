@@ -25,9 +25,6 @@ private:
   void assignMaps();
 
 
-  // mapping from current graph to parent graph
-  std::vector<NodeID> self_to_parent;
-
   // generate adj_list from G
   void generateAdjList(graph_access &G);
   void generateAdjList(redu_vcc *parent, std::vector<NodeID> &child_nodes);
@@ -44,11 +41,15 @@ private:
 
 public:
 
+  // mapping from current graph to parent graph
+  std::vector<NodeID> self_to_parent;
+
   unsigned int num_nodes;
   std::vector<std::vector<NodeID>> adj_list;
 
   std::vector<bool> node_status;  // marks nodes status in G
   std::vector<bool> fold_node;   // marks nodes removed in a fold
+  std::vector<bool> merge_node;   // marks nodes removed in merge (edgeBnR)
   unsigned int remaining_nodes;
 
   std::vector<std::vector<NodeID>> clique_cover;

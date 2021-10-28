@@ -67,6 +67,7 @@ void redu_vcc::init() {
   // assign status of nodes
   node_status.assign(num_nodes, true);
   fold_node.assign(num_nodes, false);
+  merge_node.assign(num_nodes, false);
   remaining_nodes = num_nodes;
   // allocate for graph cover
   node_clique.resize(num_nodes);
@@ -187,6 +188,7 @@ void redu_vcc::build_cover(){
 
   for (NodeID v = 0; v < num_nodes; v++) {
     if (fold_node[v]) { continue; } // if node in fold, skip
+    if (merge_node[v]) continue; // if node in merge, skip
     if (node_status[v]) { continue; } // if node still in graph, skip
 
     unsigned int cliqueID = node_clique[v];
