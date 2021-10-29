@@ -348,6 +348,7 @@ bool branch_and_reduce::bandr( redu_vcc &reduVCC, unsigned int num_fold_cliques,
                                PartitionConfig &partition_config, timer &t) {
   /* Standard branch and reduce */
 
+  std::cout << reduVCC.remaining_nodes << std::endl;
   if (t.elapsed() > partition_config.solver_time_limit) return false;
 
 
