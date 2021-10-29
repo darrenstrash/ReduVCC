@@ -4,10 +4,11 @@
 #include "b_and_r.h"
 
 
+
 void branch_and_reduce::construct_run(PartitionConfig &partition_config) {
+  /* Marks run parameters */
 
   redu_type = partition_config.redu_type;
-  // redu_type = partition_config.run_type;
   prune_type = partition_config.prune_type;
   if (partition_config.run_type == "edge_bnr") return;
 
@@ -60,7 +61,7 @@ std::vector<std::vector<NodeID>> branch_and_reduce::enumerate(redu_vcc &reduVCC,
     // initial set of nodes to consider
     std::vector<NodeID> consider_nodes;
     for (NodeID x : reduVCC.adj_list[v]) {
-      if (!reduVCC.node_status[x]) { continue; }
+      if (!reduVCC.node_status[x]) continue;
       consider_nodes.push_back(x);
     }
 
@@ -75,12 +76,9 @@ std::vector<std::vector<NodeID>> branch_and_reduce::enumerate(redu_vcc &reduVCC,
 
 void branch_and_reduce::pivot_enumerator(redu_vcc &reduVCC, std::vector<std::vector<NodeID>> &minimal_cliques,
                                    std::vector<NodeID> &consider_nodes, std::vector<NodeID> &curr_clique, std::vector<NodeID> &excluded_nodes) {
+  /* Enumerates all cliques */
 
-
-  if (consider_nodes.empty() && excluded_nodes.empty()) {
-
-    minimal_cliques.push_back(curr_clique);
-  }
+  if (consider_nodes.empty() && excluded_nodes.empty()) minimal_cliques.push_back(curr_clique);
 
   std::vector<NodeID> pivot_nodes = consider_nodes;
   NodeID pivot;
@@ -101,7 +99,6 @@ void branch_and_reduce::pivot_enumerator(redu_vcc &reduVCC, std::vector<std::vec
   }
 
   for (NodeID y : N_pivot) reduVCC.scratch1[y] = false;
-
 
   std::vector<NodeID> pivot_consider {};
   for (NodeID x : consider_nodes) {
@@ -145,25 +142,24 @@ void branch_and_reduce::pivot_enumerator(redu_vcc &reduVCC, std::vector<std::vec
   }
 }
 
-  std::vector<std::vector<NodeID>> branch_and_reduce::sorted_enumerate(redu_vcc &reduVCC, NodeID x) {
+std::vector<std::vector<NodeID>> branch_and_reduce::sorted_enumerate(redu_vcc &reduVCC, NodeID x) {
+  /* Returns all cliques and returns sorted by size */
 
   std::vector<std::vector<NodeID>> curr_cliques = enumerate(reduVCC, x);
 
   // sort enumerated cliques
+  // construct list of indices so size comparison in sort function is constant time
   std::vector<unsigned int> curr_cliques_indices;
   std::vector<unsigned int> curr_clique_sizes;
 
   for (int i =0; i < curr_cliques.size(); i++) {
-
     curr_cliques_indices.push_back(i);
     curr_clique_sizes.push_back(curr_cliques[i].size());
-
   }
 
   //order cliques
   std::sort(curr_cliques_indices.begin(), curr_cliques_indices.end(),
     [curr_clique_sizes](unsigned int i, unsigned int j) {
-
           return curr_clique_sizes[i] > curr_clique_sizes[j];
     });
 
@@ -178,6 +174,7 @@ void branch_and_reduce::pivot_enumerator(redu_vcc &reduVCC, std::vector<std::vec
 }
 
 void branch_and_reduce::reduce(redu_vcc &reduVCC, reducer &R, unsigned int &num_fold_cliques, vertex_queue *queue) {
+    /* Produces G' from G */
 
     if (queue == nullptr || queue->empty()) {
       R.exhaustive_reductions(reduVCC, iso_degree, dom_degree);
@@ -196,6 +193,7 @@ void branch_and_reduce::reduce(redu_vcc &reduVCC, reducer &R, unsigned int &num_
 }
 
 bool branch_and_reduce::prune(redu_vcc &reduVCC, unsigned int &curr_cover_size) {
+    /* Compute MIS of G', prune if MIS + curr_cover > best so far */
 
     unsigned int estimated_cover_size;
 
@@ -218,12 +216,8 @@ bool branch_and_reduce::prune(redu_vcc &reduVCC, unsigned int &curr_cover_size) 
     else if (prune_type == "sigmod_linear") {
       // geneate MIS of kernel using Sigmod MIS
       Graph mis_G;
-      // std::cout << "begin graph trans" << std::endl;
       mis_G.read_graph(reduVCC);
-      // std::cout << "graph read"<< reduVCC.remaining_nodes << std::endl;
-      // reduVCC.printAdjList();
       unsigned int res_mis = mis_G.degree_two_kernal_and_remove_max_degree_without_contraction();
-      // std::cout << "mis computed" << std::endl;
       estimated_cover_size = curr_cover_size + res_mis;
     }
     else if (prune_type == "sigmod_nearlinear") {
@@ -234,14 +228,13 @@ bool branch_and_reduce::prune(redu_vcc &reduVCC, unsigned int &curr_cover_size) 
 
       estimated_cover_size = curr_cover_size + res_mis;
     }
-    else { // prune_type == "ReduMIS"
+    else { // prune_type == "ReduMIS" (not precise)
       estimated_cover_size = curr_cover_size + reduVCC.curr_mis;
     }
 
     // std::cout << "est cover: " << estimated_cover_size << ", " << reduVCC.clique_cover.size() << std::endl;
     // prune branch if estimated cover is larger than current best
     if (reduVCC.clique_cover.size() != 0 && estimated_cover_size >= reduVCC.clique_cover.size()) {
-      // std::cout << "prune" << std::endl;
       prune_count++;
       return true;
     }
@@ -251,6 +244,7 @@ bool branch_and_reduce::prune(redu_vcc &reduVCC, unsigned int &curr_cover_size) 
 }
 
 NodeID branch_and_reduce::min_deg_node(redu_vcc &reduVCC) {
+  /* Finds a node of minimum degree in G */
 
   unsigned int min_degree = 0;
   NodeID next_node = 0;
@@ -302,15 +296,13 @@ NodeID branch_and_reduce::nextNode(redu_vcc &reduVCC){
 
 bool branch_and_reduce::decompose(redu_vcc &reduVCC, PartitionConfig &partition_config, timer &t,
                                   unsigned int curr_cover_size) {
+  /* Decompose G into its connected components */
 
-  // std::cout << "remaining nodes: " << reduVCC.remaining_nodes << std::endl;
   std::vector<redu_vcc> children = reduVCC.decompose();
 
   if (children.empty()) return false;
-  // std::cout << children.size() << std::endl;
 
   unsigned int cover_size = curr_cover_size;
-  // std::cout << "curr cover: " << cover_size << std::endl;
 
   decompose_count += children.size();
 
@@ -318,14 +310,11 @@ bool branch_and_reduce::decompose(redu_vcc &reduVCC, PartitionConfig &partition_
     if (t.elapsed() > partition_config.solver_time_limit) return false;
 
     // solve child
-    // std::cout << "next child" << std::endl;
     branch_and_reduce B_child(child, partition_config);
     vertex_queue *queue = nullptr;
     if (partition_config.run_type == "cascading") queue = new vertex_queue(child);
-    // child.printAdjList();
     if (!B_child.bandr(child, 0, queue, partition_config, t))
         return false;
-    // std::cout << child.clique_cover.size() << std::endl;
     cover_size += child.clique_cover.size();
 
     // update branching counts
@@ -339,16 +328,12 @@ bool branch_and_reduce::decompose(redu_vcc &reduVCC, PartitionConfig &partition_
   }
 
   if (t.elapsed() > partition_config.solver_time_limit) return false;
-  // std::cout << "cover size: " << cover_size << std::endl;
 
   // check clique cover size
   if (reduVCC.clique_cover.size() == 0 || cover_size < reduVCC.clique_cover.size()) {
     // for each child, add cliques to cover
-
-
     //std::cout << "smaller cover: " << curr_cover_size << ", " << reduVCC.clique_cover.size() << std::endl;
     reduVCC.build_cover();
-    // std::cout << "builds?" << std::endl;
     for (redu_vcc &child : children) child.addCliquesToParent(reduVCC);
 
     // unwind reductions to get full cover
@@ -361,6 +346,7 @@ bool branch_and_reduce::decompose(redu_vcc &reduVCC, PartitionConfig &partition_
 bool branch_and_reduce::bandr( redu_vcc &reduVCC, unsigned int num_fold_cliques,
                                vertex_queue *queue,
                                PartitionConfig &partition_config, timer &t) {
+  /* Standard branch and reduce */
 
   if (t.elapsed() > partition_config.solver_time_limit) return false;
 
@@ -404,23 +390,16 @@ bool branch_and_reduce::bandr( redu_vcc &reduVCC, unsigned int num_fold_cliques,
   NodeID next_node = nextNode(reduVCC);
 
   // enumerate all maximal cliques of next_node sorted by size and MIS
-  // std::cout << "enumerate" << std::endl;
-  // std::vector<std::vector<NodeID>> curr_cliques = sorted_enumerate(next_node, reduVCC.node_mis);
   std::vector<std::vector<NodeID>> curr_cliques = enum_vertex(reduVCC, next_node);
 
-  // std::cout << "complete enumerate" << std::endl;
   // branch on each clique in enumerated set
   for (std::vector<NodeID> &clique : curr_cliques) {
     // add new clique and remove from G
     reduVCC.addClique(clique);
     reduVCC.removeVertexSet(clique);
-    // std::cout << "new queue" << std::endl;
 
     vertex_queue *new_queue = construct_queue(reduVCC, clique);
-    // vertex_queue *new_queue = new vertex_queue(G);
-    // for (NodeID a : clique) new_queue->adjust_queue(reduVCC, a);
 
-    // std::cout << "branch" << std::endl;
     // branch
     branch_count++;
     if (!bandr(reduVCC, num_fold_cliques, new_queue, partition_config, t))
@@ -438,19 +417,12 @@ bool branch_and_reduce::bandr( redu_vcc &reduVCC, unsigned int num_fold_cliques,
 
 bool branch_and_reduce::edge_decompose(redu_vcc &reduVCC, PartitionConfig &partition_config, timer &t,
                                   unsigned int curr_cover_size) {
+  /* Decompose G into connected components -- for edge branch and reduce */
 
-  // std::cout << "pre decompose remaining nodes: " << reduVCC.remaining_nodes << std::endl;
-  // std::cout << "begin decompose" << std::endl;
   std::vector<redu_vcc> children = reduVCC.decompose();
-
-  // std::cout << "post decompose remaining nodes: " << reduVCC.remaining_nodes << std::endl;
-  // std::cout << "end decopose" << std::endl;
-
   if (children.empty()) return false;
-  // std::cout << "num_children: "<< children.size() << std::endl;
 
   unsigned int cover_size = curr_cover_size;
-  // std::cout << "curr cover: " << cover_size << std::endl;
 
   decompose_count += children.size();
 
@@ -458,22 +430,13 @@ bool branch_and_reduce::edge_decompose(redu_vcc &reduVCC, PartitionConfig &parti
     if (t.elapsed() > partition_config.solver_time_limit) return false;
 
     // solve child
-    // std::cout << "next child " << child.num_nodes << std::endl;
     branch_and_reduce B_child(child, partition_config);
     vertex_queue *queue = nullptr;
     if (partition_config.run_type == "cascading") queue = new vertex_queue(child);
-    // std::cout << "child map: [";
-    // for (unsigned int i = 0; i < child.self_to_parent.size(); i++) {
-    //   std::cout << "(" << i << ", " << child.new_to_old_map[i] << "), ";
-    // }
-    // std::cout << "]" << std::endl;
-    // if (partition_config.run_type == "cascading") queue = new vertex_queue(child);
-    // child.printAdjList();
-    // std::cout << "new child branch" << std::endl;
+
     if (!B_child.edge_bandr(child, 0, queue, partition_config, t, 0))
         return false;
-    // if (child.num_nodes != child.remaining_nodes) std::cout << "unmatched nodes sizes" << std::endl;
-    // std::cout << child.clique_cover.size() << std::endl;
+
     cover_size += child.clique_cover.size();
 
     // update branching counts
@@ -486,25 +449,16 @@ bool branch_and_reduce::edge_decompose(redu_vcc &reduVCC, PartitionConfig &parti
 
   }
 
-  // std::cout << "post solve children remaining nodes: " << reduVCC.remaining_nodes << std::endl;
-  //
-  // std::cout << "rturn children" << std::endl;
-
   if (t.elapsed() > partition_config.solver_time_limit) return false;
-  // std::cout << "cover size: " << cover_size << std::endl;
 
   // check clique cover size
   if (reduVCC.clique_cover.size() == 0 || cover_size < reduVCC.clique_cover.size()) {
     // for each child, add cliques to cover
 
-    // std::cout << "merge children smaller cover: " << cover_size << ", " << reduVCC.clique_cover.size() << std::endl;
     reduVCC.build_cover();
-    // std::cout << "builds?" << std::endl;
     for (redu_vcc &child : children) child.addCliquesToParent(reduVCC);
 
     // unwind reductions to get full cover
-    // for (unsigned int i = reducer_stack.size(); i > 0; i--) reducer_stack[i-1].unwindReductions(reduVCC);
-
     for (unsigned int i = reducer_stack.size(); i > 0; i--) {
       reducer_stack[i-1].unwindReductions(reduVCC);
 
