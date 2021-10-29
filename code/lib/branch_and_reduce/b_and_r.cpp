@@ -6,30 +6,14 @@
 
 void branch_and_reduce::construct_run(PartitionConfig &partition_config) {
 
-  if (partition_config.run_type == "brute") return;
-  redu_type = partition_config.run_type;
+  redu_type = partition_config.redu_type;
+  // redu_type = partition_config.run_type;
   prune_type = partition_config.prune_type;
   if (partition_config.run_type == "edge_bnr") return;
 
   next_node_type = "small_deg";
   enum_type = "sorted_enum";
 
-  // if (partition_config.run_type == "brute") return;
-  //
-  // next_node_type = "small_deg";
-  // if (partition_config.run_type == "small_deg") return;
-  // enum_type = "sort_enum";
-  // if (partition_config.run_type == "sort_enum") return;
-  // prune_type = "ReduMIS";
-  // if (partition_config.run_type == "ReduMIS") return;
-  // redu_type = "cascading";
-  // if (partition_config.run_type == "cascading") return;
-  // prune_type = "KaMIS";
-  // if (partition_config.run_type == "KaMIS") return;
-  // prune_type = "SigMIS_nearlinear";
-  // if (partition_config.run_type == "SigMIS_nearlinear") return;
-  // prune_type = "SigMIS_linear";
-  // if (partition_config.run_type == "SigMIS_linear") return;
 }
 
 branch_and_reduce::branch_and_reduce(graph_access &G, redu_vcc &reduVCC, PartitionConfig &partition_config) {
@@ -86,7 +70,6 @@ std::vector<std::vector<NodeID>> branch_and_reduce::enumerate(redu_vcc &reduVCC,
 
     pivot_enumerator(reduVCC, minimal_cliques, consider_nodes, curr_clique, excluded_nodes);
 
-    // for (std::vector<NodeID> clique : minimal_cliques) R.reduVCC.printVectorSet(clique);
     return minimal_cliques;
 }
 
@@ -114,14 +97,12 @@ void branch_and_reduce::pivot_enumerator(redu_vcc &reduVCC, std::vector<std::vec
     if (max > N_pivot.size()) {
       pivot = u;
       N_pivot = reduVCC.curr_adj_list(u);
-      // std::cout << "pivot: " << u << " size: " << max << std::endl;
     }
   }
 
   for (NodeID y : N_pivot) reduVCC.scratch1[y] = false;
 
 
-  // while (!consider_nodes.empty()) {
   std::vector<NodeID> pivot_consider {};
   for (NodeID x : consider_nodes) {
     if (reduVCC.scratch1[x]) pivot_consider.push_back(x);
@@ -131,8 +112,6 @@ void branch_and_reduce::pivot_enumerator(redu_vcc &reduVCC, std::vector<std::vec
 
   while (!pivot_consider.empty()) {
 
-
-    // std::cout << consider_nodes.size() << std::endl;
     NodeID x = pivot_consider[0];
 
     for (NodeID y : reduVCC.adj_list[x]) {
@@ -166,15 +145,12 @@ void branch_and_reduce::pivot_enumerator(redu_vcc &reduVCC, std::vector<std::vec
   }
 }
 
-  // std::vector<std::vector<NodeID>> branch_and_reduce::sorted_enumerate(NodeID x, std::vector<bool> &indset) {
   std::vector<std::vector<NodeID>> branch_and_reduce::sorted_enumerate(redu_vcc &reduVCC, NodeID x) {
 
   std::vector<std::vector<NodeID>> curr_cliques = enumerate(reduVCC, x);
-  // std::cout << "complete enumerate " << std::endl;
 
   // sort enumerated cliques
   std::vector<unsigned int> curr_cliques_indices;
-  // std::vector<bool> curr_clique_is;
   std::vector<unsigned int> curr_clique_sizes;
 
   for (int i =0; i < curr_cliques.size(); i++) {
@@ -182,30 +158,13 @@ void branch_and_reduce::pivot_enumerator(redu_vcc &reduVCC, std::vector<std::vec
     curr_cliques_indices.push_back(i);
     curr_clique_sizes.push_back(curr_cliques[i].size());
 
-    // curr_clique_is.push_back(0);
-    // for (NodeID a : curr_cliques[i]) {
-    //   // std::cout << a << std::endl;
-    //   if (indset[a]) {
-    //     curr_clique_is.pop_back();
-    //     curr_clique_is.push_back(1);
-    //     break;
-    //   }
-    // }
   }
-
-  // std::cout << "constructed" << std::endl;
 
   //order cliques
   std::sort(curr_cliques_indices.begin(), curr_cliques_indices.end(),
-    // [curr_clique_is, curr_clique_sizes](unsigned int i, unsigned int j) {
     [curr_clique_sizes](unsigned int i, unsigned int j) {
 
-
-
-        // if (curr_clique_is[i] == curr_clique_is[j]) {
           return curr_clique_sizes[i] > curr_clique_sizes[j];
-        // }
-        // return curr_clique_is[i] < curr_clique_is[j];
     });
 
 
@@ -551,15 +510,10 @@ bool branch_and_reduce::edge_decompose(redu_vcc &reduVCC, PartitionConfig &parti
 
       if (i > 1) {
         std::vector<NodeID> &merged_edge = edge_stack[i-2];
-        // reduVCC.printVectorSet(merged_edge);
         if (merged_edge.size() == 0) continue;
 
         NodeID &e_v = merged_edge[0];
         NodeID &e_u = merged_edge[1];
-
-        // if (e_u == 48810 || e_u == 78357 || e_u == 91010 || e_u == 1534588 || e_u == 1615681 ) {
-        //   std::cout << "error meregd: " << e_u << std::endl;
-        // }
 
         unsigned int solveCliqueID = reduVCC.solve_node_clique[e_v];
         reduVCC.solve_node_clique[e_u] = solveCliqueID;
@@ -576,29 +530,22 @@ bool branch_and_reduce::edge_decompose(redu_vcc &reduVCC, PartitionConfig &parti
 void branch_and_reduce::buildcover_edge ( redu_vcc &reduVCC) {
 
   reduVCC.build_cover();
-  // std::cout << "builds" << std::endl;
 
   // unwind reductions to get full cover
   for (unsigned int i = reducer_stack.size(); i > 0; i--) {
-    // std::cout << "undoing " << i <<std::endl;
     reducer_stack[i-1].unwindReductions(reduVCC);
 
     if (i > 1) {
       std::vector<NodeID> &merged_edge = edge_stack[i-2];
-      // reduVCC.printVectorSet(merged_edge);
       if (merged_edge.size() == 0) continue;
 
       NodeID &e_v = merged_edge[0];
       NodeID &e_u = merged_edge[1];
 
-      // std::cout << "expand edge: " << e_v << ", " << e_u << std::endl;
-
       unsigned int solveCliqueID = reduVCC.solve_node_clique[e_v];
 
       reduVCC.solve_node_clique[e_u] = solveCliqueID;
       reduVCC.clique_cover[solveCliqueID].push_back(e_u);
-      // std::cout << "expand clique: ";
-      // reduVCC.printVectorSet(reduVCC.clique_cover[solveCliqueID]);
 
       std::sort(reduVCC.clique_cover[solveCliqueID].begin(), reduVCC.clique_cover[solveCliqueID].end());
     }
@@ -628,22 +575,13 @@ bool branch_and_reduce::check_adj(redu_vcc &reduVCC) {
 bool branch_and_reduce::edge_bandr( redu_vcc &reduVCC, unsigned int num_fold_cliques,
                                     vertex_queue *queue, PartitionConfig &partition_config, timer &t,
                                     NodeID curr_node ) {
+  /* Branches on edges rather than vertices -- an edge is in a clique cover or not */
 
   if (t.elapsed() > partition_config.solver_time_limit) return false;
 
   reducer R(partition_config.iso_limit);
-  // std::cout << "begin reducting" << std::endl;
   reduce(reduVCC, R, num_fold_cliques, queue);
   delete queue;
-  // std::cout << "finished reducing" << std::endl;
-
-  // if (!reduVCC.node_status[48810] || !reduVCC.node_status[78357] || !reduVCC.node_status[91010] || !reduVCC.node_status[1534588] || !reduVCC.node_status[1615681] ) {
-  //   std::cout << "error redu: " << std::endl;
-  // }
-
-  // if (!check_adj(reduVCC)) {
-  //   std::cout << "post reductions unmached edge" << std::endl;
-  // }
 
   // current size of parital clique cover
   unsigned int curr_cover_size = reduVCC.next_cliqueID + num_fold_cliques;
@@ -659,22 +597,16 @@ bool branch_and_reduce::edge_bandr( redu_vcc &reduVCC, unsigned int num_fold_cli
 
     // undo branch's reductions and return
     R.undoReductions(reduVCC); reducer_stack.pop_back();
-    // std::cout << "returns from build" << std::endl;
     return true;
   }
 
-  // std::cout << "begin prune" << std::endl;
   if (prune(reduVCC, curr_cover_size)) {
-    // std::cout << "pruning" << std::endl;
     R.undoReductions(reduVCC); reducer_stack.pop_back();
     return true;
   }
 
-  // std::cout << "check for decompose" << std::endl;
-  // std::cout << reduVCC.remaining_nodes << std::endl;
+  // If there disconnected components, solve individual components
   if (reduVCC.remaining_nodes > partition_config.decompose_limit && edge_decompose(reduVCC, partition_config, t, curr_cover_size)) {
-    // std::cout << "undoing" << std::endl;;
-    // std::cout << reduVCC.remaining_nodes << std::endl;
     R.undoReductions(reduVCC); reducer_stack.pop_back();
     return true;
   }
@@ -684,7 +616,6 @@ bool branch_and_reduce::edge_bandr( redu_vcc &reduVCC, unsigned int num_fold_cli
   curr_node = 0;
   NodeID edge_node;
   while (true) {
-
 
    bool found_edge = false;
 
@@ -704,13 +635,8 @@ unsigned int branch_num = branch_count;
 // edge in some clique
 std::vector<NodeID> edge {curr_node, edge_node};
 
-// std::cout << "branch " << branch_num << std::endl;
-// std::cout << "edge: " << curr_node << ", " << edge_node << std::endl;
-// std::cout << "original: " << std::endl;
-// reduVCC.printNeighborhood(curr_node);
-// reduVCC.printAdjList(edge_node);
-
-std::vector<NodeID> N_curr; for (NodeID v : reduVCC.adj_list[curr_node]) N_curr.push_back(v); // save original neighborhood
+std::vector<NodeID> N_curr;
+for (NodeID v : reduVCC.adj_list[curr_node]) N_curr.push_back(v); // save original neighborhood
 reduVCC.adj_list[curr_node].clear();
 
 for (NodeID v : reduVCC.adj_list[edge_node])  reduVCC.scratch1[v] = true;
@@ -728,19 +654,10 @@ for (NodeID v : N_curr) {
   }
 }
 for (NodeID v : reduVCC.adj_list[edge_node])  reduVCC.scratch1[v] = false; reduVCC.scratch1[curr_node] = false;
-// for (bool val : reduVCC.scratch1) {
-//   if (val) std::cout << "scratch 1 uncleared" << std::endl;
-// }
-
 
 reduVCC.removeVertex(edge_node);
 reduVCC.merge_node[edge_node] = true;
 edge_stack.push_back(edge);
-
-// std::cout << "post merge: " << std::endl;
-// reduVCC.printNeighborhood(curr_node);
-// reduVCC.printAdjList(edge_node);
-
 
 // branch on edge
 vertex_queue *new_queue = nullptr;
@@ -750,14 +667,8 @@ if (redu_type != "exhaustive") {
   for (NodeID a : N_curr) if (reduVCC.node_status[a]) new_queue->push(a);
   new_queue->adjust_queue(reduVCC, edge_node);
 }
-// std::cout << "edge branch" << std::endl;
 branch_count++;
 if (!edge_bandr(reduVCC, num_fold_cliques, new_queue, partition_config, t, curr_node)) return false;
-
-// std::cout << "branch " << branch_num << std::endl;
-// std::cout << "pre unmerge: " << std::endl;
-// reduVCC.printNeighborhood(curr_node);
-// reduVCC.printAdjList(edge_node);
 
 for (NodeID v : reduVCC.adj_list[curr_node])  reduVCC.scratch1[v] = true;
 for (NodeID v : N_curr) {
@@ -769,18 +680,9 @@ for (NodeID v : N_curr) {
 }
 std::sort(reduVCC.adj_list[curr_node].begin(), reduVCC.adj_list[curr_node].end());
 for (NodeID v : reduVCC.adj_list[curr_node])  reduVCC.scratch1[v] = false;
-// for (bool val : reduVCC.scratch1) {
-//   if (val) std::cout << "scratch 1 uncleared" << std::endl;
-// }
 
 reduVCC.addVertex(edge_node); // add edge node back into graph
 reduVCC.merge_node[edge_node] = false;
-
-// std::cout << "unmerged: " << std::endl;
-// reduVCC.printNeighborhood(curr_node);
-// reduVCC.printAdjList(edge_node);
-// reduVCC.adj_list[curr_node] = N_curr; // reset adj list
-
 
 // edge not in some clique
 
@@ -798,8 +700,6 @@ for (unsigned int i = 0; i < reduVCC.adj_list[edge_node].size(); i++) {
     break;
   }
 }
-//
-// std::cout << "remove edge: " << curr_node << ", " << edge_node << std::endl;
 
 vertex_queue *new_queue2 = nullptr;
 if (redu_type != "exhaustive") {
