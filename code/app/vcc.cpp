@@ -340,10 +340,13 @@ int main(int argn, char **argv) {
 
         reduVCC.analyzeGraph(graph_filename, G, s, false /* don't check cover */);
         reduVCC.build_cover();
+        std::cout << "cover build" << std::endl;
         double time_to_solution = 0.0;
         reduVCC.solveKernel(partition_config, s, time_to_solution, R.get_cover_size_offset());
+        std::cout << "kernel solve" << std::endl;
         timer unwind_timer;
         R.unwindReductions(reduVCC, time_to_solution);
+        std::cout << "unwind redutions" << std::endl;
         double time_to_unwind = unwind_timer.elapsed();
         reduVCC.analyzeGraph(graph_filename, G, s, false /* don't check cover */);
 
@@ -806,6 +809,8 @@ int main(int argn, char **argv) {
       std::cout << "clique_cover_size=" << reduVCC.clique_cover.size() << std::endl;
       std::cout << "verified_cover=" << (reduVCC.validateCover(G) ? "passed" : "failed") << std::endl;
       std::cout << "optimal=" << (finished ? "yes" : "unknown") << std::endl;
+
+      return 0;
     }
     else if (partition_config.run_type == "edge_bnr") {
       redu_vcc reduVCC;
@@ -830,6 +835,8 @@ int main(int argn, char **argv) {
       std::cout << "clique_cover_size=" << reduVCC.clique_cover.size() << std::endl;
       std::cout << "verified_cover=" << (reduVCC.validateCover(G) ? "passed" : "failed") << std::endl;
       std::cout << "optimal=" << (finished ? "yes" : "unknown") << std::endl;
+
+      return 0;
     }
 
 
