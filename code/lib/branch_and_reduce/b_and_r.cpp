@@ -380,7 +380,8 @@ bool branch_and_reduce::bandr( redu_vcc &reduVCC, unsigned int num_fold_cliques,
     return true;
   }
 
-  if (reduVCC.remaining_nodes > partition_config.decompose_limit && decompose(reduVCC, partition_config, t, curr_cover_size)) {
+  // if (reduVCC.remaining_nodes > partition_config.decompose_limit && decompose(reduVCC, partition_config, t, curr_cover_size)) {
+  if (decompose(reduVCC, partition_config, t, curr_cover_size)) {
     R.undoReductions(reduVCC); reducer_stack.pop_back();
     return true;
   }
