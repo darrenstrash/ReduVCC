@@ -531,11 +531,12 @@ void redu_vcc::solveKernel(PartitionConfig &partition_config, timer &total_timer
   if (remaining_nodes == 0) { return; }
 
   buildKernel();
+  std::cout << "kernel build" << std::endl;
 
   cli *cli_instance;
   cli_instance = new cli(partition_config.seed, partition_config.mis);
   cli_instance->start_cli(kernel_adj_list, remaining_nodes, kernel_edges, total_timer, time_to_solution, partition_config.solver_time_limit, clique_cover_offset);
-
+  std::cout << "kernel solve" << std::endl;
   timer reconstruct_timer;
 
   if (cli_instance->clique_cover.size() != 0){
