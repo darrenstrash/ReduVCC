@@ -348,11 +348,8 @@ bool branch_and_reduce::bandr( redu_vcc &reduVCC, unsigned int num_fold_cliques,
                                PartitionConfig &partition_config, timer &t) {
   /* Standard branch and reduce */
 
-  std::cout << reduVCC.remaining_nodes << std::endl;
   if (t.elapsed() > partition_config.solver_time_limit) return false;
 
-
-  std::cout << "reduce" << std::endl;
   reducer R(partition_config.iso_limit);
   reduce(reduVCC, R, num_fold_cliques, queue);
   delete queue;
@@ -360,7 +357,6 @@ bool branch_and_reduce::bandr( redu_vcc &reduVCC, unsigned int num_fold_cliques,
   // current size of parital clique cover
   unsigned int curr_cover_size = reduVCC.next_cliqueID + num_fold_cliques;
 
-  std::cout << "check empty" << std::endl;
   // check exit condition -- kernel is empty
   if (reduVCC.remaining_nodes == 0) {
     // check if we have a better solution
@@ -379,28 +375,23 @@ bool branch_and_reduce::bandr( redu_vcc &reduVCC, unsigned int num_fold_cliques,
   }
 
 
-  std::cout << "prune" << std::endl;
   if (prune(reduVCC, curr_cover_size)) {
     R.undoReductions(reduVCC); reducer_stack.pop_back();
     return true;
   }
 
-  std::cout << "decompose" << std::endl;
   if (reduVCC.remaining_nodes > partition_config.decompose_limit && decompose(reduVCC, partition_config, t, curr_cover_size)) {
     R.undoReductions(reduVCC); reducer_stack.pop_back();
     return true;
   }
 
 
-  std::cout << "next node" << std::endl;
   // get next node in kernel with minimum degree
   NodeID next_node = nextNode(reduVCC);
 
-  std::cout << "enum" << std::endl;
   // enumerate all maximal cliques of next_node sorted by size and MIS
   std::vector<std::vector<NodeID>> curr_cliques = enum_vertex(reduVCC, next_node);
 
-  std::cout << "iterate branches" << std::endl;
   // branch on each clique in enumerated set
   for (std::vector<NodeID> &clique : curr_cliques) {
     // add new clique and remove from G
@@ -410,7 +401,6 @@ bool branch_and_reduce::bandr( redu_vcc &reduVCC, unsigned int num_fold_cliques,
     vertex_queue *new_queue = construct_queue(reduVCC, clique);
 
     // branch
-    std::cout << "branch" << std::endl;
     branch_count++;
     if (!bandr(reduVCC, num_fold_cliques, new_queue, partition_config, t))
         return false;
