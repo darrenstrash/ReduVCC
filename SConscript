@@ -141,8 +141,8 @@ libmapping                = ['lib/mapping/local_search_mapping.cpp',
 #
 libspac_files = ['lib/spac/spac.cpp']
 #
-env['CXX'] = 'g++-9'
-env['CC'] = 'gcc-9'
+env['CXX'] = 'g++'
+env['CC'] = 'gcc'
 #
 if env['program'] == 'vcc':
         env.Append(CXXFLAGS = '-DMODE_KAFFPA')
