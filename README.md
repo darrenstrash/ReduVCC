@@ -11,7 +11,7 @@ Before you can start you need to install the following software packages:
 - Scons (http://www.scons.org/)
 - OpenMPI (http://www.open-mpi.de/) 
 
-After installing the packages, type scons program=vcc variant=optimized to build.
+After installing the packages, run `scons program=vcc variant=optimized` to build.
 
 ## Running
 
