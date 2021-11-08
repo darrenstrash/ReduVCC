@@ -15,7 +15,7 @@ After installing the packages, run `scons program=vcc variant=optimized` to buil
 
 ## Running
 
-This package contains 5 different algorithms: **Chalupa**, **Radu**, **ReduVCC**, **BnR**, and **EdgeBnR**, which can be run as follows:
+This package contains 5 different algorithms: **Chalupa**, **Redu**, **ReduVCC**, **BnR**, and **EdgeBnR**, which can be run as follows:
 
 **Chalupa**
 
