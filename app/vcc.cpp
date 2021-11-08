@@ -2,10 +2,10 @@
 /******************************************************************************
  * vcc.cpp
  * *
- * Source of KaHIP -- Karlsruhe High Quality Partitioning.
- * Christian Schulz <christian.schulz.phone@gmail.com>
+ * Source of ReduVCC 
+ * Darren Strash <dstrash@hamilton.edu>
+ * Louise Thompson <lmthomps@hamilton.edu>
  *****************************************************************************/
-
 #include <argtable3.h>
 #include <iostream>
 #include <fstream>
@@ -20,7 +20,9 @@
 #include <algorithm>
 #include <climits>
 
+#ifdef BETA
 #include <boost/functional/hash.hpp>
+#endif // BETA
 
 #include "balance_configuration.h"
 #include "data_structure/graph_access.h"
@@ -50,7 +52,7 @@
 #include "sigmod_mis/Graph.h"
 #include "mis/mis_config.h"
 
-
+#ifdef BETA
 namespace std
 {
     template<> struct hash<std::pair<NodeID,NodeID>>
@@ -263,7 +265,7 @@ void run_peeling(graph_access &graph,
 
     peeled_graph.finish_construction();
 }
-
+#endif // BETA
 
 int main(int argn, char **argv) {
 
@@ -363,7 +365,9 @@ int main(int argn, char **argv) {
         std::cout << "optimal=" << (reduVCC.clique_cover.size() == partition_config.mis ? "yes" : "unknown") << std::endl;
 
         return 0;
-    } else if (partition_config.run_type == "transform") {
+    } 
+#ifdef BETA
+    else if (partition_config.run_type == "transform") {
 
         timer transformation_timer;
         // Step 1: acyclic orientation
@@ -785,7 +789,9 @@ int main(int argn, char **argv) {
 
 
         return 0;
-    } else if (partition_config.run_type == "bnr") {
+    } 
+#endif // BETA
+    else if (partition_config.run_type == "bnr") {
       redu_vcc reduVCC;
       branch_and_reduce B(G, reduVCC, partition_config);
 
@@ -839,6 +845,7 @@ int main(int argn, char **argv) {
       return 0;
     }
 
+#ifdef BETA
 
     else if (partition_config.run_type == "test") {
 
@@ -879,6 +886,7 @@ int main(int argn, char **argv) {
         }
         return 0;
     }
+#endif // BETA
 
 
 }
