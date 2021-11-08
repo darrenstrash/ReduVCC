@@ -13,7 +13,7 @@ Before you can start you need to install the following software packages:
 
 After installing the packages, type scons program=vcc variant=optimized to build.
 
-#Running
+# Running
 
 This package contains 5 different algorithms: **Chalupa**, **Radu**, **ReduVCC**, **BnR**, and **EdgeBnR**, which can be run as follows:
 
@@ -33,7 +33,7 @@ This package contains 5 different algorithms: **Chalupa**, **Radu**, **ReduVCC**
 **EdgeBnr**
 `./optimized/vcc --preconfiguration=fsocial --k=2 --run_type="edge_bnr" <input graph>`
 
-#Input Format
+# Input Format
 
 ReduVCC uses **The unweighted METIS format**, which consists of
 
@@ -44,6 +44,6 @@ ReduVCC uses **The unweighted METIS format**, which consists of
 
 Loops and directed edges are not supported.
 
-#Data
+# Data Sets
 
 You will find an example graph in the directory `examples`
