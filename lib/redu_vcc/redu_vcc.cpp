@@ -8,6 +8,7 @@
 #include <sstream>
 #include <stdio.h>
 #include <string.h>
+#include <sstream>
 
 #include "redu_vcc.h"
 
@@ -222,16 +223,16 @@ bool redu_vcc::cliqueInG(graph_access &G, std::vector<NodeID> &clique) {
   return true;
 }
 
-bool redu_vcc::validateCover(graph_access &G) {
+bool redu_vcc::validateCover(graph_access &G, std::string & error_message) {
 
   std::vector<bool> temp_status(G.number_of_nodes(), true);
 
   for (std::vector<NodeID> clique : clique_cover ) {
-    if (clique.size() == 0) { std::cout << "Null clique" << std::endl; return false; }
+    if (clique.size() == 0) { error_message = "Null clique"; return false; }
 
     for (NodeID v : clique) {
       if (temp_status[v] == false) {
-        std::cout << "Overlap" << std::endl;
+        error_message = "Overlap";
         return false;
       }
       else { temp_status[v] = false; }
@@ -239,14 +240,18 @@ bool redu_vcc::validateCover(graph_access &G) {
 
     if (!cliqueInG(G, clique)) {
       printVectorSet(clique);
-      std::cout << "Invalid clique" << std::endl;
+      std::ostringstream out(error_message);
+      out << "Invalid clique:";
+      for (NodeID v : clique) {
+        out << " " << v;
+      }
       return false;
     }
   }
 
   for (NodeID v = 0; v < G.number_of_nodes(); v++) {
     if (temp_status[v]) {
-        std::cout << "Uncovered vertex " << v << ", possibly more..." << std::endl;
+        error_message = "Vertex " + std::to_string(v) + " (+ possibly more) is uncovered.";
         return false;
     }
   }
@@ -531,25 +536,25 @@ void redu_vcc::solveKernel(PartitionConfig &partition_config, timer &total_timer
   if (remaining_nodes == 0) { return; }
 
   buildKernel();
-  std::cout << "kernel build" << std::endl;
+  //std::cout << "kernel build" << std::endl;
 
   cli *cli_instance;
   cli_instance = new cli(partition_config.seed, partition_config.mis);
   cli_instance->start_cli(kernel_adj_list, remaining_nodes, kernel_edges, total_timer, time_to_solution, partition_config.solver_time_limit, clique_cover_offset);
-  std::cout << "kernel solve" << std::endl;
+  //std::cout << "kernel solve" << std::endl;
   timer reconstruct_timer;
 
   if (cli_instance->clique_cover.size() != 0){
       addKernelCliques(cli_instance->clique_cover);
   } else {
-      std::cout << "Chalupa's algorithm unable to solve in given time." << std::endl;
+      std::cerr << "LOG: Chalupa's algorithm unable to solve in given time." << std::endl;
   }
   time_to_solution += reconstruct_timer.elapsed();
 
   delete cli_instance;
 }
 
-void redu_vcc::analyzeGraph(std::string &filename, graph_access &G, timer &t, bool const validate_cover) {
+void redu_vcc::analyzeGraph(std::string &filename, graph_access &G, timer &t, bool const validate_cover, bool const quiet) {
 
     std::cout << filename << ", ";
 
@@ -562,7 +567,34 @@ void redu_vcc::analyzeGraph(std::string &filename, graph_access &G, timer &t, bo
 
     std::cout << clique_cover.size() << std::endl;
 
-    if (validate_cover)
-        validateCover(G);
+    if (validate_cover) {
+        std::string error_message;
+        validateCover(G, error_message);
+        if (!quiet) {
+            if (error_message.empty()) {
+                std::cerr << "LOG: Cover is valid" << std::endl;
+            } else {
+                std::cerr << "LOG: " << error_message << std::endl;
+                std::cerr << "LOG: Cover is invalid" << std::endl;
+            }
+        }
+    }
+}
 
+void redu_vcc::write_cover(const std::string & file_name) {
+
+  std::ofstream cover_file(file_name);
+  if (cover_file.is_open()) {
+    for (const std::vector<NodeID> & clique : clique_cover) {
+        for (size_t index = 0; index < clique.size(); index++) {
+            if (index != 0)
+                cover_file << " ";
+            cover_file << clique[index] + 1;
+        }
+        cover_file << std::endl;
+    }
+    cover_file.close();
+  } else {
+    std::cerr << "Error opening " << file_name << std::endl;
+  }
 }

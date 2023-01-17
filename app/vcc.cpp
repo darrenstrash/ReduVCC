@@ -19,6 +19,7 @@
 #include <unordered_set>
 #include <algorithm>
 #include <climits>
+#include <string>
 
 #ifdef BETA
 #include <boost/functional/hash.hpp>
@@ -267,6 +268,19 @@ void run_peeling(graph_access &graph,
 }
 #endif // BETA
 
+
+void handle_write_cover_request(const string & output, redu_vcc & reduVCC, graph_access & G) {
+    if (!output.empty()) {
+        std::cerr << "LOG: Writing cover to file " << output << std::endl;
+        string error_message;
+        if (!reduVCC.validateCover(G, error_message)) {
+            std::cerr << "LOG: " << error_message << std::endl;
+            std::cerr << "LOG: Could not validate cover, not writing to file " << output << std::endl;
+        }
+        reduVCC.write_cover(output);
+    }
+}
+
 int main(int argn, char **argv) {
 
     PartitionConfig partition_config;
@@ -310,13 +324,17 @@ int main(int argn, char **argv) {
         reduVCC.solveKernel(partition_config, total_timer, time_to_solution, 0 /* clique cover offset */);
         reduVCC.analyzeGraph(graph_filename, G, s, false /* don't check cover */);
 
+        handle_write_cover_request(partition_config.filename_output, reduVCC, G);
+
         std::cout << "BEGIN_OUTPUT_FOR_TABLES" << std::endl;
         std::cout << "run_type=" << partition_config.run_type << std::endl;
         std::cout << "input_graph_vertices=" << G.number_of_nodes() << std::endl;
         std::cout << "input_graph_edges=" << G.number_of_edges() / 2 << std::endl;
         std::cout << "total_time_to_best=" << time_to_solution << std::endl;
         std::cout << "clique_cover_size=" << reduVCC.clique_cover.size() << std::endl;
-        std::cout << "verified_cover=" << (reduVCC.validateCover(G) ? "passed" : "failed") << std::endl;
+
+        string error_message;
+        std::cout << "verified_cover=" << (reduVCC.validateCover(G, error_message) ? "passed" : "failed") << std::endl;
         std::cout << "optimal=" << (reduVCC.clique_cover.size() == partition_config.mis ? "yes" : "unknown") << std::endl;
         return 0;
     }
@@ -328,8 +346,36 @@ int main(int argn, char **argv) {
         dom_degree.assign(G.number_of_nodes(), 0);
         reducer R;
         R.exhaustive_reductions(reduVCC, iso_degree, dom_degree);
+
+        double vcc_reduction_time = s.elapsed();
         reduVCC.analyzeGraph(graph_filename, G, s, false /* don't check cover */);
 
+        if (reduVCC.remaining_nodes == 0)  { // solved
+            reduVCC.build_cover();
+            R.unwindReductions(reduVCC);
+        }
+
+        if (!partition_config.filename_output.empty()) {
+            if (reduVCC.remaining_nodes == 0)  { // solved
+                std::cerr << "LOG: Redu reduced graph completely" << std::endl;
+                handle_write_cover_request(partition_config.filename_output, reduVCC, G);
+            } else {
+                std::cerr << "LOG: Redu did not reduce graph completely" << std::endl;
+                std::cerr << "LOG: Not writing cover to file " << partition_config.filename_output << std::endl;
+            }
+        }
+
+        std::cout << "BEGIN_OUTPUT_FOR_TABLES" << std::endl;
+        std::cout << "run_type=" << partition_config.run_type << std::endl;
+        std::cout << "input_graph_vertices=" << G.number_of_nodes() << std::endl;
+        std::cout << "input_graph_edges=" << G.number_of_edges() / 2 << std::endl;
+        std::cout << "reduced_graph_vertices=" << reduVCC.kernel_adj_list.size() << std::endl;
+        std::cout << "reduced_graph_edges=" << reduVCC.kernel_edges << std::endl;
+        std::cout << "vcc_reduction_time=" << vcc_reduction_time << std::endl;
+        std::cout << "clique_cover_size=" << reduVCC.clique_cover.size() << std::endl;
+        string error_message;
+        std::cout << "verified_cover=" << (reduVCC.remaining_nodes == 0 && reduVCC.validateCover(G, error_message) ? "passed" : "failed") << std::endl;
+        std::cout << "optimal=" << (reduVCC.remaining_nodes == 0 ? "yes" : "unknown") << std::endl;
         return 0;
     } else if (partition_config.run_type == "ReduVCC") {
         redu_vcc reduVCC(G);
@@ -340,17 +386,19 @@ int main(int argn, char **argv) {
         reducer R;
         R.exhaustive_reductions(reduVCC, iso_degree, dom_degree);
 
-        reduVCC.analyzeGraph(graph_filename, G, s, false /* don't check cover */);
+        ///reduVCC.analyzeGraph(graph_filename, G, s, false /* don't check cover */);
         reduVCC.build_cover();
-        std::cout << "cover build" << std::endl;
+        ////std::cout << "cover build" << std::endl;
         double time_to_solution = 0.0;
         reduVCC.solveKernel(partition_config, s, time_to_solution, R.get_cover_size_offset());
-        std::cout << "kernel solve" << std::endl;
+        ////std::cout << "kernel solve" << std::endl;
         timer unwind_timer;
         R.unwindReductions(reduVCC, time_to_solution);
-        std::cout << "unwind redutions" << std::endl;
+        ////std::cout << "unwind reductions" << std::endl;
         double time_to_unwind = unwind_timer.elapsed();
         reduVCC.analyzeGraph(graph_filename, G, s, false /* don't check cover */);
+
+        handle_write_cover_request(partition_config.filename_output, reduVCC, G);
 
         std::cout << "BEGIN_OUTPUT_FOR_TABLES" << std::endl;
         std::cout << "run_type=" << partition_config.run_type << std::endl;
@@ -361,7 +409,8 @@ int main(int argn, char **argv) {
         std::cout << "total_time_to_best=" << time_to_solution << std::endl;
         std::cout << "time_to_best_without_unwind=" << time_to_solution - time_to_unwind << std::endl;
         std::cout << "clique_cover_size=" << reduVCC.clique_cover.size() << std::endl;
-        std::cout << "verified_cover=" << (reduVCC.validateCover(G) ? "passed" : "failed") << std::endl;
+        string error_message;
+        std::cout << "verified_cover=" << (reduVCC.validateCover(G, error_message) ? "passed" : "failed") << std::endl;
         std::cout << "optimal=" << (reduVCC.clique_cover.size() == partition_config.mis ? "yes" : "unknown") << std::endl;
 
         return 0;
@@ -783,7 +832,8 @@ int main(int argn, char **argv) {
         std::cout << "total_time_to_best=" << time_to_best << std::endl;
         std::cout << "time_to_best_without_unwind=" << time_to_best - time_to_unwind << std::endl;
         std::cout << "clique_cover_size=" << clique_cover_size << std::endl;
-        std::cout << "verified_cover=" << (oldVCC.validateCover(G) ? "passed" : "failed") << std::endl;
+        string error_message;
+        std::cout << "verified_cover=" << (oldVCC.validateCover(G, error_message) ? "passed" : "failed") << std::endl;
         std::cout << "optimal=" << (clique_cover_size == partition_config.mis ? "yes":"unknown") << std::endl;
         }
 
@@ -804,6 +854,8 @@ int main(int argn, char **argv) {
       double total_time = s.elapsed();
       B.analyzeGraph(graph_filename, G, reduVCC, s);
 
+      handle_write_cover_request(partition_config.filename_output, reduVCC, G);
+
       std::cout << "BEGIN_OUTPUT_FOR_TABLES" << std::endl;
       std::cout << "run_type=" << partition_config.run_type << std::endl;
       std::cout << "input_graph_vertices=" << G.number_of_nodes() << std::endl;
@@ -813,7 +865,8 @@ int main(int argn, char **argv) {
       std::cout << "prune_count=" << B.prune_count << endl;
       std::cout << "decompose_count=" << B.decompose_count << std::endl;
       std::cout << "clique_cover_size=" << reduVCC.clique_cover.size() << std::endl;
-      std::cout << "verified_cover=" << (reduVCC.validateCover(G) ? "passed" : "failed") << std::endl;
+      string error_message;
+      std::cout << "verified_cover=" << (reduVCC.validateCover(G, error_message) ? "passed" : "failed") << std::endl;
       std::cout << "optimal=" << (finished ? "yes" : "unknown") << std::endl;
 
       return 0;
@@ -830,6 +883,8 @@ int main(int argn, char **argv) {
       double total_time = s.elapsed();
       B.analyzeGraph(graph_filename, G, reduVCC, s);
 
+      handle_write_cover_request(partition_config.filename_output, reduVCC, G);
+
       std::cout << "BEGIN_OUTPUT_FOR_TABLES" << std::endl;
       std::cout << "run_type=" << partition_config.run_type << std::endl;
       std::cout << "input_graph_vertices=" << G.number_of_nodes() << std::endl;
@@ -839,7 +894,8 @@ int main(int argn, char **argv) {
       std::cout << "prune_count=" << B.prune_count << endl;
       std::cout << "decompose_count=" << B.decompose_count << std::endl;
       std::cout << "clique_cover_size=" << reduVCC.clique_cover.size() << std::endl;
-      std::cout << "verified_cover=" << (reduVCC.validateCover(G) ? "passed" : "failed") << std::endl;
+      string error_message;
+      std::cout << "verified_cover=" << (reduVCC.validateCover(G, error_message) ? "passed" : "failed") << std::endl;
       std::cout << "optimal=" << (finished ? "yes" : "unknown") << std::endl;
 
       return 0;

@@ -12,6 +12,7 @@
 #include "partition/partition_config.h"
 #include "ccp/Chalupa/cli.h"
 #include <time.h>
+#include <string>
 
 
 class redu_vcc {
@@ -105,8 +106,8 @@ public:
   void replaceClique(unsigned int cliqueID, std::vector<NodeID> new_clique);
 
   void build_cover();
-  bool validateCover(graph_access &G);
-  void analyzeGraph(std::string &filename, graph_access &G, timer &t, bool const validate_cover = true);
+  bool validateCover(graph_access &G, std::string & error_message);
+  void analyzeGraph(std::string &filename, graph_access &G, timer &t, bool const validate_cover = true, bool const quiet = false);
 
   // mis methods
   void getMIS(std::string file);
@@ -117,6 +118,8 @@ public:
   void addKernelCliques(std::vector<std::vector<int>> &clique_set);
 
   void addCrownCliques(std::vector<std::vector<NodeID>> &crown_cliques, std::vector<std::vector<int>> &clique_set);
+
+  void write_cover(const std::string &file_name);
 
 };
 
