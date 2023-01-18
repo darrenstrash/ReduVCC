@@ -323,7 +323,7 @@ int main(int argn, char **argv) {
         redu_vcc reduVCC(G);
         reduVCC.build_cover();
         double time_to_solution = 0.0;
-        reduVCC.solveKernel(partition_config, total_timer, time_between, time_to_solution, 0 /* clique cover offset */);
+        reduVCC.solveKernel(partition_config, total_timer, time_to_solution, time_between, 0 /* clique cover offset */);
         reduVCC.analyzeGraph(graph_filename, G, s, false /* don't check cover */);
 
         handle_write_cover_request(partition_config.filename_output, reduVCC, G);
