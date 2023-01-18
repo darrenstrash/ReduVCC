@@ -114,7 +114,7 @@ public:
 
   // integer kernel methods
   void buildKernel();
-  void solveKernel(PartitionConfig &partition_config, timer &t, double &time_to_solution, std::size_t clique_cover_offset);
+  void solveKernel(PartitionConfig &partition_config, timer &t, double &time_to_solution, double time_between, std::size_t clique_cover_offset);
   void addKernelCliques(std::vector<std::vector<int>> &clique_set);
 
   void addCrownCliques(std::vector<std::vector<NodeID>> &crown_cliques, std::vector<std::vector<int>> &clique_set);

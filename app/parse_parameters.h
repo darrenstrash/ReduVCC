@@ -12,6 +12,7 @@
 #include <omp.h>
 #include <sstream>
 #include "configuration.h"
+#include <float.h>
 
 int parse_parameters(int argn, char **argv,
                      PartitionConfig & partition_config,
@@ -31,6 +32,7 @@ int parse_parameters(int argn, char **argv,
         struct arg_int *user_mis              = arg_int0(NULL, "mis", NULL, "MIS number for Chalupa.");
         struct arg_str *mis_file                            = arg_str0(NULL, "mis_file", NULL, "MIS file for Chalupa.");
         struct arg_int *user_solver_time_limit               = arg_int0(NULL, "solver_time_limit", NULL, "Time limit in seconds for all solvers. Defaults to 10s.");
+        struct arg_dbl *user_improve_time_limit       = arg_dbl0(NULL, "improve_time_limit", NULL, "Time limit in seconds between improvements (for ReduVCC and Chalupa). Defaults to DBL_MAX.");
 
         // Setup argtable parameters.
         struct arg_lit *help                                 = arg_lit0(NULL, "help","Print help.");
@@ -157,7 +159,7 @@ int parse_parameters(int argn, char **argv,
 
         // Define argtable.
         void* argtable[] = {
-                help, filename, user_seed, user_mis, mis_file, user_solver_time_limit, user_run_type, user_prune_type, user_redu_type, user_iso_limit, user_decompose_limit,
+                help, filename, user_seed, user_mis, mis_file, user_solver_time_limit, user_improve_time_limit, user_run_type, user_prune_type, user_redu_type, user_iso_limit, user_decompose_limit,
 #ifdef MODE_DEVEL
                 graph_weighted, edge_rating_tiebreaking,
                 matching_type, edge_rating, rate_first_level_inner_outer, first_level_random_matching,
@@ -648,13 +650,19 @@ int parse_parameters(int argn, char **argv,
         }
 
         if (mis_file->count > 0) {
-                partition_config.mis_file = mis_file->sval[0];
+            partition_config.mis_file = mis_file->sval[0];
         }
 
         if (user_solver_time_limit->count > 0) {
-                partition_config.solver_time_limit = user_solver_time_limit->ival[0];
+            partition_config.solver_time_limit = user_solver_time_limit->ival[0];
         } else {
             partition_config.solver_time_limit = 10;
+        }
+
+        if (user_improve_time_limit->count > 0) {
+            partition_config.improve_time_limit = user_improve_time_limit->dval[0];
+        } else {
+            partition_config.improve_time_limit = DBL_MAX;
         }
 
         if (user_run_type->count > 0){

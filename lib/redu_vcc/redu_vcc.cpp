@@ -531,7 +531,7 @@ redu_vcc::redu_vcc(graph_access &G, PartitionConfig &partition_config) : redu_vc
 };
 
 
-void redu_vcc::solveKernel(PartitionConfig &partition_config, timer &total_timer, double &time_to_solution, std::size_t clique_cover_offset) {
+void redu_vcc::solveKernel(PartitionConfig &partition_config, timer &total_timer, double &time_to_solution, double time_between, std::size_t clique_cover_offset) {
 
   if (remaining_nodes == 0) { return; }
 
@@ -540,7 +540,7 @@ void redu_vcc::solveKernel(PartitionConfig &partition_config, timer &total_timer
 
   cli *cli_instance;
   cli_instance = new cli(partition_config.seed, partition_config.mis);
-  cli_instance->start_cli(kernel_adj_list, remaining_nodes, kernel_edges, total_timer, time_to_solution, partition_config.solver_time_limit, clique_cover_offset);
+  cli_instance->start_cli(kernel_adj_list, remaining_nodes, kernel_edges, total_timer, time_to_solution, time_between, partition_config.solver_time_limit, clique_cover_offset);
   //std::cout << "kernel solve" << std::endl;
   timer reconstruct_timer;
 

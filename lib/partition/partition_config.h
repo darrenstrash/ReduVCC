@@ -18,6 +18,7 @@ struct PartitionConfig
         int mis;
         std::string mis_file;
         int solver_time_limit;
+        double improve_time_limit;
         std::string run_type;
         std::string prune_type;
         std::string redu_type;

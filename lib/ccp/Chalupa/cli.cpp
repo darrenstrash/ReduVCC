@@ -106,7 +106,7 @@ void cli::try_all_permutations()
     getchar();
 }
 
-int cli::start_cli(std::vector<std::vector<int>> const &adj_list, unsigned int num_v, unsigned long num_e, timer &total_timer, double &time_to_solution, double limit, std::size_t clique_cover_offset)
+int cli::start_cli(std::vector<std::vector<int>> const &adj_list, unsigned int num_v, unsigned long num_e, timer &total_timer, double &time_to_solution, double time_between, double limit, std::size_t clique_cover_offset)
 {
     
     t_limit = limit;
@@ -127,7 +127,7 @@ int cli::start_cli(std::vector<std::vector<int>> const &adj_list, unsigned int n
     // instance loaded from file
     choose_instance(adj_list, num_v, num_e);
 ////    compute_statistics();
-    choose_algorithm(total_timer, time_to_solution, clique_cover_offset);
+    choose_algorithm(total_timer, time_to_solution, time_between, clique_cover_offset);
     //try_all_permutations();
 
 
@@ -224,7 +224,7 @@ int cli::compute_statistics()
     return 0;
 }
 
-int cli::choose_algorithm(timer &total_timer, double &time_to_solution, std::size_t clique_cover_offset)
+int cli::choose_algorithm(timer &total_timer, double &time_to_solution, double time_between, std::size_t clique_cover_offset)
 {
     long j;
     refer current_gcc;
@@ -308,7 +308,7 @@ int cli::choose_algorithm(timer &total_timer, double &time_to_solution, std::siz
             if (clique_cover_offset != 0) {
                 mis -= clique_cover_offset;
             }
-            is_optimal = iggcc_ccp->iggcc_ccp(G,result,&indset_size,initial_indset,initial_indset_size, total_timer, time_to_solution, t_limit, mis, clique_cover_offset);
+            is_optimal = iggcc_ccp->iggcc_ccp(G,result,&indset_size,initial_indset,initial_indset_size, total_timer, time_to_solution, time_between, t_limit, mis, clique_cover_offset);
         }
         //while (! is_optimal && timer.elapsed() < 18000000);
 
