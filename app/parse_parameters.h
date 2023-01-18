@@ -653,6 +653,8 @@ int parse_parameters(int argn, char **argv,
 
         if (user_solver_time_limit->count > 0) {
                 partition_config.solver_time_limit = user_solver_time_limit->ival[0];
+        } else {
+            partition_config.solver_time_limit = 10;
         }
 
         if (user_run_type->count > 0){
