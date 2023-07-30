@@ -241,3 +241,24 @@ if(PARHIP)
   add_subdirectory(parallel/modified_kahip)
   add_subdirectory(parallel/parallel_src)
 endif()
+
+# Bindings
+find_package(PythonInterp REQUIRED)
+find_package(PythonLibs "${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}" REQUIRED )
+if (PYTHONLIBS_FOUND)
+    include_directories(${PYTHON_INCLUDE_DIRS})
+    message("Using default python version: " ${PYTHONLIBS_VERSION_STRING})
+endif()
+
+
+add_subdirectory(extern/pybind11)
+include_directories(SYSTEM extern/pybind11/include)
+include_directories(SYSTEM extern/eigen)
+pybind11_add_module(vcc library.cpp)
+
+
+file(GLOB_RECURSE SOURCES lib/**.cpp)
+add_library(cpp_library SHARED ${SOURCES})
+target_include_directories(cpp_library PUBLIC ./include)
+
+add_subdirectory(bindings)

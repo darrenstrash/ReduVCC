@@ -73,6 +73,20 @@ env.Append(CPPPATH=['../lib/io'])
 env.Append(CPPPATH=['../lib/partition/uncoarsening/refinement/quotient_graph_refinement/flow_refinement/'])
 env.Append(CPPPATH=['/usr/include/openmpi/'])
 
+# AMICE MODIFICATIONS
+pybind11_path = './extern/pybind11/include'
+env.Append(CPPPATH=[pybind11_path, '/usr/include/python3.10'])
+env.Append(LIBPATH=[pybind11_path])
+
+if env['PLATFORM'] != 'win32':
+    env.Replace(SHLIBPREFIX='')
+env.Replace(SHLIBSUFFIX='.so')  # Use '.so' as the shared library suffix on Unix-like systems
+
+cpp_files = ["./lib/redu_vcc/redu_vcc.cpp"]
+# Compile the Python binding code into a shared library (.so)
+env.SharedLibrary(target="vcc", source=["./bindings/library.cpp"])
+# END AMICE MODIFICATIONS
+
 conf = Configure(env)
 
 if SYSTEM == 'Darwin':
@@ -90,7 +104,7 @@ if SYSTEM == 'Darwin':
         #Exit(-1)
 #
 #
-env.Append(CXXFLAGS = '-fopenmp')
+env.Append(CXXFLAGS = ['-fopenmp', '-fPIC'])
 if "clang" in env['CC'] or "clang" in env['CXX']:
         if env['variant'] == 'optimized':
           env.Append(CXXFLAGS = '-DNDEBUG -Wall -funroll-loops -O3 -std=c++11')
