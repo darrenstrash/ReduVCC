@@ -107,30 +107,30 @@ if SYSTEM == 'Darwin':
 env.Append(CXXFLAGS = ['-fopenmp', '-fPIC'])
 if "clang" in env['CC'] or "clang" in env['CXX']:
         if env['variant'] == 'optimized':
-          env.Append(CXXFLAGS = '-DNDEBUG -Wall -funroll-loops -O3 -std=c++11')
-          env.Append(CCFLAGS  = '-O3  -DNDEBUG -funroll-loops -std=c++11')
+          env.Append(CXXFLAGS = '-DNDEBUG -Wall -funroll-loops -O3 -std=c++17')
+          env.Append(CCFLAGS  = '-O3  -DNDEBUG -funroll-loops -std=c++17')
         elif env['variant'] == 'optimized_output':
           # A little bit more output on the console
-          env.Append(CXXFLAGS = ' -DNDEBUG -funroll-loops -Wall -O3 -std=c++11')
-          env.Append(CCFLAGS  = '-O3  -DNDEBUG -DKAFFPAOUTPUT  -std=c++11')
+          env.Append(CXXFLAGS = ' -DNDEBUG -funroll-loops -Wall -O3 -std=c++17')
+          env.Append(CCFLAGS  = '-O3  -DNDEBUG -DKAFFPAOUTPUT  -std=c++17')
         else:
-          env.Append(CXXFLAGS = ' -g -DDEBUG -Wall -funroll-loops -O0 -std=c++11')
-          env.Append(CCFLAGS  = ' -g -O0 -DDEBUG -funroll-loops -std=c++11 ')
+          env.Append(CXXFLAGS = ' -g -DDEBUG -Wall -funroll-loops -O0 -std=c++17')
+          env.Append(CCFLAGS  = ' -g -O0 -DDEBUG -funroll-loops -std=c++17 ')
           if SYSTEM != 'Darwin':
                 env.Append(CXXFLAGS = '-march=native')
                 env.Append(CCFLAGS  = '-march=native')
 
 else:
         if env['variant'] == 'optimized':
-          env.Append(CXXFLAGS = '-DNDEBUG -Wall -funroll-loops  -fno-stack-limit -O3 -std=c++11 -fpermissive')
-          env.Append(CCFLAGS  = '-O3  -DNDEBUG -funroll-loops -std=c++11 -fpermissive')
+          env.Append(CXXFLAGS = '-DNDEBUG -Wall -funroll-loops  -fno-stack-limit -O3 -std=c++17 -fpermissive')
+          env.Append(CCFLAGS  = '-O3  -DNDEBUG -funroll-loops -std=c++17 -fpermissive')
         elif env['variant'] == 'optimized_output':
           # A little bit more output on the console
-          env.Append(CXXFLAGS = ' -DNDEBUG -funroll-loops -Wall -fno-stack-limit -O3 -std=c++11 -fpermissive')
-          env.Append(CCFLAGS  = '-O3  -DNDEBUG -DKAFFPAOUTPUT  -std=c++11 -fpermissive')
+          env.Append(CXXFLAGS = ' -DNDEBUG -funroll-loops -Wall -fno-stack-limit -O3 -std=c++17 -fpermissive')
+          env.Append(CCFLAGS  = '-O3  -DNDEBUG -DKAFFPAOUTPUT  -std=c++17 -fpermissive')
         else:
-          env.Append(CXXFLAGS = ' -g -DDEBUG -Wall -funroll-loops  -fno-stack-limit -O0 -std=c++11 -fpermissive')
-          env.Append(CCFLAGS  = ' -g -O0  -DNDEBUG -funroll-loops -std=c++11 -fpermissive')
+          env.Append(CXXFLAGS = ' -g -DDEBUG -Wall -funroll-loops  -fno-stack-limit -O0 -std=c++17 -fpermissive')
+          env.Append(CCFLAGS  = ' -g -O0  -DNDEBUG -funroll-loops -std=c++17 -fpermissive')
           if SYSTEM != 'Darwin':
                 env.Append(CXXFLAGS = '-march=native')
                 env.Append(CCFLAGS  = '-march=native')

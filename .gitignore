@@ -2,3 +2,4 @@
 optimized/
 .idea/
 cmake-build-debug
+bindings/library.os
