@@ -18,16 +18,16 @@ After installing the packages, run `scons program=vcc variant=optimized` to buil
 This package contains 5 different algorithms: **Chalupa**, **Redu**, **ReduVCC**, **BnR**, and **EdgeBnR**, which can be run as follows:
 
 **Chalupa**
-`./optimized/vcc --preconfiguration=fsocial --k=2 --mis=<independent set size> --run_type="Chalupa" <input graph>`
+`./optimized/vcc [--mis=<independent set size>] --run_type="Chalupa" <input graph>`
 
 **Redu**
-`./optimized/vcc --preconfiguration=fsocial --k=2 --run_type="Redu" <input graph>`
+`./optimized/vcc --run_type="Redu" <input graph>`
 
 **ReduVCC**
-`./optimized/vcc --preconfiguration=fsocial --k=2 --mis=<independent set size> --run_type="ReduVCC" <input graph>`
+`./optimized/vcc [--mis=<independent set size>] --run_type="ReduVCC" <input graph>`
 
 **BnR**
-`./optimized/vcc --preconfiguration=fsocial --k=2 --run_type="bnr" <input graph>`
+`./optimized/vcc --run_type="bnr" <input graph>`
 
 **EdgeBnr**
 `./optimized/vcc --preconfiguration=fsocial --k=2 --run_type="edge_bnr" <input graph>`
