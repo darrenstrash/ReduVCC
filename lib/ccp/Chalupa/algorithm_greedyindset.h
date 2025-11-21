@@ -13,7 +13,8 @@ private:
     // D[i] is the priority value for i-th element of the heap
     double *D;//[MAX_VERTICES];
     // velkost haldy
-    refer heapsize;
+    long heapsize;
+    refer n;
     void createset();
     refer left(refer i);
     refer right(refer i);

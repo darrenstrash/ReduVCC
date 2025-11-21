@@ -15,7 +15,7 @@ algorithm_greedyindset::~algorithm_greedyindset() {
 
 long algorithm_greedyindset::greedy_indset(graph G, refer result[])
 {
-    int i,j;
+    refer i,j;
     refer vertex;
     refer indset_size;
 
@@ -51,13 +51,14 @@ long algorithm_greedyindset::greedy_indset(graph G, refer result[])
 void algorithm_greedyindset::createset()
 {
     refer i;
-    for (i=0;i<G->n;i++)
+    n = G->n;
+    for (i=0;i<n;i++)
     {
         Q[i] = i;
         // the priority = degree + random(0,1)
         D[i] = (double)(G->V[i].edgecount) + generator.random_double();
     }
-    heapsize = G->n;
+    heapsize = n-1;
     buildheap();
 }
 
@@ -76,11 +77,10 @@ refer algorithm_greedyindset::right(refer i)
 // udrziavanie haldy
 void algorithm_greedyindset::heapify(refer i)
 {
-    refer l,r,largest;
-    refer hlp;
+    long l,r,largest;
     l = left(i);
     r = right(i);
-    if (l <= heapsize+1 && D[Q[l]] < D[Q[i]])
+    if (l <= heapsize && D[Q[l]] < D[Q[i]])
     {
         largest = l;
     }
@@ -88,12 +88,13 @@ void algorithm_greedyindset::heapify(refer i)
     {
         largest = i;
     }
-    if (r <= heapsize+1 && D[Q[r]] < D[Q[largest]])
+    if (r <= heapsize && D[Q[r]] < D[Q[largest]])
     {
         largest = r;
     }
-    if (largest != i)
+    if (largest != (long) i)
     {
+        refer hlp;
         hlp = Q[i];
         Q[i] = Q[largest];
         Q[largest] = hlp;
@@ -104,23 +105,18 @@ void algorithm_greedyindset::heapify(refer i)
 // vytvorenie haldy
 void algorithm_greedyindset::buildheap()
 {
-    refer i;
-    for (i=(heapsize+1)/2;i>0;i--)
+    long i;
+    for (i=(long)(heapsize/2);i>=0;i--)
     {
         heapify(i);
     }
-    if (i == 0)
-    {
-        heapify(0);
-    }
-
 }
 
 // extrakcia minima
 refer algorithm_greedyindset::extractmin()
 {
     refer min;
-    if (heapsize == 0)
+    if (heapsize < 0)
     {
         return 0;
     }

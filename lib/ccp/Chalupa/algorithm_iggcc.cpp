@@ -178,7 +178,7 @@ bool algorithm_iggcc::iggcc_ccp(graph G, refer *result, refer *indset_size, refe
     printf("%f\t%ld\t%ld\n", time_to_solution, clique_cover_offset + colors_count, clique_cover_offset + fitness_indset);
 //    while (timer_s.elapsed() + t_elapsed < 3600 && fitness_indset < colors_count)
 //    while (timer_s.elapsed() + t_elapsed < 3600 && 19 < colors_count)
-    while (total_timer.elapsed() < t_limit && mis < colors_count)
+    while (total_timer.elapsed() < t_limit && mis < colors_count && fitness_indset < colors_count)
     {
         colors_count_old = colors_count;
 
