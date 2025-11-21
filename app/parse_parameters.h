@@ -22,15 +22,15 @@ int parse_parameters(int argn, char **argv,
 
         const char *progname = argv[0];
 
-        struct arg_str *user_run_type                        = arg_str0(NULL, "run_type", NULL, "Chalupa only or reductions then Chalupa.");
+        struct arg_str *user_run_type                        = arg_str0(NULL, "run_type", NULL, "The algorithm to run. [Chalupa|Redu|ReduVCC|bnr|edge_bnr].");
         struct arg_str *user_prune_type                       = arg_str0(NULL, "prune_type", NULL, "Options: reduMIS, ils, sigmod_linear, sigmod_nearlinear");
         struct arg_str *user_redu_type                       = arg_str0(NULL, "redu_type", NULL, "Options: exhaustive, cascading");
         struct arg_int *user_iso_limit                       = arg_int0(NULL, "iso_limit", NULL, "Limit on iso deg.");
         struct arg_int *user_decompose_limit                       = arg_int0(NULL, "decompose_limit", NULL, "Limit on size of subgraph to decompose.");
 
-        struct arg_int *user_mis              = arg_int0(NULL, "mis", NULL, "Mis number for chalupa.");
+        struct arg_int *user_mis              = arg_int0(NULL, "mis", NULL, "MIS lower bound for Chalupa. Default: 0.");
         struct arg_str *mis_file                            = arg_str0(NULL, "mis_file", NULL, "MIS file for Chalupa.");
-        struct arg_int *user_solver_time_limit               = arg_int0(NULL, "solver_time_limit", NULL, "Time Limit for Chalupa.");
+        struct arg_int *user_solver_time_limit               = arg_int0(NULL, "solver_time_limit", NULL, "Time limit for Solver. Default: 3600 (s).");
 
         // Setup argtable parameters.
         struct arg_lit *help                                 = arg_lit0(NULL, "help","Print help.");
@@ -53,7 +53,7 @@ int parse_parameters(int argn, char **argv,
         struct arg_lit *wcycle_no_new_initial_partitioning   = arg_lit0(NULL, "wcycle_no_new_initial_partitioning", "Using this option, the graph is initially partitioned only the first time we are at the deepest level.");
         struct arg_str *filename                             = arg_strn(NULL, NULL, "FILE", 1, 1, "Path to graph file to partition.");
         struct arg_str *filename_output                      = arg_str0(NULL, "output_filename", NULL, "Specify the name of the output file (that contains the partition).");
-        struct arg_int *user_seed                            = arg_int0(NULL, "seed", NULL, "Seed to use for the PRNG.");
+        struct arg_int *user_seed                            = arg_int0(NULL, "seed", NULL, "Seed to use for the PRNG. Default: 0.");
         struct arg_int *k                                    = arg_int1(NULL, "k", NULL, "Number of blocks to partition the graph.");
         struct arg_rex *edge_rating                          = arg_rex0(NULL, "edge_rating", "^(weight|realweight|expansionstar|expansionstar2|expansionstar2deg|punch|expansionstar2algdist|expansionstar2algdist2|algdist|algdist2|sepmultx|sepaddx|sepmax|seplog|r1|r2|r3|r4|r5|r6|r7|r8)$", "RATING", REG_EXTENDED, "Edge rating to use. One of {weight, expansionstar, expansionstar2, punch, sepmultx, sepaddx, sepmax, seplog, " " expansionstar2deg}. Default: weight"  );
         struct arg_rex *refinement_type                      = arg_rex0(NULL, "refinement_type", "^(fm|fm_flow|flow)$", "TYPE", REG_EXTENDED, "Refinementvariant to use. One of {fm, fm_flow, flow}. Default: fm"  );
@@ -794,14 +794,20 @@ int parse_parameters(int argn, char **argv,
 
         if (user_mis->count > 0) {
             partition_config.mis = user_mis->ival[0];
+        } else {
+            partition_config.mis = 0;
         }
 
         if (mis_file->count > 0) {
                 partition_config.mis_file = mis_file->sval[0];
+        } else {
+            partition_config.mis_file = "";
         }
 
         if (user_solver_time_limit->count > 0) {
                 partition_config.solver_time_limit = user_solver_time_limit->ival[0];
+        } else {
+            partition_config.solver_time_limit = 3600;
         }
 
         if (user_run_type->count > 0){

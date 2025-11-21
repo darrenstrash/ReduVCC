@@ -34,9 +34,9 @@ This package contains 5 different algorithms: **Chalupa**, **Redu**, **ReduVCC**
 
 ## Additional command-line options
 
-By default the random number generator is seeded with `0`. Specify a different seed with `--seed`.
+`--seed` specifies the seed for the random number generator (default 0).
 
-The time limit defaults to 3600s. Specify a different time limit with `--solver_time_limit`
+`--solver_time_limit` specifies the time limit in seconds (default 3600).
 
 ## Input Format
 
